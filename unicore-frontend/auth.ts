@@ -57,7 +57,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             if (pathname.startsWith('/auth/login') && isLoggedIn) {
                 return Response.redirect(new URL('/', nextUrl));
             }
-            if (pathname.startsWith("/admin/dashboard") && user_type !== "Administrator") {
+            if (pathname.startsWith("/admin") && user_type !== "Administrator") {
                 return Response.redirect(new URL('/', nextUrl));
             }
             return !!auth;

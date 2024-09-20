@@ -1,5 +1,5 @@
 export default function dashboard() {
     return (
-        <h1> Test Admin Dashboard</h1>
+        <h1> Test Admin Inventory View</h1>
     );
 }

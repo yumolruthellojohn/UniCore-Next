@@ -7,7 +7,7 @@ export default async function Navbar() {
   const session = await auth();
   console.log({ session });
   return (
-    <nav id="navbar" className="flex justify-between items-center py-3 px-4 bg-white shadow-md">
+    <nav id="navbar" className="fixed top-0 left-0 right-0 flex justify-between items-center py-3 px-4 bg-white shadow-md z-10">
       <Link href="/" className="text-xl font-bold">
         UniCore
       </Link>

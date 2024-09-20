@@ -67,6 +67,7 @@ export default function SignIn() {
                                             <Input
                                                 id="login_idnum"
                                                 type="number"
+                                                min="0"
                                                 placeholder="Enter ID Number"
                                                 autoComplete="off"
                                                 {...field}

@@ -8,23 +8,13 @@
   --background-end-rgb: 255, 255, 255;
 }
 
-body {
-  padding-top: 65px; /* The same height as the navbar */
+#sheet {
+  margin-top: 65px; /* Adds space below the navbar */
 }
 
 #login_idnum::-webkit-outer-spin-button, #login_idnum::-webkit-inner-spin-button{
   -webkit-appearance: none;
   margin: 0;
-}
-
-#navbar {
-  position: fixed; /* Fixes the navbar to the top of the page */
-  top: 0; /* Aligns the navbar to the top */
-  width: 100%; /* Ensures the navbar spans the entire width of the viewport */
-  height: 65px;
-  background-color: #fff; /* Background color of the navbar */
-  z-index: 1000; /* Ensures the navbar is above other elements */
-  box-shadow: 0 0 20px 100px 40px rgba(0, 0, 0, 0.1); /* Optional: adds a subtle shadow */
 }
 
 @media (prefers-color-scheme: dark) {
@@ -106,4 +96,28 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Prevent layout shift */
+html {
+  width: 100vw;
+  overflow-x: hidden;
+}
+
+/* Optional: Style the scrollbar for webkit browsers */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }

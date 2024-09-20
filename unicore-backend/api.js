@@ -42,6 +42,15 @@ app.get('/users/user_type', (req, res) => {
     });
 })
 
+//items
+app.get('/items', (req, res) => {
+    const sql = "SELECT *, tbdepartments.dept_name FROM tbitems INNER JOIN tbdepartments ON tbitems.dept_id=tbdepartments.dept_id";
+    db.query(sql, (err, result) => {
+        if(err) return res.json({Message: "Error inside server"});
+        else return res.json(result);
+    })
+})
+
 //listen
 app.listen(8081, () => {
     console.log("Listening");
