@@ -1,5 +1,5 @@
-import Sidebar from "@/components/sidebar_admin";
-import SidebarMobile from "@/components/sidebar_admin_mobile";
+import Sidebar from "@/components/sidebar_technical";
+import SidebarMobile from "@/components/sidebar_technical_mobile";
 
 export default function RootLayout({
     children,

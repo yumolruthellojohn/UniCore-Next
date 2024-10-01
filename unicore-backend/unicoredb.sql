@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Sep 20, 2024 at 08:48 AM
+-- Generation Time: Oct 01, 2024 at 04:23 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -52,7 +52,8 @@ CREATE TABLE `tbitems` (
   `item_control` varchar(255) DEFAULT NULL,
   `item_quantity` int(12) NOT NULL,
   `item_measure` varchar(255) NOT NULL,
-  `item_name_desc` mediumtext NOT NULL,
+  `item_name` varchar(255) NOT NULL,
+  `item_desc` mediumtext NOT NULL,
   `item_buy_date` varchar(255) NOT NULL,
   `item_buy_cost` int(12) NOT NULL,
   `item_total` int(12) NOT NULL,
@@ -64,8 +65,10 @@ CREATE TABLE `tbitems` (
 -- Dumping data for table `tbitems`
 --
 
-INSERT INTO `tbitems` (`item_id`, `item_category`, `item_control`, `item_quantity`, `item_measure`, `item_name_desc`, `item_buy_date`, `item_buy_cost`, `item_total`, `item_remarks`, `dept_id`) VALUES
-(1, 'Laboratory Equipments', NULL, 6, 'Units', 'Attachment Unit Intercourse - AUI Transceivers with SN:\r\n-AAA-02614\r\n-AAA-02615\r\n-AAA-02616\r\n-AAA-02617\r\n2 units w/o S.N.', '06/19/01', 3500, 21000, 'Complete', 1);
+INSERT INTO `tbitems` (`item_id`, `item_category`, `item_control`, `item_quantity`, `item_measure`, `item_name`, `item_desc`, `item_buy_date`, `item_buy_cost`, `item_total`, `item_remarks`, `dept_id`) VALUES
+(1, 'Laboratory Equipments', NULL, 6, 'Units', 'Attachment Unit Intercourse - AUI Transceivers', 'with SN:\r\n-AAA-02614\r\n-AAA-02615\r\n-AAA-02616\r\n-AAA-02617\r\n2 units w/o S.N.', '2001-06-19', 3500, 21000, 'Complete', 1),
+(2, 'Laboratory Equipments', '', 3, 'Units', 'Cable Tester', 'w/ S.N.\r\n-620679\r\n-653785\r\n-509825803 (replaced)', '2001-06-19', 7000, 21000, 'Complete', 2),
+(3, 'Appliances/Electrical/Safety', '', 2, 'Units', 'Flashlights', 'Standard', '2005-06-19', 150, 300, 'Damaged', 1);
 
 -- --------------------------------------------------------
 
@@ -112,6 +115,7 @@ CREATE TABLE `tbrequests` (
   `dept_id` int(12) NOT NULL,
   `item_id` int(12) DEFAULT NULL,
   `room_id` int(12) DEFAULT NULL,
+  `rq_service_type` varchar(255) DEFAULT NULL,
   `rq_notes` varchar(255) NOT NULL,
   `rq_create_date` varchar(255) NOT NULL,
   `rq_complete_date` varchar(255) DEFAULT NULL,
@@ -119,6 +123,16 @@ CREATE TABLE `tbrequests` (
   `rq_accept_user_id` int(11) DEFAULT NULL,
   `rq_status` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `tbrequests`
+--
+
+INSERT INTO `tbrequests` (`rq_id`, `rq_type`, `dept_id`, `item_id`, `room_id`, `rq_service_type`, `rq_notes`, `rq_create_date`, `rq_complete_date`, `rq_create_user_id`, `rq_accept_user_id`, `rq_status`) VALUES
+(1, 'Reserve Item', 2, 1, NULL, NULL, 'test', '2024-09-30', NULL, 1, 2, 'In Progress'),
+(2, 'Reserve Room', 2, NULL, 1, NULL, 'test', '2024-10-01', NULL, 1, 2, 'Request Submitted'),
+(3, 'Service', 2, NULL, NULL, 'Maintenance', 'test', '2024-10-01', NULL, 1, 2, 'Request Submitted'),
+(10, 'Reserve Item', 2, 2, NULL, NULL, 'test', '2024-10-1', NULL, 1, NULL, 'Request Submitted');
 
 -- --------------------------------------------------------
 
@@ -133,6 +147,13 @@ CREATE TABLE `tbrooms` (
   `room_status` varchar(255) NOT NULL,
   `dept_id` int(12) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `tbrooms`
+--
+
+INSERT INTO `tbrooms` (`room_id`, `room_name`, `room_desc`, `room_status`, `dept_id`) VALUES
+(1, '208', 'Test', 'Available', 2);
 
 -- --------------------------------------------------------
 
@@ -208,7 +229,9 @@ ALTER TABLE `tbnotifs`
 --
 ALTER TABLE `tbrequests`
   ADD PRIMARY KEY (`rq_id`),
-  ADD KEY `dept_id for request` (`dept_id`);
+  ADD KEY `dept_id for request` (`dept_id`),
+  ADD KEY `create_user_id for request` (`rq_create_user_id`),
+  ADD KEY `accept_user_id for request` (`rq_accept_user_id`);
 
 --
 -- Indexes for table `tbrooms`
@@ -244,7 +267,7 @@ ALTER TABLE `tbdepartments`
 -- AUTO_INCREMENT for table `tbitems`
 --
 ALTER TABLE `tbitems`
-  MODIFY `item_id` int(12) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `item_id` int(12) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `tbnotifs`
@@ -256,13 +279,13 @@ ALTER TABLE `tbnotifs`
 -- AUTO_INCREMENT for table `tbrequests`
 --
 ALTER TABLE `tbrequests`
-  MODIFY `rq_id` int(12) NOT NULL AUTO_INCREMENT;
+  MODIFY `rq_id` int(12) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `tbrooms`
 --
 ALTER TABLE `tbrooms`
-  MODIFY `room_id` int(12) NOT NULL AUTO_INCREMENT;
+  MODIFY `room_id` int(12) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `tbschedules`
@@ -290,6 +313,7 @@ ALTER TABLE `tbitems`
 -- Constraints for table `tbrequests`
 --
 ALTER TABLE `tbrequests`
+  ADD CONSTRAINT `create_user_id for request` FOREIGN KEY (`rq_create_user_id`) REFERENCES `tbuseraccounts` (`user_id`) ON UPDATE CASCADE,
   ADD CONSTRAINT `dept_id for request` FOREIGN KEY (`dept_id`) REFERENCES `tbdepartments` (`dept_id`) ON UPDATE CASCADE;
 
 --

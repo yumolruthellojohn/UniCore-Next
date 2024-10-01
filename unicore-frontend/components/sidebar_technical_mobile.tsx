@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
 import Link from "next/link";
 
-import { sidebarItems } from "./sidebar_admin";
+import { sidebarItems } from "./sidebar_technical";
 
 export default function SidebarMobile() {
     const pathname = usePathname();

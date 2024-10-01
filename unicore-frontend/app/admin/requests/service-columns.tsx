@@ -14,86 +14,94 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { useToast } from "@/hooks/use-toast"
 import axios from 'axios';
 
-export type Item = {
-  item_id: number
-  item_category: string
-  item_control: string
-  item_quantity: number
-  item_measure: string
-  item_name: string
-  item_desc: string
-  item_buy_date: string
-  item_buy_cost: number
-  item_total: number
-  item_remarks: string
+export type Service = {
+  rq_id: number
+  rq_type: string
   dept_id: number
   dept_name: string
+  rq_service_type: string
+  rq_notes: string
+  rq_create_date: string
+  rq_complete_date: string
+  rq_create_user_id: number
+  rq_create_user_fname: string
+  rq_create_user_lname: string
+  rq_accept_user_id: number
+  rq_accept_user_fname: string
+  rq_accept_user_lname: string
+  rq_status: string
 }
 
-export const createColumns = (onDataChange: () => void): ColumnDef<Item>[] => [
+export const createServiceColumns = (onDataChange: () => void): ColumnDef<Service>[] => [
   {
-    accessorKey: 'item_id',
+    accessorKey: 'rq_id',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} className="w-[10%] min-w-[80px]" title="ID" />
     ),
-    cell: ({ row }) => <div className="text-center">{row.getValue('item_id')}</div>,
+    cell: ({ row }) => <div className="text-center">{row.getValue('rq_id')}</div>,
   },
   {
-    accessorKey: 'item_category',
+    accessorKey: 'dept_id',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} className="w-[15%] min-w-[120px] hidden md:table-cell" title="Category" />
+      <DataTableColumnHeader column={column} className="w-[15%] min-w-[120px] hidden md:table-cell" title="Department" />
     ),
-    cell: ({ row }) => <div className="hidden md:block text-center">{row.getValue('item_category')}</div>,
+    cell: ({ row }) => {
+      const dept = row.original;
+      return <div className="hidden md:block text-center">{dept.dept_name}</div>
+    },
   },
   {
-    accessorKey: 'item_control',
+    accessorKey: 'rq_service_type',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} className="w-[15%] min-w-[120px] hidden md:table-cell" title="Control #" />
+      <DataTableColumnHeader column={column} className="w-[20%] min-w-[160px]" title="Service Type" />
     ),
-    cell: ({ row }) => <div className="hidden md:block text-center">{row.getValue('item_control')}</div>,
+    cell: ({ row }) => <div className="text-center">{row.getValue('rq_service_type')}</div>,
   },
   {
-    accessorKey: 'item_quantity',
+    accessorKey: 'rq_create_date',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} className="w-[10%] min-w-[80px]" title="Quantity" />
+      <DataTableColumnHeader column={column} className="w-[10%] min-w-[80px] hidden md:table-cell" title="Date Requested" />
     ),
-    cell: ({ row }) => <div className="text-center">{row.getValue('item_quantity')}</div>,
+    cell: ({ row }) => <div className="hidden md:block text-center">{row.getValue('rq_create_date')}</div>,
   },
   {
-    accessorKey: 'item_measure',
+    accessorKey: 'rq_create_user_id',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} className="w-[15%] min-w-[120px] hidden md:table-cell" title="Measurement" />
+      <DataTableColumnHeader column={column} className="w-[15%] min-w-[120px] hidden md:table-cell" title="Requested By" />
     ),
-    cell: ({ row }) => <div className="hidden md:block text-center">{row.getValue('item_measure')}</div>
+    cell: ({ row }) => {
+      const user = row.original;
+      return <div className="hidden md:block text-center">{`${user.rq_create_user_fname} ${user.rq_create_user_lname}`}</div>
+    }
   },
   {
-    accessorKey: 'item_name',
+    accessorKey: 'rq_status',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} className="w-[25%] min-w-[200px]" title="Name" />
+      <DataTableColumnHeader column={column} className="w-[10%] min-w-[80px]" title="Status" />
     ),
-    cell: ({ row }) => <div className="text-center">{row.getValue('item_name')}</div>
+    cell: ({ row }) => <div className="text-center">{row.getValue('rq_status')}</div>
   },
   {
     id: 'actions',
     header: 'Actions',
     cell: ({ row }) => {
-      const item = row.original
+      const service = row.original
       const router = useRouter();
       const { toast } = useToast();
       const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
       const handleDelete = async () => {
         try {
-          await axios.delete(`http://localhost:8081/items/${item.item_id}`)
+          await axios.delete(`http://localhost:8081/requests/${service.rq_id}`)
           toast({
-            title: "Item deleted",
-            description: "The item has been successfully deleted.",
+            title: "Request deleted",
+            description: "The request has been successfully deleted.",
           })
           onDataChange()  // Call this function to refresh the data
         } catch (error) {
           toast({
             title: "Error",
-            description: "Failed to delete the item. Please try again.",
+            description: "Failed to delete the request. Please try again.",
             variant: "destructive",
           })
         } finally {
@@ -107,21 +115,21 @@ export const createColumns = (onDataChange: () => void): ColumnDef<Item>[] => [
             variant='ghost' 
             size="icon" 
             title="View Details"
-            onClick={() => router.push(`/admin/inventory/view?id=${item.item_id}`)}
+            onClick={() => router.push(`/admin/requests/view?id=${service.rq_id}`)}
           >
             <Eye className="h-4 w-4" />
           </Button>
           <Button 
             variant='ghost' 
             size="icon" 
-            title="Edit Item"
-            onClick={() => router.push(`/admin/inventory/edit?id=${item.item_id}`)}
+            title="Edit Request"
+            onClick={() => router.push(`/admin/requests/edit?id=${service.rq_id}`)}
           >
             <Edit className="h-4 w-4" />
           </Button>
           <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
             <AlertDialogTrigger asChild>
-              <Button variant='ghost' size="icon" title="Delete Item">
+              <Button variant='ghost' size="icon" title="Delete Request">
                 <Trash2 className="h-4 w-4" />
               </Button>
             </AlertDialogTrigger>
@@ -129,12 +137,12 @@ export const createColumns = (onDataChange: () => void): ColumnDef<Item>[] => [
               <AlertDialogHeader>
                 <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  This action cannot be undone. This will permanently delete the item from the inventory.
+                  This action cannot be undone. This will permanently delete the request.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={handleDelete}>Yes, Delete this Item</AlertDialogAction>
+                <AlertDialogAction onClick={handleDelete}>Yes, Delete this Request</AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
@@ -145,4 +153,4 @@ export const createColumns = (onDataChange: () => void): ColumnDef<Item>[] => [
 ]
 
 // Keep the original columns export for backward compatibility
-export const columns: ColumnDef<Item>[] = createColumns(() => {})
+export const serviceColumns: ColumnDef<Service>[] = createServiceColumns(() => {})

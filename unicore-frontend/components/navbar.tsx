@@ -16,11 +16,16 @@ export default async function Navbar() {
           <Button variant="default">Log In</Button>
         </Link>
       ) : (
-        <form action={handleSignOut}>
-          <Button variant="default" type="submit">
-            Log Out
-          </Button>
-        </form>
+        <div className="flex items-center gap-2">
+          <span className="mr-2 text-sm sm:text-base truncate max-w-[150px] sm:max-w-[200px]">
+            Logged in as: {session.user.name}
+          </span>
+          <form action={handleSignOut}>
+            <Button variant="default" type="submit">
+              Log Out
+            </Button>
+          </form>
+        </div>
       )}
     </nav>
   );

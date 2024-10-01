@@ -13,22 +13,22 @@ import {
 export const sidebarItems = [
     {
         label: "Dashboard",
-        href: "/admin/dashboard",
+        href: "/technical/dashboard",
         icon: <LayoutList className="h-4 w-4" />
     },
     {
         label: "Requests",
-        href: "/admin/requests",
+        href: "/technical/requests",
         icon: <StickyNote className="h-4 w-4" />
     },
     {
         label: "Inventory",
-        href: "/admin/inventory",
+        href: "/technical/inventory",
         icon: <Package2 className="h-4 w-4" />
     },
     {
         label: "Rooms",
-        href: "/admin/rooms",
+        href: "/technical/rooms",
         icon: <DoorOpen className="h-4 w-4" />
     }
 ]
@@ -58,5 +58,4 @@ export default function Sidebar() {
         </div>
       </aside>
     );
-  }
-  
+}

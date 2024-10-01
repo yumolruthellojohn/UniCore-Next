@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { createColumns, Item } from "./inventory-columns"
+import { createColumns, Room } from "./rooms-columns"
 import { DataTable } from "@/components/data-table/data-table"
 import { DataTableAdd } from "@/components/data-table/data-table-add-button"
 import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,26 +9,26 @@ import { Toaster } from "@/components/ui/toaster"
 import axios from "axios";
 import { Button } from '@/components/ui/button';
 
-async function getData(): Promise<Item[]> {
-    let item = null;
+async function getData(): Promise<Room[]> {
+    let room = null;
     try {
-        const response = await axios.get("http://localhost:8081/items");
-        item = response.data;
+        const response = await axios.get("http://localhost:8081/rooms");
+        room = response.data;
       } catch (err) {
         console.log(err);
-        item = null;
+        room = null;
       }
     
-    return item;
+    return room;
 }
 
 const filterColumn = {
-    id: "item_name",
+    id: "room_name",
     title: "Name",
 }
 
-export default function Inventory() {
-    const [data, setData] = useState<Item[]>([]);
+export default function Rooms() {
+    const [data, setData] = useState<Room[]>([]);
 
     const refreshData = useCallback(async () => {
         const freshData = await getData();
@@ -46,13 +46,13 @@ export default function Inventory() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-2xl">
               <Card className="w-full">
                 <CardHeader className="pb-3">
-                  <CardTitle>Inventory</CardTitle>
-                  <CardDescription className="text-balance leading-relaxed">
-                    Manage the items and view their details.
+                  <CardTitle>Rooms</CardTitle>
+                  <CardDescription className="max-w-lg text-balance leading-relaxed">
+                    Manage the rooms and view their details.
                   </CardDescription>
                 </CardHeader>
                 <CardFooter>
-                  <DataTableAdd text="Add New Item" href="/admin/inventory/new" />
+                  <DataTableAdd text="Add New Room" href="/admin/rooms/new" />
                 </CardFooter>
               </Card>
               <Card className="w-full">

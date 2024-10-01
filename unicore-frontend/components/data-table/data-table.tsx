@@ -3,8 +3,11 @@
 import { useState } from "react"
 import {
   ColumnDef,
+  SortingState,
   flexRender,
   getCoreRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
   useReactTable,
   getFilteredRowModel,
   ColumnFiltersState,
@@ -20,6 +23,7 @@ import {
 } from "@/components/ui/table"
  
 import { DataTableFilter } from "./data-table-filter"
+import { DataTablePagination } from "./data-table-pagination"
  
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -28,13 +32,16 @@ interface DataTableProps<TData, TValue> {
     id: string
     title: string
   }
+  onDataChange?: () => void  // Add this line
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
   filterColumn,
+  onDataChange,  // Add this line
 }: DataTableProps<TData, TValue>) {
+  const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
 
   const table = useReactTable({
@@ -42,8 +49,12 @@ export function DataTable<TData, TValue>({
     columns,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
+    onSortingChange: setSorting,
+    getSortedRowModel: getSortedRowModel(),
     onColumnFiltersChange: setColumnFilters,
+    getPaginationRowModel: getPaginationRowModel(),
     state: {
+      sorting,
       columnFilters,
     },
   })
@@ -79,7 +90,7 @@ export function DataTable<TData, TValue>({
                   data-state={row.getIsSelected() && "selected"}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="break-words">
+                    <TableCell key={cell.id} className="break-words text-center">
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
@@ -94,6 +105,10 @@ export function DataTable<TData, TValue>({
             )}
           </TableBody>
         </Table>
+        <br />
+        <div className="flex justify-center">
+          <DataTablePagination table={table} />
+        </div>
       </div>
     </div>
   )
