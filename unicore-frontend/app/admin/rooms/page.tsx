@@ -67,12 +67,14 @@ export default function Rooms() {
                 </CardFooter>
               </Card>
             </div>
-            <DataTable 
-                columns={columns}
-                data={data} 
-                filterColumn={filterColumn}
-                onDataChange={refreshData}
-            />
+            <div className='max-w-5xl'>
+              <DataTable 
+                  columns={columns}
+                  data={data} 
+                  filterColumn={filterColumn}
+                  onDataChange={refreshData}
+              />
+            </div>
             <Toaster />
         </div>
     )

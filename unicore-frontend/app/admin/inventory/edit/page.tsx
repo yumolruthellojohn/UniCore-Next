@@ -43,6 +43,7 @@ export default function EditInventoryItem() {
         item_buy_date: '',
         item_buy_cost: 0,
         item_remarks: '',
+        item_status: '',
         dept_id: '',
     });
 
@@ -216,7 +217,7 @@ export default function EditInventoryItem() {
                                 </Select>
                             </div>
                             <div className="space-y-2 md:col-span-2">
-                                <Label htmlFor="item_remarks">Remarks:</Label>
+                                <Label htmlFor="item_remarks">Condition Remarks:</Label>
                                 <Textarea
                                     id="item_remarks"
                                     value={formData.item_remarks}

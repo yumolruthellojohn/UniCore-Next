@@ -21,6 +21,7 @@ export type ReserveItem = {
   dept_name: string
   item_id: number
   item_name: string
+  rq_prio_level: string
   rq_notes: string
   rq_create_date: string
   rq_complete_date: string
@@ -57,6 +58,13 @@ export const createReserveItemColumns = (onDataChange: () => void): ColumnDef<Re
       <DataTableColumnHeader column={column} className="w-[20%] min-w-[160px]" title="Item Name" />
     ),
     cell: ({ row }) => <div className="text-center">{row.getValue('item_name')}</div>,
+  },
+  {
+    accessorKey: 'rq_prio_level',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} className="w-[10%] min-w-[80px]" title="Priority Level" />
+    ),
+    cell: ({ row }) => <div className="text-center">{row.getValue('rq_prio_level')}</div>
   },
   {
     accessorKey: 'rq_create_date',
@@ -116,7 +124,7 @@ export const createReserveItemColumns = (onDataChange: () => void): ColumnDef<Re
             variant='ghost' 
             size="icon" 
             title="View Details"
-            onClick={() => router.push(`/admin/requests/view?id=${reserveItem.rq_id}`)}
+            onClick={() => router.push(`/admin/requests/view-reserve-item?id=${reserveItem.rq_id}`)}
           >
             <Eye className="h-4 w-4" />
           </Button>

@@ -1,14 +1,22 @@
+"use client";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Image from "next/image";
 import logo from './images/unicore_logo_bg.png';
 import { auth } from "@/auth";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
-export default async function Home() {
-  const session = await auth();
+
+export default function Home() {  
+  //const session = await auth();
+  const {data : session, status} = useSession();
+
+  console.log("fetched status: " + status);
   const usertype = session?.user.user_type;
-  console.log({ session });
+  console.log("fetched dept: " + usertype);
+  
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-24">
       <Card className="max-w-sm">

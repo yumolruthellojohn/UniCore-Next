@@ -30,7 +30,11 @@ interface Department {
 }
 
 export default function NewReserveRoom() {
-    const { data: session } = useSession();
+    const { data: session, status } = useSession();
+    const router = useRouter();
+
+    console.log('Session status:', status);
+    console.log('Session data:', session);
 
     const today = new Date();
     const month = today.getMonth()+1;
@@ -42,45 +46,47 @@ export default function NewReserveRoom() {
         rq_type: 'Reserve Item',
         dept_id: '1', // Default to 'None' department
         room_id: '',
+        rq_prio_level: 'Moderate', // Default to 'Moderate' priority
         rq_notes: '',
         rq_create_date: currentDate,
-        rq_create_user_id: session?.user?.user_id?.toString() || '',
+        rq_create_user_id: '',
         rq_status: 'Request Submitted'
     });
 
     const [departments, setDepartments] = useState<Department[]>([]);
     const [rooms, setRooms] = useState<Room[]>([]);
     const [showSuccessDialog, setShowSuccessDialog] = useState(false);
-    const router = useRouter();
 
     useEffect(() => {
-        // Fetch departments from your API
-        const fetchDepartments = async () => {
+        const fetchRoomDeptData = async () => {
+            if (status === 'authenticated' && session?.user?.user_id){
+                const newUserId = session.user.user_id.toString();
+                console.log('Setting new user id:', newUserId);
+                try {
+                    const id_response = await axios.get(`http://localhost:8081/users/user_id/${newUserId}`); // Adjust this URL to your actual API endpoint
+                    console.log(id_response.data[0].user_id);
+                    setFormData(prevState => ({
+                        ...prevState,
+                        rq_create_user_id: id_response.data[0].user_id,
+                    }));
+                } catch (error) {
+                    console.error('Error fetching user id:', error);
+                    // Handle error (e.g., show error message to user)
+                }
+            }
+
             try {
-                const response = await axios.get("http://localhost:8081/departments"); // Adjust this URL to your actual API endpoint
-                setDepartments(response.data);
+                const dept_response = await axios.get("http://localhost:8081/departments"); // Adjust this URL to your actual API endpoint
+                setDepartments(dept_response.data);
+                const room_response = await axios.get("http://localhost:8081/rooms"); // Adjust this URL to your actual API endpoint
+                setRooms(room_response.data);
             } catch (error) {
-                console.error('Error fetching departments:', error);
+                console.error('Error fetching data:', error);
                 // Handle error (e.g., show error message to user)
             }
         };
 
-        fetchDepartments();
-    }, []);
-
-    useEffect(() => {
-        // Fetch items from your API
-        const fetchRooms = async () => {
-            try {
-                const response = await axios.get("http://localhost:8081/rooms"); // Adjust this URL to your actual API endpoint
-                setRooms(response.data);
-            } catch (error) {
-                console.error('Error fetching rooms:', error);
-                // Handle error (e.g., show error message to user)
-            }
-        };
-
-        fetchRooms();
+        fetchRoomDeptData();
     }, []);
 
     const handleChange = (name: string, value: string | number) => {
@@ -147,6 +153,18 @@ export default function NewReserveRoom() {
                                                 {room.room_name}
                                             </SelectItem>
                                         ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="rq_prio_level">Priority Level:</Label>
+                                <Select onValueChange={(value) => handleChange('rq_prio_level', value)} defaultValue={formData.rq_prio_level}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select priority level" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="Moderate">Moderate</SelectItem>
+                                        <SelectItem value="Urgent">Urgent</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>

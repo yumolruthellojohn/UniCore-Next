@@ -35,6 +35,7 @@ export default function AddInventoryItem() {
         item_buy_date: '',
         item_buy_cost: 0,
         item_remarks: '',
+        item_status: 'Available', //Default to avail
         dept_id: '1', // Default to 'None' department
     });
 
@@ -197,7 +198,7 @@ export default function AddInventoryItem() {
                                 </Select>
                             </div>
                             <div className="space-y-2 md:col-span-2">
-                                <Label htmlFor="item_remarks">Remarks:</Label>
+                                <Label htmlFor="item_remarks">Condition Remarks:</Label>
                                 <Textarea
                                     id="item_remarks"
                                     value={formData.item_remarks}

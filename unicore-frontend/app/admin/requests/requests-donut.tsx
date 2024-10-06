@@ -54,7 +54,7 @@ export function Component({ title, description, data }: RequestsDonutProps) {
             <PieChart>
                 <ChartTooltip
                 cursor={false}
-                content={<ChartTooltipContent hideLabel />}
+                content={<ChartTooltipContent hideLabel hideIndicator />}
                 />
                 <Pie
                 data={data}

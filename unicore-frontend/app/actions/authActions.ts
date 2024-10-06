@@ -28,5 +28,5 @@ export async function handleCredentialsSignin({ user_idnum, user_password }: {
 }
 
 export async function handleSignOut() {
-    await signOut({ redirectTo: '/' });
+    await signOut({ redirectTo: '/'});
 }

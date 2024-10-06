@@ -60,24 +60,29 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             if (pathname.startsWith("/admin") && user_type !== "Administrator") {
                 return Response.redirect(new URL('/', nextUrl));
             }
+            if (pathname.startsWith("/technical") && user_type !== "Technical Staff") {
+                return Response.redirect(new URL('/', nextUrl));
+            }
             return !!auth;
         },
-        jwt({ token, user, trigger, session }) {
+        jwt: ({ token, user, trigger, session }) => {
             if (user) {
                 token.id = user.user_id as string;
                 token.fname = user.user_fname as string;
                 token.lname = user.user_lname as string;
                 token.role = user.user_type as string;
+                token.dept_id = user.dept_id as string;
             }
             if (trigger === "update" && session) {
                 token = { ...token, ...session };
             }
             return token;
         },
-        session({ session, token }) {
+        session: ({ session, token }) => {
             session.user.user_id = token.id;
             session.user.name = token.fname + " " + token.lname;
             session.user.user_type = token.role;
+            session.user.dept_id = token.dept_id;
             return session;
         }
     },

@@ -14,12 +14,15 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { useToast } from "@/hooks/use-toast"
 import axios from 'axios';
 
-export type Service = {
+export type ServiceItem = {
   rq_id: number
   rq_type: string
   dept_id: number
   dept_name: string
+  item_id: string
+  item_name: string
   rq_service_type: string
+  rq_prio_level: string
   rq_notes: string
   rq_create_date: string
   rq_complete_date: string
@@ -32,7 +35,7 @@ export type Service = {
   rq_status: string
 }
 
-export const createServiceColumns = (onDataChange: () => void): ColumnDef<Service>[] => [
+export const createServiceItemColumns = (onDataChange: () => void): ColumnDef<ServiceItem>[] => [
   {
     accessorKey: 'rq_id',
     header: ({ column }) => (
@@ -51,11 +54,29 @@ export const createServiceColumns = (onDataChange: () => void): ColumnDef<Servic
     },
   },
   {
+    accessorKey: 'item_name',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} className="w-[15%] min-w-[120px] hidden md:table-cell" title="Item Name" />
+    ),
+    cell: ({ row }) => {
+      const item = row.original;
+      return <div className="hidden md:block text-center">{item.item_name}</div>
+    },
+  },
+
+  {
     accessorKey: 'rq_service_type',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} className="w-[20%] min-w-[160px]" title="Service Type" />
     ),
     cell: ({ row }) => <div className="text-center">{row.getValue('rq_service_type')}</div>,
+  },
+  {
+    accessorKey: 'rq_prio_level',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} className="w-[10%] min-w-[80px]" title="Priority Level" />
+    ),
+    cell: ({ row }) => <div className="text-center">{row.getValue('rq_prio_level')}</div>
   },
   {
     accessorKey: 'rq_create_date',
@@ -115,7 +136,7 @@ export const createServiceColumns = (onDataChange: () => void): ColumnDef<Servic
             variant='ghost' 
             size="icon" 
             title="View Details"
-            onClick={() => router.push(`/admin/requests/view?id=${service.rq_id}`)}
+            onClick={() => router.push(`/admin/requests/view-service-item?id=${service.rq_id}`)}
           >
             <Eye className="h-4 w-4" />
           </Button>
@@ -153,4 +174,4 @@ export const createServiceColumns = (onDataChange: () => void): ColumnDef<Servic
 ]
 
 // Keep the original columns export for backward compatibility
-export const serviceColumns: ColumnDef<Service>[] = createServiceColumns(() => {})
+export const serviceItemColumns: ColumnDef<ServiceItem>[] = createServiceItemColumns(() => {})

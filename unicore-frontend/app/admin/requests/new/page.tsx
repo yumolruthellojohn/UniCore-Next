@@ -1,12 +1,12 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
-import { Box, DoorClosed, Wrench } from "lucide-react"
+import { FileBox, DoorClosed, PackageOpen, HousePlug } from "lucide-react"
 import Link from "next/link"
 
 export default function SelectRequestType() {
   return (
     <div className="container mx-auto px-4 py-8">
-      <Card className="w-full">
+      <Card className="max-w-4xl">
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>Select Request Type</CardTitle>
           <Link href="/admin/requests" className="text-blue-500 hover:text-blue-700">
@@ -14,10 +14,10 @@ export default function SelectRequestType() {
           </Link>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <RequestButton
               href="/admin/requests/new/reserve-item"
-              icon={Box}
+              icon={FileBox}
               label="Item Reservation"
             />
             <RequestButton
@@ -26,9 +26,14 @@ export default function SelectRequestType() {
               label="Room Reservation"
             />
             <RequestButton
-              href="/admin/requests/new/service"
-              icon={Wrench}
-              label="Service"
+              href="/admin/requests/new/service-item"
+              icon={PackageOpen}
+              label="Service for Item"
+            />
+            <RequestButton
+              href="/admin/requests/new/service-room"
+              icon={HousePlug}
+              label="Service for Room"
             />
           </div>
         </CardContent>

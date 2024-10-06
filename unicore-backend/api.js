@@ -29,8 +29,21 @@ app.post("/login", (req, res) => {
     });
 });
 
+//get user id
+app.get("/users/user_id/:id", (req, res) => {
+  const user_id = req.params.id
+  const sql = "SELECT user_id FROM tbuseraccounts WHERE `user_id` = ?";
+  db.query(sql, user_id, (err, result) => {
+      if (err) {
+        console.log(err);
+      } else {
+        res.send(result);
+      }
+  });
+});
+
 //get user type
-app.get("/users/user_type", (req, res) => {
+app.get("/users/user_type/:id", (req, res) => {
     const user_idnum = req.params.id
     const sql = "SELECT user_type FROM tbuseraccounts WHERE `user_idnum` = ?";
     db.query(sql, user_idnum, (err, result) => {
@@ -40,6 +53,19 @@ app.get("/users/user_type", (req, res) => {
           res.send(result);
         }
     });
+});
+
+//get user dept
+app.get("/users/user_dept/:id", (req, res) => {
+  const user_id = req.params.id
+  const sql = "SELECT dept_id FROM tbuseraccounts WHERE `user_id` = ?";
+  db.query(sql, user_id, (err, result) => {
+      if (err) {
+        console.log(err);
+      } else {
+        res.send(result);
+      }
+  });
 });
 
 //items
@@ -76,11 +102,12 @@ app.post("/items/add", (req, res) => {
     const item_buy_cost = req.body.item_buy_cost;
     const item_total = item_quantity * item_buy_cost;
     const item_remarks = req.body.item_remarks;
+    const item_status = req.body.item_status;
     const dept_id = req.body.dept_id;
     
-    const sql = "INSERT INTO tbitems (item_category, item_control, item_quantity, item_measure, item_name, item_desc, item_buy_date, item_buy_cost, item_total, item_remarks, dept_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    const sql = "INSERT INTO tbitems (item_category, item_control, item_quantity, item_measure, item_name, item_desc, item_buy_date, item_buy_cost, item_total, item_remarks, item_status, dept_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-    db.query(sql, [item_category, item_control, item_quantity, item_measure, item_name, item_desc, item_buy_date, item_buy_cost, item_total, item_remarks, dept_id],
+    db.query(sql, [item_category, item_control, item_quantity, item_measure, item_name, item_desc, item_buy_date, item_buy_cost, item_total, item_remarks, item_status, dept_id],
       (err, result) => {
         if (err) {
           console.log(err);
@@ -94,7 +121,7 @@ app.post("/items/add", (req, res) => {
 //items/edit
 app.put("/items/:id", (req, res) => {
     const itemId = req.params.id;
-    const sql = "UPDATE tbitems SET `item_category`= ?, `item_control`= ?, `item_quantity`= ?, `item_measure`= ?, `item_name`= ?, `item_desc`= ?, `item_buy_date`= ?, `item_buy_cost`= ?, `item_total`= ?, `item_remarks`= ?, `dept_id`= ? WHERE `item_id` = ?";
+    const sql = "UPDATE tbitems SET `item_category`= ?, `item_control`= ?, `item_quantity`= ?, `item_measure`= ?, `item_name`= ?, `item_desc`= ?, `item_buy_date`= ?, `item_buy_cost`= ?, `item_total`= ?, `item_remarks`= ?, `item_status`= ?, `dept_id`= ? WHERE `item_id` = ?";
    
     const values = [
         req.body.item_category,
@@ -107,9 +134,25 @@ app.put("/items/:id", (req, res) => {
         req.body.item_buy_cost,
         (req.body.item_quantity * req.body.item_buy_cost),
         req.body.item_remarks,
+        req.body.item_status,
         req.body.dept_id
     ];
    
+    db.query(sql, [...values, itemId], (err, data) => {
+      if (err) return res.send(err);
+      return res.json(data);
+    });
+});
+
+//items/status/:id
+app.put("/items/status/:id", (req, res) => {
+    const itemId = req.params.id;
+    const sql = "UPDATE tbitems SET `item_status` = ? WHERE `item_id` = ?";
+
+    const values = [
+      req.body.item_status,
+    ]
+
     db.query(sql, [...values, itemId], (err, data) => {
       if (err) return res.send(err);
       return res.json(data);
@@ -124,15 +167,6 @@ app.delete("/items/:id", (req, res) => {
     db.query(sql, [itemId], (err, data) => {
       if (err) return res.send(err);
       return res.json(data);
-    });
-});
-
-//items_summary
-app.get("/items_summary", (req, res) => {
-    const sql = "SELECT `item_category`, SUM(item_quantity) AS `total_quantity`, SUM(item_total) AS `total_cost` FROM tbitems GROUP BY `item_category`";
-    db.query(sql, (err, result) => {
-      if(err) return res.json({Message: "Error inside server"});
-      else return res.json(result);
     });
 });
 
@@ -196,6 +230,21 @@ app.put("/rooms/:id", (req, res) => {
     });
 });
 
+//rooms/status/:id
+app.put("/rooms/status/:id", (req, res) => {
+  const roomId = req.params.id;
+  const sql = "UPDATE tbrooms SET `room_status` = ? WHERE `room_id` = ?";
+
+  const values = [
+    req.body.room_status,
+  ]
+
+  db.query(sql, [...values, roomId], (err, data) => {
+    if (err) return res.send(err);
+    return res.json(data);
+  });
+});
+
 //rooms/delete
 app.delete("/rooms/:id", (req, res) => {
     const itemId = req.params.id;
@@ -216,6 +265,36 @@ app.get('/requests', (req, res) => {
     });
 });
 
+//requests/queue/:id
+app.get('/requests/queue/:id', (req, res) => {
+    const dept_id = req.params.id;
+    const sql = "SELECT *, user1.user_id AS rq_create_user_id, user1.user_fname AS rq_create_user_fname, user1.user_lname AS rq_create_user_lname FROM tbrequests INNER JOIN tbuseraccounts user1 ON tbrequests.rq_create_user_id=user1.user_id WHERE tbrequests.dept_id = ? AND tbrequests.rq_status = 'Request Submitted'";
+    db.query(sql, dept_id, (err, result) => {
+        if(err) return res.json({Message: "Error inside server"});
+        else return res.json(result);
+    });
+});
+
+//requests/accepted/:id
+app.get('/requests/accepted/:id', (req, res) => {
+    const user_id = req.params.id;
+    const sql = "SELECT *, user1.user_id AS rq_create_user_id, user1.user_fname AS rq_create_user_fname, user1.user_lname AS rq_create_user_lname FROM tbrequests INNER JOIN tbuseraccounts user1 ON tbrequests.rq_create_user_id=user1.user_id WHERE tbrequests.rq_accept_user_id = ?";
+    db.query(sql, user_id, (err, result) => {
+        if(err) return res.json({Message: "Error inside server"});
+        else return res.json(result);
+    });
+});
+
+//requests/submitted/:id
+app.get('/requests/submitted/:id', (req, res) => {
+  const user_id = req.params.id;
+  const sql = "SELECT *, tbdepartments.dept_name FROM tbrequests INNER JOIN tbdepartments ON tbrequests.dept_id=tbdepartments.dept_id WHERE tbrequests.rq_create_user_id = ?";
+  db.query(sql, user_id, (err, result) => {
+      if(err) return res.json({Message: "Error inside server"});
+      else return res.json(result);
+  });
+});
+
 //requests/reserve_item
 app.get('/requests/reserve_item', (req, res) => {
     const sql = "SELECT *, tbdepartments.dept_name, tbitems.item_name, user1.user_id AS rq_create_user_id, user1.user_fname AS rq_create_user_fname, user1.user_lname AS rq_create_user_lname, user2.user_id AS rq_accept_user_id, user2.user_fname AS rq_accept_user_fname, user2.user_lname AS rq_accept_user_lname FROM tbrequests INNER JOIN tbdepartments ON tbrequests.dept_id=tbdepartments.dept_id INNER JOIN tbitems ON tbrequests.item_id=tbitems.item_id INNER JOIN tbuseraccounts user1 ON tbrequests.rq_create_user_id=user1.user_id LEFT JOIN tbuseraccounts user2 ON tbrequests.rq_accept_user_id=user2.user_id WHERE `rq_type` = 'Reserve Item'";
@@ -234,26 +313,22 @@ app.get('/requests/reserve_room', (req, res) => {
     });
 });
 
-//requests/service
-app.get('/requests/service', (req, res) => {
-    const sql = "SELECT *, tbdepartments.dept_name, user1.user_id AS rq_create_user_id, user1.user_fname AS rq_create_user_fname, user1.user_lname AS rq_create_user_lname, user2.user_id AS rq_accept_user_id, user2.user_fname AS rq_accept_user_fname, user2.user_lname AS rq_accept_user_lname FROM tbrequests INNER JOIN tbdepartments ON tbrequests.dept_id=tbdepartments.dept_id INNER JOIN tbuseraccounts user1 ON tbrequests.rq_create_user_id=user1.user_id LEFT JOIN tbuseraccounts user2 ON tbrequests.rq_accept_user_id=user2.user_id WHERE `rq_type` = 'Service'";
+//requests/service_item
+app.get('/requests/service_item', (req, res) => {
+    const sql = "SELECT *, tbdepartments.dept_name, tbitems.item_name, user1.user_id AS rq_create_user_id, user1.user_fname AS rq_create_user_fname, user1.user_lname AS rq_create_user_lname, user2.user_id AS rq_accept_user_id, user2.user_fname AS rq_accept_user_fname, user2.user_lname AS rq_accept_user_lname FROM tbrequests INNER JOIN tbdepartments ON tbrequests.dept_id=tbdepartments.dept_id INNER JOIN tbitems ON tbrequests.item_id=tbitems.item_id INNER JOIN tbuseraccounts user1 ON tbrequests.rq_create_user_id=user1.user_id LEFT JOIN tbuseraccounts user2 ON tbrequests.rq_accept_user_id=user2.user_id WHERE `rq_type` = 'Service for Item'";
     db.query(sql, (err, result) => {
         if(err) return res.json({Message: "Error inside server"});
         else return res.json(result);
     });
 });
 
-//requests/:id
-app.get("/requests/:id", (req, res) => {
-    const item_id = req.params.id;
-    const sql = "SELECT * FROM tbrequests WHERE `rq_id` = ?";
-    db.query(sql, item_id, (err, result) => {
-      if (err) {
-        console.log(err);
-      } else {
-        res.send(result);
-      }
-    });
+//requests/service_room
+app.get('/requests/service_room', (req, res) => {
+    const sql = "SELECT *, tbdepartments.dept_name, tbrooms.room_name, user1.user_id AS rq_create_user_id, user1.user_fname AS rq_create_user_fname, user1.user_lname AS rq_create_user_lname, user2.user_id AS rq_accept_user_id, user2.user_fname AS rq_accept_user_fname, user2.user_lname AS rq_accept_user_lname FROM tbrequests INNER JOIN tbdepartments ON tbrequests.dept_id=tbdepartments.dept_id INNER JOIN tbrooms ON tbrequests.room_id=tbrooms.room_id INNER JOIN tbuseraccounts user1 ON tbrequests.rq_create_user_id=user1.user_id LEFT JOIN tbuseraccounts user2 ON tbrequests.rq_accept_user_id=user2.user_id WHERE `rq_type` = 'Service for Room'";
+    db.query(sql, (err, result) => {
+        if(err) return res.json({Message: "Error inside server"});
+      else return res.json(result);
+  });
 });
 
 //requests/reserve_item/:id
@@ -282,11 +357,50 @@ app.get("/requests/reserve_room/:id", (req, res) => {
     });
 });
 
-//requests/service/:id
-app.get("/requests/service/:id", (req, res) => {
+//requests/service_item/:id
+app.get("/requests/service_item/:id", (req, res) => {
     const item_id = req.params.id;
-    const sql = "SELECT *, tbdepartments.dept_name, user1.user_id AS rq_create_user_id, user1.user_fname AS rq_create_user_fname, user1.user_lname AS rq_create_user_lname, user2.user_id AS rq_accept_user_id, user2.user_fname AS rq_accept_user_fname, user2.user_lname AS rq_accept_user_lname FROM tbrequests INNER JOIN tbdepartments ON tbrequests.dept_id=tbdepartments.dept_id INNER JOIN tbuseraccounts user1 ON tbrequests.rq_create_user_id=user1.user_id LEFT JOIN tbuseraccounts user2 ON tbrequests.rq_accept_user_id=user2.user_id WHERE `rq_id` = ? AND `rq_type` = 'Service'";
+    const sql = "SELECT *, tbdepartments.dept_name, tbitems.item_name, user1.user_id AS rq_create_user_id, user1.user_fname AS rq_create_user_fname, user1.user_lname AS rq_create_user_lname, user2.user_id AS rq_accept_user_id, user2.user_fname AS rq_accept_user_fname, user2.user_lname AS rq_accept_user_lname FROM tbrequests INNER JOIN tbdepartments ON tbrequests.dept_id=tbdepartments.dept_id INNER JOIN tbitems ON tbrequests.item_id=tbitems.item_id INNER JOIN tbuseraccounts user1 ON tbrequests.rq_create_user_id=user1.user_id LEFT JOIN tbuseraccounts user2 ON tbrequests.rq_accept_user_id=user2.user_id WHERE `rq_id` = ? AND `rq_type` = 'Service for Item'";
     db.query(sql, item_id, (err, result) => {
+      if (err) {
+        console.log(err);
+      } else {
+        res.send(result);
+      }
+    });
+});
+
+//requests/service_room/:id
+app.get("/requests/service_room/:id", (req, res) => {
+  const item_id = req.params.id;
+  const sql = "SELECT *, tbdepartments.dept_name, tbrooms.room_name, user1.user_id AS rq_create_user_id, user1.user_fname AS rq_create_user_fname, user1.user_lname AS rq_create_user_lname, user2.user_id AS rq_accept_user_id, user2.user_fname AS rq_accept_user_fname, user2.user_lname AS rq_accept_user_lname FROM tbrequests INNER JOIN tbdepartments ON tbrequests.dept_id=tbdepartments.dept_id INNER JOIN tbrooms ON tbrequests.room_id=tbrooms.room_id INNER JOIN tbuseraccounts user1 ON tbrequests.rq_create_user_id=user1.user_id LEFT JOIN tbuseraccounts user2 ON tbrequests.rq_accept_user_id=user2.user_id WHERE `rq_id` = ? AND `rq_type` = 'Service for Room'";
+  db.query(sql, item_id, (err, result) => {
+    if (err) {
+      console.log(err);
+    } else {
+      res.send(result);
+    }
+  });
+});
+
+//requests/relate_item/:id
+app.get("/requests/relate_item/:id", (req, res) => {
+    const item_id = req.params.id;
+    const sql = "SELECT *, tbdepartments.dept_name, tbitems.item_name, user1.user_id AS rq_create_user_id, user1.user_fname AS rq_create_user_fname, user1.user_lname AS rq_create_user_lname, user2.user_id AS rq_accept_user_id, user2.user_fname AS rq_accept_user_fname, user2.user_lname AS rq_accept_user_lname FROM tbrequests INNER JOIN tbdepartments ON tbrequests.dept_id=tbdepartments.dept_id INNER JOIN tbitems ON tbrequests.item_id=tbitems.item_id INNER JOIN tbuseraccounts user1 ON tbrequests.rq_create_user_id=user1.user_id LEFT JOIN tbuseraccounts user2 ON tbrequests.rq_accept_user_id=user2.user_id WHERE tbrequests.item_id = ?";
+    db.query(sql, item_id, (err, result) => {
+      if (err) {
+        console.log(err);
+      } else {
+        res.send(result);
+      }
+    });
+});
+
+//requests/relate_room/:id
+app.get("/requests/relate_room/:id", (req, res) => {
+    const room_id = req.params.id;
+    const sql = "SELECT *, tbdepartments.dept_name, tbrooms.room_name, user1.user_id AS rq_create_user_id, user1.user_fname AS rq_create_user_fname, user1.user_lname AS rq_create_user_lname, user2.user_id AS rq_accept_user_id, user2.user_fname AS rq_accept_user_fname, user2.user_lname AS rq_accept_user_lname FROM tbrequests INNER JOIN tbdepartments ON tbrequests.dept_id=tbdepartments.dept_id INNER JOIN tbrooms ON tbrequests.room_id=tbrooms.room_id INNER JOIN tbuseraccounts user1 ON tbrequests.rq_create_user_id=user1.user_id LEFT JOIN tbuseraccounts user2 ON tbrequests.rq_accept_user_id=user2.user_id WHERE tbrequests.room_id = ?";
+    db.query(sql, room_id, (err, result) => {
       if (err) {
         console.log(err);
       } else {
@@ -300,14 +414,15 @@ app.post("/requests/reserve_item/add", (req, res) => {
     const rq_type = req.body.rq_type;
     const dept_id = req.body.dept_id;
     const item_id = req.body.item_id;
+    const rq_prio_level = req.body.rq_prio_level;
     const rq_notes = req.body.rq_notes;
     const rq_create_date = req.body.rq_create_date;
     const rq_create_user_id = req.body.rq_create_user_id;
     const rq_status = req.body.rq_status;
     
-    const sql = "INSERT INTO tbrequests (rq_type, dept_id, item_id, rq_notes, rq_create_date, rq_create_user_id, rq_status) VALUES (?, ?, ?, ?, ?, ?, ?)";
+    const sql = "INSERT INTO tbrequests (rq_type, dept_id, item_id, rq_prio_level, rq_notes, rq_create_date, rq_create_user_id, rq_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
-    db.query(sql, [rq_type, dept_id, item_id, rq_notes, rq_create_date, rq_create_user_id, rq_status],
+    db.query(sql, [rq_type, dept_id, item_id, rq_prio_level, rq_notes, rq_create_date, rq_create_user_id, rq_status],
       (err, result) => {
         if (err) {
           console.log(err);
@@ -323,14 +438,15 @@ app.post("/requests/reserve_room/add", (req, res) => {
     const rq_type = req.body.rq_type;
     const dept_id = req.body.dept_id;
     const room_id = req.body.room_id;
+    const rq_prio_level = req.body.rq_prio_level;
     const rq_notes = req.body.rq_notes;
     const rq_create_date = req.body.rq_create_date;
     const rq_create_user_id = req.body.rq_create_user_id;
     const rq_status = req.body.rq_status;
     
-    const sql = "INSERT INTO tbrequests (rq_type, dept_id, room_id, rq_notes, rq_create_date, rq_create_user_id, rq_status) VALUES (?, ?, ?, ?, ?, ?, ?)";
+    const sql = "INSERT INTO tbrequests (rq_type, dept_id, room_id, rq_prio_level, rq_notes, rq_create_date, rq_create_user_id, rq_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
-    db.query(sql, [rq_type, dept_id, room_id, rq_notes, rq_create_date, rq_create_user_id, rq_status],
+    db.query(sql, [rq_type, dept_id, room_id, rq_prio_level, rq_notes, rq_create_date, rq_create_user_id, rq_status],
       (err, result) => {
         if (err) {
           console.log(err);
@@ -341,19 +457,21 @@ app.post("/requests/reserve_room/add", (req, res) => {
     );
 });
 
-//requests/service/add
-app.post("/requests/service/add", (req, res) => {
+//requests/service_item/add
+app.post("/requests/service_item/add", (req, res) => {
     const rq_type = req.body.rq_type;
     const dept_id = req.body.dept_id;
+    const item_id = req.body.item_id;
     const rq_service_type = req.body.rq_service_type;
+    const rq_prio_level = req.body.rq_prio_level;
     const rq_notes = req.body.rq_notes;
     const rq_create_date = req.body.rq_create_date;
     const rq_create_user_id = req.body.rq_create_user_id;
     const rq_status = req.body.rq_status;
     
-    const sql = "INSERT INTO tbrequests (rq_type, dept_id, rq_service_type, rq_notes, rq_create_date, rq_create_user_id, rq_status) VALUES (?, ?, ?, ?, ?, ?, ?)";
+    const sql = "INSERT INTO tbrequests (rq_type, dept_id, item_id, rq_service_type, rq_prio_level, rq_notes, rq_create_date, rq_create_user_id, rq_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-    db.query(sql, [rq_type, dept_id, rq_service_type, rq_notes, rq_create_date, rq_create_user_id, rq_status],
+    db.query(sql, [rq_type, dept_id, item_id, rq_service_type, rq_prio_level, rq_notes, rq_create_date, rq_create_user_id, rq_status],
       (err, result) => {
         if (err) {
           console.log(err);
@@ -362,6 +480,31 @@ app.post("/requests/service/add", (req, res) => {
         }
       }
     );
+});
+
+//requests/service_room/add
+app.post("/requests/service_room/add", (req, res) => {
+  const rq_type = req.body.rq_type;
+  const dept_id = req.body.dept_id;
+  const room_id = req.body.room_id;
+  const rq_service_type = req.body.rq_service_type;
+  const rq_prio_level = req.body.rq_prio_level;
+  const rq_notes = req.body.rq_notes;
+  const rq_create_date = req.body.rq_create_date;
+  const rq_create_user_id = req.body.rq_create_user_id;
+  const rq_status = req.body.rq_status;
+  
+  const sql = "INSERT INTO tbrequests (rq_type, dept_id, room_id, rq_service_type, rq_prio_level, rq_notes, rq_create_date, rq_create_user_id, rq_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+  db.query(sql, [rq_type, dept_id, room_id, rq_service_type, rq_prio_level, rq_notes, rq_create_date, rq_create_user_id, rq_status],
+    (err, result) => {
+      if (err) {
+        console.log(err);
+      } else {
+        res.send("Service Request Submitted!");
+      }
+    }
+  );
 });
 
 //requests/reserve_item/:id edit
@@ -377,7 +520,7 @@ app.put("/requests/reserve_item/:id", (req, res) => {
 
     const values = [
         complete_date,
-        req.body.rq_status_id,
+        req.body.rq_status,
         req.body.rq_notes
     ];
   
@@ -389,7 +532,7 @@ app.put("/requests/reserve_item/:id", (req, res) => {
 
 //requests/reserve_room/:id edit
 app.put("/requests/reserve_room/:id", (req, res) => {
-    const itemId = req.params.id;
+    const roomId = req.params.id;
     const sql = "UPDATE tbrequests SET `rq_complete_date`= ?, `rq_status`= ?, `rq_notes`= ? WHERE `rq_id` = ? AND `rq_type` = 'Reserve Room'";
 
     var complete_date = '';
@@ -400,20 +543,20 @@ app.put("/requests/reserve_room/:id", (req, res) => {
 
     const values = [
         complete_date,
-        req.body.rq_status_id,
+        req.body.rq_status,
         req.body.rq_notes
     ];
 
-    db.query(sql, [...values, itemId], (err, data) => {
+    db.query(sql, [...values, roomId], (err, data) => {
       if (err) return res.send(err);
       return res.json(data);
     });
 });
 
-//requests/service/:id edit
-app.put("/requests/service/:id", (req, res) => {
+//requests/service_item/:id edit
+app.put("/requests/service_item/:id", (req, res) => {
     const itemId = req.params.id;
-    const sql = "UPDATE tbrequests SET `rq_complete_date`= ?, `rq_status`= ?, `rq_notes`= ? WHERE `rq_id` = ? AND `rq_type` = 'Service'";
+    const sql = "UPDATE tbrequests SET `rq_complete_date`= ?, `rq_status`= ?, `rq_notes`= ? WHERE `rq_id` = ? AND `rq_type` = 'Service for Item'";
 
     var complete_date = '';
     if(req.body.rq_status == 'Completed')
@@ -423,11 +566,50 @@ app.put("/requests/service/:id", (req, res) => {
 
     const values = [
         complete_date,
-        req.body.rq_status_id,
+        req.body.rq_status,
         req.body.rq_notes
     ];
 
     db.query(sql, [...values, itemId], (err, data) => {
+      if (err) return res.send(err);
+      return res.json(data);
+    });
+});
+
+//requests/service_room/:id edit
+app.put("/requests/service_room/:id", (req, res) => {
+    const roomId = req.params.id;
+    const sql = "UPDATE tbrequests SET `rq_complete_date`= ?, `rq_status`= ?, `rq_notes`= ? WHERE `rq_id` = ? AND `rq_type` = 'Service for Room'";
+
+    var complete_date = '';
+    if(req.body.rq_status == 'Completed')
+    {
+      complete_date = currentDate;
+    }
+
+    const values = [
+        complete_date,
+        req.body.rq_status,
+        req.body.rq_notes
+    ];
+
+    db.query(sql, [...values, roomId], (err, data) => {
+      if (err) return res.send(err);
+      return res.json(data);
+    });
+});
+
+//requests/accept/:id
+app.put("/requests/accept/:id", (req, res) => {
+    const requestId = req.params.id;
+    const sql = "UPDATE tbrequests SET `rq_status`= ?, `rq_accept_user_id`= ? WHERE `rq_id` = ? ";
+
+    const values = [
+        req.body.rq_status,
+        req.body.rq_accept_user_id
+    ];
+
+    db.query(sql, [...values, requestId], (err, data) => {
       if (err) return res.send(err);
       return res.json(data);
     });

@@ -30,7 +30,13 @@ interface Department {
 }
 
 export default function NewReserveItem() {
-    const { data: session } = useSession();
+    //const { session, status } = useCurrentSession();
+    const {data : session, status} = useSession();
+
+    const router = useRouter();
+
+    console.log('Session status:', status);
+    console.log('Session data:', session);
 
     const today = new Date();
     const month = today.getMonth()+1;
@@ -40,47 +46,49 @@ export default function NewReserveItem() {
 
     const [formData, setFormData] = useState({
         rq_type: 'Reserve Item',
-        dept_id: '1', // Default to 'None' department
+        dept_id: '1', // Default to BMO department
         item_id: '',
+        rq_prio_level: 'Moderate', // Default to 'Moderate' priority
         rq_notes: '',
         rq_create_date: currentDate,
-        rq_create_user_id: session?.user?.user_id?.toString() || '',
+        rq_create_user_id: '',
         rq_status: 'Request Submitted'
     });
 
     const [departments, setDepartments] = useState<Department[]>([]);
     const [items, setItems] = useState<Item[]>([]);
     const [showSuccessDialog, setShowSuccessDialog] = useState(false);
-    const router = useRouter();
 
     useEffect(() => {
-        // Fetch departments from your API
-        const fetchDepartments = async () => {
+        const fetchItemDeptData = async () => {
+            if (status === 'authenticated' && session?.user?.user_id){
+                const newUserId = session.user.user_id.toString();
+                console.log('Setting new user id:', newUserId);
+                try {
+                    const id_response = await axios.get(`http://localhost:8081/users/user_id/${newUserId}`); // Adjust this URL to your actual API endpoint
+                    console.log(id_response.data[0].user_id);
+                    setFormData(prevState => ({
+                        ...prevState,
+                        rq_create_user_id: id_response.data[0].user_id,
+                    }));
+                } catch (error) {
+                    console.error('Error fetching user id:', error);
+                    // Handle error (e.g., show error message to user)
+                }
+            }
+
             try {
-                const response = await axios.get("http://localhost:8081/departments"); // Adjust this URL to your actual API endpoint
-                setDepartments(response.data);
+                const dept_response = await axios.get("http://localhost:8081/departments"); // Adjust this URL to your actual API endpoint
+                setDepartments(dept_response.data);
+                const item_response = await axios.get("http://localhost:8081/items"); // Adjust this URL to your actual API endpoint
+                setItems(item_response.data);
             } catch (error) {
-                console.error('Error fetching departments:', error);
+                console.error('Error fetching data:', error);
                 // Handle error (e.g., show error message to user)
             }
         };
 
-        fetchDepartments();
-    }, []);
-
-    useEffect(() => {
-        // Fetch items from your API
-        const fetchItems = async () => {
-            try {
-                const response = await axios.get("http://localhost:8081/items"); // Adjust this URL to your actual API endpoint
-                setItems(response.data);
-            } catch (error) {
-                console.error('Error fetching items:', error);
-                // Handle error (e.g., show error message to user)
-            }
-        };
-
-        fetchItems();
+        fetchItemDeptData();
     }, []);
 
     const handleChange = (name: string, value: string | number) => {
@@ -147,6 +155,18 @@ export default function NewReserveItem() {
                                                 {item.item_name}
                                             </SelectItem>
                                         ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="rq_prio_level">Priority Level:</Label>
+                                <Select onValueChange={(value) => handleChange('rq_prio_level', value)} defaultValue={formData.rq_prio_level}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select priority level" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="Moderate">Moderate</SelectItem>
+                                        <SelectItem value="Urgent">Urgent</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>

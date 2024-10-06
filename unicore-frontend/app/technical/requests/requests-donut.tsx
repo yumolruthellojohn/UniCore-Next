@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Label,PieChart, Pie } from "recharts"
+import { Label,PieChart, Pie, } from "recharts"
 
 import {
   Card,
@@ -17,18 +17,18 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart"
 
-interface InventoryDonutProps {
+interface RequestsDonutProps {
   title: string;
   description: string;
   data: Array<{
-    browser: string;  // This represents item_category
-    visitors: number; // This represents either item_quantity or item_total
+    browser: string;  // This represents requests_types
+    visitors: number; // This represents requests_count
     fill: string;
   }>;
 }
 
-export function Component({ title, description, data }: InventoryDonutProps) {
-  console.log("InventoryDonut props:", { title, description, data })
+export function Component({ title, description, data }: RequestsDonutProps) {
+  console.log("RequestsDonut props:", { title, description, data })
   const totalValue = React.useMemo(() => {
     return data.reduce((acc, curr) => acc + curr.visitors, 0)
   }, [data])
@@ -47,54 +47,54 @@ export function Component({ title, description, data }: InventoryDonutProps) {
             <p className="text-muted-foreground text-lg">No Data</p>
           </div>
         ) : (
-          <ChartContainer
+            <ChartContainer
             config={chartConfig}
             className="mx-auto aspect-square max-h-[250px]"
-          >
+            >
             <PieChart>
-              <ChartTooltip
+                <ChartTooltip
                 cursor={false}
-                content={<ChartTooltipContent hideLabel />}
-              />
-              <Pie
+                content={<ChartTooltipContent hideLabel hideIndicator />}
+                />
+                <Pie
                 data={data}
                 dataKey="visitors"
                 nameKey="browser"
                 innerRadius={60}
                 strokeWidth={5}
-              >
+                >
                 <Label
-                  content={({ viewBox }) => {
+                    content={({ viewBox }) => {
                     if (viewBox && "cx" in viewBox && "cy" in viewBox) {
-                      return (
+                        return (
                         <text
-                          x={viewBox.cx}
-                          y={viewBox.cy}
-                          textAnchor="middle"
-                          dominantBaseline="middle"
+                            x={viewBox.cx}
+                            y={viewBox.cy}
+                            textAnchor="middle"
+                            dominantBaseline="middle"
                         >
-                          <tspan
+                            <tspan
                             x={viewBox.cx}
                             y={viewBox.cy}
                             className="fill-foreground text-3xl font-bold"
-                          >
+                            >
                             {totalValue.toLocaleString()}
-                          </tspan>
-                          <tspan
+                            </tspan>
+                            <tspan
                             x={viewBox.cx}
                             y={(viewBox.cy || 0) + 24}
                             className="fill-muted-foreground"
-                          >
+                            >
                             Total
-                          </tspan>
+                            </tspan>
                         </text>
-                      )
+                        )
                     }
-                  }}
+                    }}
                 />
-              </Pie>
+                </Pie>
             </PieChart>
-          </ChartContainer>
+            </ChartContainer>
         )}
       </CardContent>
       {/* Remove or modify the CardFooter as needed */}
