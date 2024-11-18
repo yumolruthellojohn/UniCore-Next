@@ -21,7 +21,7 @@ export default async function Navbar() {
         </Link>
       ) : (
         <div className="flex items-center gap-2">
-          <span className="mr-2 text-sm sm:text-base truncate max-w-[150px] sm:max-w-[200px]">
+          <span className="mr-2 text-sm sm:text-base truncate max-w-[150px] sm:max-w-[400px]">
             Logged in as: {session.user.name}
           </span>
           <form action={handleSignOut}>

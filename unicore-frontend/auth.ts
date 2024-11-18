@@ -2,6 +2,7 @@ import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { signInSchema } from "./lib/zod";
 import axios from 'axios';
+import { ip_address } from '@/app/ipconfig';
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
     providers: [
@@ -23,7 +24,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 
                 try {
                     let user = null;
-                    const response = await axios.post('http://localhost:8081/login', {
+                    const response = await axios.post(`http://${ip_address}:8081/login`, {
                         user_idnum: credentials.user_idnum,
                         user_password: credentials.user_password
                     });

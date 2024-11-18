@@ -13,6 +13,7 @@ import { useState } from 'react'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
 import { useToast } from "@/hooks/use-toast"
 import axios from 'axios';
+import { ip_address } from '@/app/ipconfig';
 
 export type ServiceRoom = {
   rq_id: number
@@ -113,7 +114,7 @@ export const createServiceRoomColumns = (onDataChange: () => void): ColumnDef<Se
 
       const handleDelete = async () => {
         try {
-          await axios.delete(`http://localhost:8081/requests/${service.rq_id}`)
+          await axios.delete(`http://${ip_address}:8081/requests/${service.rq_id}`)
           toast({
             title: "Request deleted",
             description: "The request has been successfully deleted.",

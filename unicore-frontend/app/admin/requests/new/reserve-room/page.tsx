@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/dialog"
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
+import { ip_address } from '@/app/ipconfig';
 
 interface Room {
     room_id: number;
@@ -63,7 +64,7 @@ export default function NewReserveRoom() {
                 const newUserId = session.user.user_id.toString();
                 console.log('Setting new user id:', newUserId);
                 try {
-                    const id_response = await axios.get(`http://localhost:8081/users/user_id/${newUserId}`); // Adjust this URL to your actual API endpoint
+                    const id_response = await axios.get(`http://${ip_address}:8081/users/user_id/${newUserId}`); // Adjust this URL to your actual API endpoint
                     console.log(id_response.data[0].user_id);
                     setFormData(prevState => ({
                         ...prevState,
@@ -76,9 +77,9 @@ export default function NewReserveRoom() {
             }
 
             try {
-                const dept_response = await axios.get("http://localhost:8081/departments"); // Adjust this URL to your actual API endpoint
+                const dept_response = await axios.get(`http://${ip_address}:8081/departments`); // Adjust this URL to your actual API endpoint
                 setDepartments(dept_response.data);
-                const room_response = await axios.get("http://localhost:8081/rooms"); // Adjust this URL to your actual API endpoint
+                const room_response = await axios.get(`http://${ip_address}:8081/rooms`); // Adjust this URL to your actual API endpoint
                 setRooms(room_response.data);
             } catch (error) {
                 console.error('Error fetching data:', error);
@@ -100,7 +101,7 @@ export default function NewReserveRoom() {
         e.preventDefault();
         // API call to save the room reservation request
         try {
-            await axios.post("http://localhost:8081/requests/reserve_room/add", formData);
+            await axios.post(`http://${ip_address}:8081/requests/reserve_room/add`, formData);
             console.log('Form submitted:', formData);
             setShowSuccessDialog(true);
         } catch (err) {

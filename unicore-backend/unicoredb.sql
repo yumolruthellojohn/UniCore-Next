@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 01, 2024 at 04:23 PM
+-- Generation Time: Nov 18, 2024 at 09:07 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -37,8 +37,9 @@ CREATE TABLE `tbdepartments` (
 --
 
 INSERT INTO `tbdepartments` (`dept_id`, `dept_name`) VALUES
-(1, 'None'),
-(2, 'College of Computer Studies (CCS)');
+(1, 'Building Maintenance Office (BMO)'),
+(2, 'Computer Maintenance Office (CMO)'),
+(3, 'College of Computer Studies (CCS)');
 
 -- --------------------------------------------------------
 
@@ -58,6 +59,7 @@ CREATE TABLE `tbitems` (
   `item_buy_cost` int(12) NOT NULL,
   `item_total` int(12) NOT NULL,
   `item_remarks` varchar(255) NOT NULL,
+  `item_status` varchar(255) NOT NULL,
   `dept_id` int(12) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -65,10 +67,11 @@ CREATE TABLE `tbitems` (
 -- Dumping data for table `tbitems`
 --
 
-INSERT INTO `tbitems` (`item_id`, `item_category`, `item_control`, `item_quantity`, `item_measure`, `item_name`, `item_desc`, `item_buy_date`, `item_buy_cost`, `item_total`, `item_remarks`, `dept_id`) VALUES
-(1, 'Laboratory Equipments', NULL, 6, 'Units', 'Attachment Unit Intercourse - AUI Transceivers', 'with SN:\r\n-AAA-02614\r\n-AAA-02615\r\n-AAA-02616\r\n-AAA-02617\r\n2 units w/o S.N.', '2001-06-19', 3500, 21000, 'Complete', 1),
-(2, 'Laboratory Equipments', '', 3, 'Units', 'Cable Tester', 'w/ S.N.\r\n-620679\r\n-653785\r\n-509825803 (replaced)', '2001-06-19', 7000, 21000, 'Complete', 2),
-(3, 'Appliances/Electrical/Safety', '', 2, 'Units', 'Flashlights', 'Standard', '2005-06-19', 150, 300, 'Damaged', 1);
+INSERT INTO `tbitems` (`item_id`, `item_category`, `item_control`, `item_quantity`, `item_measure`, `item_name`, `item_desc`, `item_buy_date`, `item_buy_cost`, `item_total`, `item_remarks`, `item_status`, `dept_id`) VALUES
+(1, 'Laboratory Equipments', NULL, 6, 'Units', 'Attachment Unit Intercourse - AUI Transceivers', 'with SN:\r\n-AAA-02614\r\n-AAA-02615\r\n-AAA-02616\r\n-AAA-02617\r\n2 units w/o S.N.', '2001-06-19', 3500, 21000, 'Complete', 'Available', 1),
+(2, 'Laboratory Equipments', '', 3, 'Units', 'Cable Tester', 'w/ S.N.\r\n-620679\r\n-653785\r\n-509825803 (replaced)', '2001-06-19', 7000, 21000, 'Complete', 'Available', 2),
+(3, 'Appliances/Electrical/Safety', '', 2, 'Units', 'Flashlights', 'Standard', '2005-06-19', 150, 300, 'Damaged', 'Available', 1),
+(9, 'Computer System and Peripherals', '', 2, 'Units', 'LED Projector', 'w/ power cable and hdmi cable for each unit', '2024-11-04', 10000, 20000, 'OK', 'Available', 2);
 
 -- --------------------------------------------------------
 
@@ -116,6 +119,7 @@ CREATE TABLE `tbrequests` (
   `item_id` int(12) DEFAULT NULL,
   `room_id` int(12) DEFAULT NULL,
   `rq_service_type` varchar(255) DEFAULT NULL,
+  `rq_prio_level` varchar(255) NOT NULL,
   `rq_notes` varchar(255) NOT NULL,
   `rq_create_date` varchar(255) NOT NULL,
   `rq_complete_date` varchar(255) DEFAULT NULL,
@@ -128,11 +132,19 @@ CREATE TABLE `tbrequests` (
 -- Dumping data for table `tbrequests`
 --
 
-INSERT INTO `tbrequests` (`rq_id`, `rq_type`, `dept_id`, `item_id`, `room_id`, `rq_service_type`, `rq_notes`, `rq_create_date`, `rq_complete_date`, `rq_create_user_id`, `rq_accept_user_id`, `rq_status`) VALUES
-(1, 'Reserve Item', 2, 1, NULL, NULL, 'test', '2024-09-30', NULL, 1, 2, 'In Progress'),
-(2, 'Reserve Room', 2, NULL, 1, NULL, 'test', '2024-10-01', NULL, 1, 2, 'Request Submitted'),
-(3, 'Service', 2, NULL, NULL, 'Maintenance', 'test', '2024-10-01', NULL, 1, 2, 'Request Submitted'),
-(10, 'Reserve Item', 2, 2, NULL, NULL, 'test', '2024-10-1', NULL, 1, NULL, 'Request Submitted');
+INSERT INTO `tbrequests` (`rq_id`, `rq_type`, `dept_id`, `item_id`, `room_id`, `rq_service_type`, `rq_prio_level`, `rq_notes`, `rq_create_date`, `rq_complete_date`, `rq_create_user_id`, `rq_accept_user_id`, `rq_status`) VALUES
+(1, 'Reserve Item', 2, 1, NULL, NULL, 'Moderate', 'test complete', '2024-09-30', '2024-10-6', 1, 2, 'Completed'),
+(2, 'Reserve Facility', 2, NULL, 1, NULL, 'Moderate', 'checking', '2024-10-01', '', 1, 2, 'Accepted'),
+(3, 'Service for Item', 2, 1, NULL, 'Maintenance', 'Moderate', 'test', '2024-10-01', NULL, 1, 3, 'Accepted'),
+(10, 'Reserve Item', 2, 2, NULL, NULL, 'Moderate', 'test', '2024-10-1', NULL, 1, NULL, 'Request Submitted'),
+(13, 'Reserve Item', 1, 3, NULL, NULL, 'Moderate', 'test', '2024-10-4', NULL, 1, NULL, 'Request Submitted'),
+(17, 'Reserve Item', 1, 1, NULL, NULL, 'Urgent', 'test session', '2024-10-5', NULL, 1, 3, 'Accepted'),
+(18, 'Service for Facility', 1, NULL, 1, 'Maintenance', 'Urgent', 'test approve maint', '2024-10-5', '', 1, 2, 'Service Aprroved'),
+(19, 'Service for Facility', 1, NULL, 1, 'Other', 'Urgent', 'test prio', '2024-10-5', NULL, 1, NULL, 'Request Submitted'),
+(20, 'Service for Item', 2, 3, NULL, 'Repair', 'Moderate', 'test submit', '2024-10-6', NULL, 2, 3, 'Accepted'),
+(21, 'Service for Facility', 1, NULL, 1, 'Installation', 'Moderate', 'AC', '2024-10-6', NULL, 3, NULL, 'Request Submitted'),
+(22, 'Reserve Facility', 2, NULL, 1, NULL, 'Urgent', 'test cmo queue', '2024-10-6', NULL, 2, 3, 'Accepted'),
+(23, 'Reserve Item', 2, 2, NULL, NULL, 'Moderate', 'test', '2024-10-8', NULL, 2, NULL, 'Request Submitted');
 
 -- --------------------------------------------------------
 
@@ -142,6 +154,8 @@ INSERT INTO `tbrequests` (`rq_id`, `rq_type`, `dept_id`, `item_id`, `room_id`, `
 
 CREATE TABLE `tbrooms` (
   `room_id` int(12) NOT NULL,
+  `room_bldg` varchar(255) NOT NULL,
+  `room_floor` varchar(255) NOT NULL,
   `room_name` varchar(255) NOT NULL,
   `room_desc` varchar(255) NOT NULL,
   `room_status` varchar(255) NOT NULL,
@@ -152,8 +166,13 @@ CREATE TABLE `tbrooms` (
 -- Dumping data for table `tbrooms`
 --
 
-INSERT INTO `tbrooms` (`room_id`, `room_name`, `room_desc`, `room_status`, `dept_id`) VALUES
-(1, '208', 'Test', 'Available', 2);
+INSERT INTO `tbrooms` (`room_id`, `room_bldg`, `room_floor`, `room_name`, `room_desc`, `room_status`, `dept_id`) VALUES
+(1, 'Old Building', '2nd Floor', 'Cisco Laboratory', 'Laboratory for networking and other computer-related activities', 'Service Approved: Maintenance', 2),
+(2, 'Old Building', '2nd Floor', 'Computer Maintenance Office', 'Main office of CMO department', 'Available', 2),
+(3, 'CBE Building', '4th Floor', 'CBE AVR', 'Audio Visual Room', 'Available', 1),
+(4, 'Maritime Building', '6th Floor', 'Maritime AVR', 'Audio Visual Room', 'Available', 1),
+(5, 'BE Building', '8th Floor', 'BE Auditorium', 'Auditorium', 'Available', 1),
+(6, 'Annex B', '1st Floor', 'Function Hall', 'Ground', 'Available', 1);
 
 -- --------------------------------------------------------
 
@@ -198,8 +217,14 @@ CREATE TABLE `tbuseraccounts` (
 --
 
 INSERT INTO `tbuseraccounts` (`user_id`, `user_idnum`, `user_password`, `user_fname`, `user_lname`, `user_email`, `user_contact`, `user_type`, `dept_id`) VALUES
-(1, 10000000, 'admin', 'Joe', 'Admin', 'admin@mail.com', '12345678', 'Administrator', 1),
-(2, 10000001, 'technical', 'Joe', 'Tech', 'tech@mail.com', '12345678', 'Technical Staff', 1);
+(1, 10000000, 'admin', 'Joe', 'Admin', 'admin@mail.com', '12345678', 'Administrator', 2),
+(2, 10000001, 'tech1', 'Joe', 'BMO', 'tech@mail.com', '12345678', 'Technical Staff', 1),
+(3, 10000002, 'tech2', 'Joe', 'CMO', 'tech@mail.com', '12345678', 'Technical Staff', 2),
+(4, 19140284, 'yumol', 'Ruthello John', 'Yumol', 'yumol.ruthellojohn157@gmail.com', '12345678', 'Administrator', 3),
+(5, 20200754, 'josepulmones', 'Jose Ma.', 'Pulmones Jr.', '21jmpulmones@gmail.com', '09150411484', 'Technical Staff', 3),
+(6, 19099456, 'glenn', 'Glenn', 'Toñacao', 'glenntoniacao@gmail.com', '0905268395', 'Technical Staff', 3),
+(7, 19084821, 'hannah', 'Hannah Jane', 'Ferrer', 'hannahjaneferrer2@gmail.com', '0923445642', 'Technical Staff', 3),
+(8, 20181622, 'jijil31', 'Angel Dianne', 'Ocier', 'angeldianneocier31@gmail.com', '09319100322', 'Technical Staff', 3);
 
 --
 -- Indexes for dumped tables
@@ -261,13 +286,13 @@ ALTER TABLE `tbuseraccounts`
 -- AUTO_INCREMENT for table `tbdepartments`
 --
 ALTER TABLE `tbdepartments`
-  MODIFY `dept_id` int(12) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `dept_id` int(12) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `tbitems`
 --
 ALTER TABLE `tbitems`
-  MODIFY `item_id` int(12) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `item_id` int(12) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `tbnotifs`
@@ -279,13 +304,13 @@ ALTER TABLE `tbnotifs`
 -- AUTO_INCREMENT for table `tbrequests`
 --
 ALTER TABLE `tbrequests`
-  MODIFY `rq_id` int(12) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `rq_id` int(12) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT for table `tbrooms`
 --
 ALTER TABLE `tbrooms`
-  MODIFY `room_id` int(12) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `room_id` int(12) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `tbschedules`
@@ -297,7 +322,7 @@ ALTER TABLE `tbschedules`
 -- AUTO_INCREMENT for table `tbuseraccounts`
 --
 ALTER TABLE `tbuseraccounts`
-  MODIFY `user_id` int(12) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `user_id` int(12) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- Constraints for dumped tables

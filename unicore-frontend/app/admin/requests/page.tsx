@@ -10,11 +10,13 @@ import { DataTableAdd } from "@/components/data-table/data-table-add-button"
 import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Toaster } from "@/components/ui/toaster"
 import axios from "axios";
+import { Button } from '@/components/ui/button';
+import { ip_address } from '@/app/ipconfig';
 
 async function getReserveItemData(): Promise<ReserveItem[]> {
     let reserveItem = null;
     try {
-        const response = await axios.get("http://localhost:8081/requests/reserve_item");
+        const response = await axios.get(`http://${ip_address}:8081/requests/reserve_item`);
         reserveItem = response.data;
       } catch (err) {
         console.log(err);
@@ -27,7 +29,7 @@ async function getReserveItemData(): Promise<ReserveItem[]> {
 async function getReserveRoomData(): Promise<ReserveRoom[]> {
   let reserveRoom = null;
   try {
-      const response = await axios.get("http://localhost:8081/requests/reserve_room");
+      const response = await axios.get(`http://${ip_address}:8081/requests/reserve_room`);
       reserveRoom = response.data;
     } catch (err) {
       console.log(err);
@@ -40,7 +42,7 @@ async function getReserveRoomData(): Promise<ReserveRoom[]> {
 async function getServiceItemData(): Promise<ServiceItem[]> {
   let serviceItem = null;
     try {
-      const response = await axios.get("http://localhost:8081/requests/service_item");
+      const response = await axios.get(`http://${ip_address}:8081/requests/service_item`);
       serviceItem = response.data;
     } catch (err) {
       console.log(err);
@@ -53,7 +55,7 @@ async function getServiceItemData(): Promise<ServiceItem[]> {
 async function getServiceRoomData(): Promise<ServiceRoom[]> {
   let serviceRoom = null;
     try {
-      const response = await axios.get("http://localhost:8081/requests/service_room");
+      const response = await axios.get(`http://${ip_address}:8081/requests/service_room`);
       serviceRoom = response.data;
     } catch (err) {
       console.log(err);
@@ -110,10 +112,8 @@ export default function Requests() {
 
     return (
         <div className="container mx-auto py-4">
-            <div className="flex justify-between items-center mb-4">
-            <Card
-                className="sm:col-span-2" x-chunk="dashboard-05-chunk-0"
-              >
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-3xl">
+              <Card className="w-full">
                 <CardHeader className="pb-3">
                   <CardTitle>Requests</CardTitle>
                   <CardDescription className="max-w-lg text-balance leading-relaxed">
@@ -124,38 +124,82 @@ export default function Requests() {
                   <DataTableAdd text="Create New Request" href="/admin/requests/new" />
                 </CardFooter>
               </Card>
+              <Card className="w-full">
+                <CardHeader className="pb-3">
+                  <CardTitle>Export Data</CardTitle>
+                  <CardDescription className="text-balance leading-relaxed">
+                    Fetch data and export to PDF.
+                  </CardDescription>
+                </CardHeader>
+                <CardFooter>
+                  <Button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Generate PDF</Button>
+                </CardFooter>
+              </Card>
             </div>
-            <h1 className="text-2xl font-bold">Item Reservations</h1>
-            <DataTable 
-                columns={reserveItemColumns}
-                data={reserveItemData} 
-                filterColumn={filterReserveItemColumn}
-                onDataChange={refreshData}
-            />
             <br />
-            <h1 className="text-2xl font-bold">Room Reservations</h1>
-            <DataTable 
-                columns={reserveRoomColumns}
-                data={reserveRoomData} 
-                filterColumn={filterReserveRoomColumn}
-                onDataChange={refreshData}
-            />
+            <Card>
+              <CardHeader>
+                <CardTitle>
+                  <h1 className="text-2xl font-bold">Item Reservations</h1>
+                </CardTitle>
+              </CardHeader>
+                <div className='px-4 pb-2'>
+                  <DataTable 
+                    columns={reserveItemColumns}
+                    data={reserveItemData} 
+                    filterColumn={filterReserveItemColumn}
+                    onDataChange={refreshData}
+                  />
+                </div>
+            </Card>
             <br />
-            <h1 className="text-2xl font-bold">Services for Item</h1>
-            <DataTable 
-                columns={serviceItemColumns}
-                data={serviceItemData} 
-                filterColumn={filterServiceItemColumn}
-                onDataChange={refreshData}
-            />
+            <Card>
+              <CardHeader>
+                <CardTitle>
+                  <h1 className="text-2xl font-bold">Room Reservations</h1>
+                </CardTitle>
+              </CardHeader>
+              <div className='px-4 pb-2'>
+                <DataTable 
+                  columns={reserveRoomColumns}
+                  data={reserveRoomData} 
+                  filterColumn={filterReserveRoomColumn}
+                  onDataChange={refreshData}
+                />
+              </div>
+            </Card>
             <br />
-            <h1 className="text-2xl font-bold">Services for Room</h1>
-            <DataTable 
-                columns={serviceRoomColumns}
-                data={serviceRoomData} 
-                filterColumn={filterServiceRoomColumn}
-                onDataChange={refreshData}
-            />
+            <Card>
+              <CardHeader>
+                <CardTitle>
+                  <h1 className="text-2xl font-bold">Services for Item</h1>
+                </CardTitle>
+              </CardHeader>
+              <div className='px-4 pb-2'>
+                <DataTable 
+                  columns={serviceItemColumns}
+                  data={serviceItemData} 
+                  filterColumn={filterServiceItemColumn}
+                  onDataChange={refreshData}
+                />
+              </div>
+            </Card>
+            <br />
+            <Card>
+              <CardHeader>
+                <CardTitle>
+                  <h1 className="text-2xl font-bold">Services for Room</h1>
+                </CardTitle>
+              </CardHeader>
+              <div className='px-4 pb-2'>
+                <DataTable 
+                  columns={serviceRoomColumns}
+                  data={serviceRoomData} 
+                  filterColumn={filterServiceRoomColumn}
+                  onDataChange={refreshData}
+                />
+              </div>
+            </Card>
             <Toaster />
         </div>
     )

@@ -3,6 +3,9 @@
 import { useEffect, useState } from "react"
 import axios from "axios"
 import { Component as RequestsDonut } from "../requests/requests-donut"
+import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { DataTableAdd } from "@/components/data-table/data-table-add-button";
+import { ip_address } from '@/app/ipconfig';
 
 interface RequestsData {
   rq_type: string;
@@ -27,7 +30,7 @@ export default function Dashboard() {
         const fetchData = async () => {
             try {
                 const [requestsResponse] = await Promise.all([
-                    axios.get("http://localhost:8081/requests_summary")
+                    axios.get(`http://${ip_address}:8081/requests_summary`)
                 ]);
                 console.log("Fetched requests data:", requestsResponse.data);
                 setRequestsData(requestsResponse.data);
@@ -59,7 +62,20 @@ export default function Dashboard() {
 
     return (
         <div className="p-4">
-            <h2 className="text-2xl font-semibold mb-2">Requests Summary</h2>
+            <Card className="max-w-[450px]">
+                <CardHeader>
+                    <CardTitle>
+                        Requests Summary
+                    </CardTitle>
+                    <CardDescription>
+                        See the charts below, or visit the page for more info.
+                    </CardDescription>
+                </CardHeader>
+                <CardFooter>
+                    <DataTableAdd text="Go to Requests Page" href="/admin/requests" />
+                </CardFooter>
+            </Card>
+            <br />
             <div className="grid grid-cols-1 md:grid-cols-2 max-w-4xl gap-4 mb-8">
                 <RequestsDonut 
                     title="Ongoing Requests by Type"

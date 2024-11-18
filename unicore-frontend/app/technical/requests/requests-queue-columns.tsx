@@ -13,6 +13,7 @@ import { useState } from 'react'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
 import { useToast } from "@/hooks/use-toast"
 import axios from 'axios';
+import { ip_address } from '@/app/ipconfig';
 
 export type RequestQueue = {
   rq_id: number
@@ -103,14 +104,14 @@ export const createRequestQueueColumns = (onDataChange: () => void, currentUserI
           case "Reserve Item":
             url = `/technical/requests/view-reserve-item-queue?id=${requestQueue.rq_id}`;
             break;
-          case "Reserve Room":
-            url = `/technical/requests/view-reserve-room-queue?id=${requestQueue.rq_id}`;
+          case "Reserve Facility":
+            url = `/technical/requests/view-reserve-facility-queue?id=${requestQueue.rq_id}`;
             break;
           case "Service for Item":
             url = `/technical/requests/view-service-item-queue?id=${requestQueue.rq_id}`;
             break;
-          case "Service for Room":
-            url = `/technical/requests/view-service-room-queue?id=${requestQueue.rq_id}`;
+          case "Service for Facility":
+            url = `/technical/requests/view-service-facility-queue?id=${requestQueue.rq_id}`;
             break;
           default:
             url = `/technical/requests/`; // Fallback URL
@@ -126,14 +127,14 @@ export const createRequestQueueColumns = (onDataChange: () => void, currentUserI
           //const newUserId = session.user.user_id.toString();
           //console.log('Setting new user id:', newUserId);
           try {
-              /*const id_response = await axios.get(`http://localhost:8081/users/user_id/${newUserId}`); // Adjust this URL to your actual API endpoint
+              /*const id_response = await axios.get(`http://${ip_address}:8081/users/user_id/${newUserId}`); // Adjust this URL to your actual API endpoint
               console.log(id_response.data[0].user_id);
               setRequestAcceptance(prevState => ({
                   ...prevState,
                   rq_accept_user_id: id_response.data[0].user_id,
               }));*/
               
-              await axios.put(`http://localhost:8081/requests/accept/${requestQueue.rq_id}`, requestAcceptance);
+              await axios.put(`http://${ip_address}:8081/requests/accept/${requestQueue.rq_id}`, requestAcceptance);
               toast({
                 title: "Request accepted",
                 description: "You accepted the request and it is now in your workbench.",

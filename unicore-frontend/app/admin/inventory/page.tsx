@@ -8,11 +8,12 @@ import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "@/comp
 import { Toaster } from "@/components/ui/toaster"
 import axios from "axios";
 import { Button } from '@/components/ui/button';
+import { ip_address } from '@/app/ipconfig';
 
 async function getData(): Promise<Item[]> {
     let item = null;
     try {
-        const response = await axios.get("http://localhost:8081/items");
+        const response = await axios.get(`http://${ip_address}:8081/items`);
         item = response.data;
       } catch (err) {
         console.log(err);
@@ -59,7 +60,7 @@ export default function Inventory() {
                 <CardHeader className="pb-3">
                   <CardTitle>Export Data</CardTitle>
                   <CardDescription className="text-balance leading-relaxed">
-                    Fetch all data and export to PDF.
+                    Fetch data and export to PDF.
                   </CardDescription>
                 </CardHeader>
                 <CardFooter>
@@ -67,6 +68,7 @@ export default function Inventory() {
                 </CardFooter>
               </Card>
             </div>
+            <br />
             <DataTable 
                 columns={columns}
                 data={data} 

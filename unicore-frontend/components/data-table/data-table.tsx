@@ -24,6 +24,7 @@ import {
  
 import { DataTableFilter } from "./data-table-filter"
 import { DataTablePagination } from "./data-table-pagination"
+import { Card, CardFooter, CardHeader } from "../ui/card"
  
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -61,55 +62,61 @@ export function DataTable<TData, TValue>({
 
   return (
     <div>
-      <DataTableFilter table={table} filterColumn={filterColumn} />
-      <div className="w-full overflow-auto">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id} className="break-words text-center">
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
-                  )
-                })}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="break-words">
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+      <Card>
+        <CardHeader>
+          <DataTableFilter table={table} filterColumn={filterColumn} />
+        </CardHeader>
+        <CardFooter>
+          <div className="flex-col w-full overflow-auto">
+            <Table>
+              <TableHeader>
+                {table.getHeaderGroups().map((headerGroup) => (
+                  <TableRow key={headerGroup.id}>
+                    {headerGroup.headers.map((header) => {
+                      return (
+                        <TableHead key={header.id} className="break-words text-center">
+                          {header.isPlaceholder
+                            ? null
+                            : flexRender(
+                                header.column.columnDef.header,
+                                header.getContext()
+                              )}
+                        </TableHead>
+                      )
+                    })}
+                  </TableRow>
+                ))}
+              </TableHeader>
+              <TableBody>
+                {table.getRowModel().rows?.length ? (
+                  table.getRowModel().rows.map((row) => (
+                    <TableRow
+                      key={row.id}
+                      data-state={row.getIsSelected() && "selected"}
+                    >
+                      {row.getVisibleCells().map((cell) => (
+                        <TableCell key={cell.id} className="break-words">
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={columns.length} className="h-24 text-center">
+                      No results.
                     </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
-                  No results.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-        <br />
-        <div className="flex justify-center">
-          <DataTablePagination table={table} />
-        </div>
-      </div>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+            <br />
+            <div className="flex justify-center">
+              <DataTablePagination table={table} />
+            </div>
+          </div>
+        </CardFooter>
+      </Card>
     </div>
   )
 }

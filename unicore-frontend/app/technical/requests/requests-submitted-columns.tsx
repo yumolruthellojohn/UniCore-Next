@@ -82,13 +82,34 @@ export const createRequestSubmittedColumns = (onDataChange: () => void): ColumnD
       const router = useRouter();
       const requestQueue = row.original
 
+      const handleView = async () => {
+        let url;
+        switch (requestQueue.rq_type) {
+          case "Reserve Item":
+            url = `/technical/requests/view-reserve-item-queue?id=${requestQueue.rq_id}`;
+            break;
+          case "Reserve Facility":
+            url = `/technical/requests/view-reserve-facility-queue?id=${requestQueue.rq_id}`;
+            break;
+          case "Service for Item":
+            url = `/technical/requests/view-service-item-queue?id=${requestQueue.rq_id}`;
+            break;
+          case "Service for Facility":
+            url = `/technical/requests/view-service-facility-queue?id=${requestQueue.rq_id}`;
+            break;
+          default:
+            url = `/technical/requests/`; // Fallback URL
+        }
+        router.push(url);
+      }
+
       return (
         <div className="flex items-center justify-center space-x-2 w-[20%] min-w-[160px]">
           <Button 
             variant='ghost'
             size="icon" 
             title="View Details"
-            onClick={() => router.push(`/technical/requests/view?id=${requestQueue.rq_id}`)}
+            onClick={handleView}
           >
             <Eye className="h-4 w-4" />
           </Button>

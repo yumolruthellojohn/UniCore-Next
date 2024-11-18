@@ -18,6 +18,7 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
+import { ip_address } from '@/app/ipconfig';
 
 
 interface ReserveItem {
@@ -51,7 +52,7 @@ export default function ReserveItemView() {
         const fetchData = async () => {
             if (requestID) {
                 // Fetch request details
-                const itemResponse = await axios.get(`http://localhost:8081/requests/reserve_item/${requestID}`);
+                const itemResponse = await axios.get(`http://${ip_address}:8081/requests/reserve_item/${requestID}`);
                 setRequest(itemResponse.data[0]);
             }
         };
@@ -70,7 +71,7 @@ export default function ReserveItemView() {
 
     const handleDelete = async () => {
         try {
-            await axios.delete(`http://localhost:8081/requests/${request.rq_id}`);
+            await axios.delete(`http://${ip_address}:8081/requests/${request.rq_id}`);
             toast({
                 title: "Request deleted successfully",
                 description: "The request has been deleted.",

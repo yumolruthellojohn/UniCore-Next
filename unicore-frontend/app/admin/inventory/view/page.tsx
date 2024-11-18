@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { DataTable } from '@/components/data-table/data-table-no-change';
+import { ip_address } from '@/app/ipconfig';
 
 interface Item {
   item_id: number;
@@ -55,11 +56,11 @@ export default function ItemView() {
         const fetchData = async () => {
             if (itemId) {
                 // Fetch item details
-                const itemResponse = await axios.get(`http://localhost:8081/items/${itemId}`);
+                const itemResponse = await axios.get(`http://${ip_address}:8081/items/${itemId}`);
                 setItem(itemResponse.data[0]);
 
                 // Fetch related requests
-                const requestsResponse = await axios.get(`http://localhost:8081/requests/relate_item/${itemId}`);
+                const requestsResponse = await axios.get(`http://${ip_address}:8081/requests/relate_item/${itemId}`);
                 setItemRequestsData(requestsResponse.data);
             }   
         };
@@ -77,7 +78,7 @@ export default function ItemView() {
 
     const handleDelete = async () => {
         try {
-            await axios.delete(`http://localhost:8081/items/${item.item_id}`);
+            await axios.delete(`http://${ip_address}:8081/items/${item.item_id}`);
             toast({
                 title: "Item deleted successfully",
                 description: "The item has been removed from the inventory.",

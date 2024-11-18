@@ -13,6 +13,7 @@ import { useState } from 'react'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
 import { useToast } from "@/hooks/use-toast"
 import axios from 'axios';
+import { ip_address } from '@/app/ipconfig';
 
 export type Item = {
   item_id: number
@@ -84,7 +85,7 @@ export const createColumns = (onDataChange: () => void): ColumnDef<Item>[] => [
 
       const handleDelete = async () => {
         try {
-          await axios.delete(`http://localhost:8081/items/${item.item_id}`)
+          await axios.delete(`http://${ip_address}:8081/items/${item.item_id}`)
           toast({
             title: "Item deleted",
             description: "The item has been successfully deleted.",

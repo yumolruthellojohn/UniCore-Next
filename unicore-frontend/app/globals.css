@@ -8,6 +8,11 @@
   --background-end-rgb: 255, 255, 255;
 }
 
+body {
+  background: linear-gradient(to bottom, #b3e0ff, #99ccff, #80b3ff); /* Variants of light blue */
+  /* Smooth gradient with multiple shades of blue */
+}
+
 #sheet {
   margin-top: 65px; /* Adds space below the navbar */
 }

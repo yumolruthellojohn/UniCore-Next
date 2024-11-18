@@ -18,7 +18,7 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
-
+import { ip_address } from '@/app/ipconfig';
 
 interface ReserveRoom {
     rq_id: number
@@ -51,7 +51,7 @@ export default function ReserveRoomView() {
         const fetchData = async () => {
             if (requestID) {
                 // Fetch request details
-                const roomResponse = await axios.get(`http://localhost:8081/requests/reserve_room/${requestID}`);
+                const roomResponse = await axios.get(`http://${ip_address}:8081/requests/reserve_room/${requestID}`);
                 setRequest(roomResponse.data[0]);
             }
         };
@@ -70,7 +70,7 @@ export default function ReserveRoomView() {
 
     const handleDelete = async () => {
         try {
-            await axios.delete(`http://localhost:8081/requests/${request.rq_id}`);
+            await axios.delete(`http://${ip_address}:8081/requests/${request.rq_id}`);
             toast({
                 title: "Request deleted successfully",
                 description: "The request has been deleted.",

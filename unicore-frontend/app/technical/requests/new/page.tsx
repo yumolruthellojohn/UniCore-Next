@@ -21,9 +21,9 @@ export default function SelectRequestType() {
               label="Item Reservation"
             />
             <RequestButton
-              href="/technical/requests/new/reserve-room"
+              href="/technical/requests/new/reserve-facility"
               icon={DoorClosed}
-              label="Room Reservation"
+              label="Facility Reservation"
             />
             <RequestButton
               href="/technical/requests/new/service-item"
@@ -31,9 +31,9 @@ export default function SelectRequestType() {
               label="Service for Item"
             />
             <RequestButton
-              href="/technical/requests/new/service-room"
+              href="/technical/requests/new/service-facility"
               icon={HousePlug}
-              label="Service for Room"
+              label="Service for Facility"
             />
           </div>
         </CardContent>

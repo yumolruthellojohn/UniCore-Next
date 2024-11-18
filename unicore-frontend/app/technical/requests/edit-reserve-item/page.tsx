@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, use } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import axios from 'axios';
 import { Button } from "@/components/ui/button"
@@ -17,6 +17,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import Link from 'next/link';
+import { ip_address } from '@/app/ipconfig';
 
 export default function EditReserveItemRequest(){
     const router = useRouter();
@@ -28,6 +29,7 @@ export default function EditReserveItemRequest(){
     const [formData, setFormData] = useState({
         item_id: '',
         item_name: '',
+        item_quantity: '',
         item_status: '',
         rq_status: '',
         rq_notes: '',
@@ -42,7 +44,7 @@ export default function EditReserveItemRequest(){
 
     const fetchRequestData = async () => {
         try {
-            const response = await axios.get(`http://localhost:8081/requests/reserve_item/${requestID}`);
+            const response = await axios.get(`http://${ip_address}:8081/requests/reserve_item/${requestID}`);
             // Log the response to see what data you're getting
             console.log('Fetched request data:', response.data);
             setFormData(response.data[0]);
@@ -63,29 +65,33 @@ export default function EditReserveItemRequest(){
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         try {
-            await axios.put(`http://localhost:8081/requests/reserve_item/${requestID}`, formData);
+            await axios.put(`http://${ip_address}:8081/requests/reserve_item/${requestID}`, formData);
 
-            //update item status from inventory
+            //update item quantity and status from inventory
+
+            let newItemQuantity: number | null = null; // Variable to hold the new item quantity
             let newItemStatus: string | null = null; // Variable to hold the new item status
 
             switch (formData.rq_status) {
-                case "Reserved: For Pickup":
-                    newItemStatus = "Reserved";
-                    break;
                 case "Reserved: In Use":
-                    newItemStatus = "Reserved";
-                    break;
-                case "Reserved: For Return":
-                    newItemStatus = "Reserved";
+                    newItemQuantity = parseInt(formData.item_quantity) - 1;
                     break;
                 case "Completed":
-                    newItemStatus = "Available";
+                    newItemQuantity = parseInt(formData.item_quantity) + 1;
                     break;
             }
 
-            if (newItemStatus) {
-                console.log(newItemStatus);
-                await axios.put(`http://localhost:8081/items/status/${formData.item_id}`, { item_status: newItemStatus });
+            if (newItemQuantity != 0) {
+                newItemStatus = "Available"
+            } else if (newItemQuantity === 0) {
+                newItemStatus = "Not Available"
+            }
+
+            if (newItemQuantity && newItemStatus) {
+                console.log("New Item Quantity: " + newItemQuantity);
+                console.log("New Item Status: " + newItemStatus);
+                await axios.put(`http://${ip_address}:8081/items/quantity/${formData.item_id}`, { item_quantity: newItemQuantity });
+                await axios.put(`http://${ip_address}:8081/items/status/${formData.item_id}`, { item_status: newItemStatus });
             }
 
             setShowSuccessDialog(true);
@@ -118,15 +124,16 @@ export default function EditReserveItemRequest(){
                         <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
                             <div className="py-2">
                                 <p className="text-blue-800">
-                                    Items that are Reserved or Not Available may be due to other requests.<br />
+                                    Items that are "Not Available" may be due to other requests.<br />
                                     Please check any ongoing requests for this item accordingly.<br />
                                     Adding details to Notes is highly recommended.<br />
                                     Only set the request status as Completed after the item is returned.
                                 </p>
-                            </ div>
+                            </div>
                             <div className="space-y-2">
                                 <p><strong>Item Name:</strong> {formData.item_name}</p>
                                 <p><strong>Item Status:</strong> {formData.item_status}</p>
+                                <p><strong>No. of Available Items:</strong> {formData.item_quantity}</p>
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="rq_status">Request Status: </Label>

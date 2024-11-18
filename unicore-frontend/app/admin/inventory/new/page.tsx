@@ -18,6 +18,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import Link from 'next/link';
+import { ip_address } from '@/app/ipconfig';
 
 interface Department {
     dept_id: number;
@@ -48,7 +49,7 @@ export default function AddInventoryItem() {
         // Fetch departments from your API
         const fetchDepartments = async () => {
             try {
-                const response = await axios.get("http://localhost:8081/departments"); // Adjust this URL to your actual API endpoint
+                const response = await axios.get(`http://${ip_address}:8081/departments`); // Adjust this URL to your actual API endpoint
                 setDepartments(response.data);
             } catch (error) {
                 console.error('Error fetching departments:', error);
@@ -78,7 +79,7 @@ export default function AddInventoryItem() {
         e.preventDefault();
         // API call to save the item
         try {
-            await axios.post("http://localhost:8081/items/add", formData);
+            await axios.post(`http://${ip_address}:8081/items/add`, formData);
             console.log('Form submitted:', formData);
             setShowSuccessDialog(true);
         } catch (err) {
@@ -106,12 +107,18 @@ export default function AddInventoryItem() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label htmlFor="item_category">Category:</Label>
-                                <Input
-                                    id="item_category"
-                                    value={formData.item_category}
-                                    onChange={(e) => handleChange('item_category', e.target.value)}
-                                    required
-                                />
+                                <Select onValueChange={(value) => handleChange('item_category', value)} defaultValue={formData.item_category}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select a category" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="Computer System and Peripherals">Computer System and Peripherals</SelectItem>
+                                        <SelectItem value="Appliances/Electrical/Safety">Appliances/Electrical/Safety</SelectItem>
+                                        <SelectItem value="Furnitures and Fixtures">Furnitures and Fixtures</SelectItem>
+                                        <SelectItem value="Laboratory Equipments">Laboratory Equipments</SelectItem>
+                                        <SelectItem value="Cleaning Aids/Materials">Cleaning Aids/Materials</SelectItem>
+                                    </SelectContent>
+                                </Select>
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="item_control">Control Number:</Label>

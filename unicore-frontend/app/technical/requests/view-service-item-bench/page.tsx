@@ -6,7 +6,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import axios from "axios";
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-
+import { ip_address } from '@/app/ipconfig';
 
 interface ServiceItem {
     rq_id: number
@@ -39,7 +39,7 @@ export default function ServiceItemBenchView() {
         const fetchData = async () => {
             if (requestID) {
                 // Fetch request details
-                const itemResponse = await axios.get(`http://localhost:8081/requests/service_item/${requestID}`);
+                const itemResponse = await axios.get(`http://${ip_address}:8081/requests/service_item/${requestID}`);
                 setRequest(itemResponse.data[0]);
             }
         };

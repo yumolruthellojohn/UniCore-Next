@@ -17,6 +17,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import Link from 'next/link';
+import { ip_address } from '@/app/ipconfig';
 
 export default function EditServiceItemRequest(){
     const router = useRouter();
@@ -28,6 +29,7 @@ export default function EditServiceItemRequest(){
     const [formData, setFormData] = useState({
         item_id: '',
         item_name: '',
+        item_quantity: '',
         item_status: '',
         rq_service_type: '',
         rq_status: '',
@@ -43,7 +45,7 @@ export default function EditServiceItemRequest(){
 
     const fetchRequestData = async () => {
         try {
-            const response = await axios.get(`http://localhost:8081/requests/service_item/${requestID}`);
+            const response = await axios.get(`http://${ip_address}:8081/requests/service_item/${requestID}`);
             // Log the response to see what data you're getting
             console.log('Fetched request data:', response.data);
             setFormData(response.data[0]);
@@ -64,68 +66,32 @@ export default function EditServiceItemRequest(){
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         try {
-            await axios.put(`http://localhost:8081/requests/service_item/${requestID}`, formData);
+            await axios.put(`http://${ip_address}:8081/requests/service_item/${requestID}`, formData);
 
             //update item status from inventory
+            let newItemQuantity: number | null = null; // Variable to hold the new item quantity
             let newItemStatus: string | null = null; // Variable to hold the new item status
 
             switch (formData.rq_status) {
-                case "Service Aprroved":
-                    switch (formData.rq_service_type){
-                        case "Maintenance":
-                            newItemStatus = "Service Approved: Maintenance"
-                            break;
-                        case "Repair":
-                            newItemStatus = "Service Approved: Repair"
-                            break;
-                        case "Installation":
-                            newItemStatus = "Service Approved: Installation"
-                            break;
-                        case "Other":
-                            newItemStatus = "Service Approved: Other"
-                            break;
-                    }
-                    break;
-                case "Service in Progress":
-                    switch (formData.rq_service_type){
-                        case "Maintenance":
-                            newItemStatus = "Service in Progress: Maintenance"
-                            break;
-                        case "Repair":
-                            newItemStatus = "Service in Progress: Repair"
-                            break;
-                        case "Installation":
-                            newItemStatus = "Service in Progress: Installation"
-                            break;
-                        case "Other":
-                            newItemStatus = "Service in Progress: Other"
-                            break;
-                    }
-                    break;
-                case "Service Post-Checks":
-                    switch (formData.rq_service_type){
-                        case "Maintenance":
-                            newItemStatus = "Service Post-Checks: Maintenance"
-                            break;
-                        case "Repair":
-                            newItemStatus = "Service Post-Checks: Repair"
-                            break;
-                        case "Installation":
-                            newItemStatus = "Service Post-Checks: Installation"
-                            break;
-                        case "Other":
-                            newItemStatus = "Service Post-Checks: Other"
-                            break;
-                    }
+                case "Service Approved":
+                    newItemQuantity = parseInt(formData.item_quantity) - 1;
                     break;
                 case "Completed":
-                    newItemStatus = "Available";
+                    newItemQuantity = parseInt(formData.item_quantity) + 1;
                     break;
             }
 
-            if (newItemStatus) {
-                console.log(newItemStatus);
-                await axios.put(`http://localhost:8081/items/status/${formData.item_id}`, { item_status: newItemStatus });
+            if (newItemQuantity != 0) {
+                newItemStatus = "Available"
+            } else if (newItemQuantity === 0) {
+                newItemStatus = "Not Available"
+            }
+
+            if (newItemQuantity && newItemStatus) {
+                console.log("New Item Quantity: " + newItemQuantity);
+                console.log("New Item Status: " + newItemStatus);
+                await axios.put(`http://${ip_address}:8081/items/quantity/${formData.item_id}`, { item_quantity: newItemQuantity });
+                await axios.put(`http://${ip_address}:8081/items/status/${formData.item_id}`, { item_status: newItemStatus });
             }
 
             setShowSuccessDialog(true);
@@ -167,6 +133,7 @@ export default function EditServiceItemRequest(){
                             <div className="space-y-2">
                                 <p><strong>Item Name:</strong> {formData.item_name}</p>
                                 <p><strong>Item Status:</strong> {formData.item_status}</p>
+                                <p><strong>No. of Available Items:</strong> {formData.item_quantity}</p>
                                 <p><strong>Service Type:</strong> {formData.rq_service_type}</p>
                             </div>
                             <div className="space-y-2">

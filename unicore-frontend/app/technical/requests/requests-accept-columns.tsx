@@ -90,14 +90,14 @@ export const createRequestAcceptColumns = (onDataChange: () => void): ColumnDef<
           case "Reserve Item":
             url = `/technical/requests/view-reserve-item-bench?id=${requestAccept.rq_id}`;
             break;
-          case "Reserve Room":
-            url = `/technical/requests/view-reserve-room-bench?id=${requestAccept.rq_id}`;
+          case "Reserve Facility":
+            url = `/technical/requests/view-reserve-facility-bench?id=${requestAccept.rq_id}`;
             break;
           case "Service for Item":
             url = `/technical/requests/view-service-item-bench?id=${requestAccept.rq_id}`;
             break;
-          case "Service for Room":
-            url = `/technical/requests/view-service-room-bench?id=${requestAccept.rq_id}`;
+          case "Service for Facility":
+            url = `/technical/requests/view-service-facility-bench?id=${requestAccept.rq_id}`;
             break;
           default:
             url = `/technical/requests/`; // Fallback URL
@@ -111,14 +111,14 @@ export const createRequestAcceptColumns = (onDataChange: () => void): ColumnDef<
           case "Reserve Item":
             url = `/technical/requests/edit-reserve-item?id=${requestAccept.rq_id}`;
             break;
-          case "Reserve Room":
-            url = `/technical/requests/edit-reserve-room?id=${requestAccept.rq_id}`;
+          case "Reserve Facility":
+            url = `/technical/requests/edit-reserve-facility?id=${requestAccept.rq_id}`;
             break;
           case "Service for Item":
             url = `/technical/requests/edit-service-item?id=${requestAccept.rq_id}`;
             break;
-          case "Service for Room":
-            url = `/technical/requests/edit-service-room?id=${requestAccept.rq_id}`;
+          case "Service for Facility":
+            url = `/technical/requests/edit-service-facility?id=${requestAccept.rq_id}`;
             break;
           default:
             url = `/technical/requests/`; // Fallback URL

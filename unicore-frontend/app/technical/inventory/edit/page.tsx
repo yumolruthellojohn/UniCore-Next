@@ -18,6 +18,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import Link from 'next/link';
+import { ip_address } from '@/app/ipconfig';
 
 interface Department {
     dept_id: number;
@@ -64,7 +65,7 @@ export default function EditInventoryItem() {
 
     const fetchItemData = async () => {
         try {
-            const response = await axios.get(`http://localhost:8081/items/${itemId}`);
+            const response = await axios.get(`http://${ip_address}:8081/items/${itemId}`);
             // Log the response to see what data you're getting
             console.log('Fetched item data:', response.data);
             setFormData(response.data[0]);
@@ -77,7 +78,7 @@ export default function EditInventoryItem() {
 
     const fetchDepartments = async () => {
         try {
-            const response = await axios.get("http://localhost:8081/departments");
+            const response = await axios.get(`http://${ip_address}:8081/departments`);
             setDepartments(response.data);
         } catch (error) {
             console.error('Error fetching departments:', error);
@@ -94,7 +95,7 @@ export default function EditInventoryItem() {
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         try {
-            await axios.put(`http://localhost:8081/items/${itemId}`, formData);
+            await axios.put(`http://${ip_address}:8081/items/${itemId}`, formData);
             setShowSuccessDialog(true);
         } catch (err) {
             console.error('Error updating item:', err);
@@ -125,12 +126,18 @@ export default function EditInventoryItem() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label htmlFor="item_category">Category:</Label>
-                                <Input
-                                    id="item_category"
-                                    value={formData.item_category}
-                                    onChange={(e) => handleChange('item_category', e.target.value)}
-                                    required
-                                />
+                                <Select onValueChange={(value) => handleChange('item_category', value)} value={formData.item_category}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select a category" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="Computer System and Peripherals">Computer System and Peripherals</SelectItem>
+                                        <SelectItem value="Appliances/Electrical/Safety">Appliances/Electrical/Safety</SelectItem>
+                                        <SelectItem value="Furnitures and Fixtures">Furnitures and Fixtures</SelectItem>
+                                        <SelectItem value="Laboratory Equipments">Laboratory Equipments</SelectItem>
+                                        <SelectItem value="Cleaning Aids/Materials">Cleaning Aids/Materials</SelectItem>
+                                    </SelectContent>
+                                </Select>
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="item_control">Control Number:</Label>
