@@ -104,12 +104,14 @@ export default function ServiceItemQueueView({ session }: { session: Session | n
             console.log('Setting new user id:', newUserId);
 
             try {
-                setRequestAcceptance(prevState => ({
-                    ...prevState,
-                    rq_accept_user_id: newUserId,
-                }));
+                const accepted = {
+                    rq_status: 'Accepted',
+                    rq_accept_user_id: newUserId
+                }
+                setRequestAcceptance(accepted);
+                console.log(requestAcceptance);
 
-                await axios.put(`http://${ip_address}:8081/requests/accept/${requestID}`, requestAcceptance);
+                await axios.put(`http://${ip_address}:8081/requests/accept/${requestID}`, accepted);
                 toast({
                     title: "Request accepted",
                     description: "You accepted the request and it is now in your workbench.",

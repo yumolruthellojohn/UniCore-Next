@@ -14,9 +14,9 @@ const date = today.getDate();
 const currentDate = year + "-" + month + "-" + date;
 
 const db = mysql.createConnection({
-    host: "localhost",
+    host: "172.18.217.195",
     user: "root",
-    password: "",
+    password: "1234",
     database: "unicoredb"
 });
 
