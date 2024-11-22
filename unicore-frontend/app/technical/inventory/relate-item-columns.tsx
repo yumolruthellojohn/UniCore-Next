@@ -9,13 +9,13 @@ import { Button } from '@/components/ui/button'
 
 import DataTableColumnHeader from '@/components/data-table/data-table-column-header';
 
-export type RoomRequests = {
+export type ItemRequests = {
   rq_id: number
   rq_type: string
   dept_id: number
   dept_name: string
-  room_id: number
-  room_name: string
+  item_id: number
+  item_name: string
   rq_prio_level: string
   rq_notes: string
   rq_create_date: string
@@ -29,7 +29,7 @@ export type RoomRequests = {
   rq_status: string
 }
 
-export const createRoomRequestsColumns = (): ColumnDef<RoomRequests>[] => [
+export const createItemRequestsColumns = (): ColumnDef<ItemRequests>[] => [
   {
     accessorKey: 'rq_id',
     header: ({ column }) => (
@@ -99,11 +99,11 @@ export const createRoomRequestsColumns = (): ColumnDef<RoomRequests>[] => [
             size="icon" 
             title="View Details"
             onClick={() => {
-              const basePath = '/admin/requests';
-              const viewPath = reserveItem.rq_type === 'Reserve Facility'
-                ? `${basePath}/view-reserve-room`
-                : reserveItem.rq_type === 'Service for Facility'
-                  ? `${basePath}/view-service-room`
+              const basePath = '/technical/requests';
+              const viewPath = reserveItem.rq_type === 'Reserve Item'
+                ? `${basePath}/view-reserve-item`
+                : reserveItem.rq_type === 'Service for Item'
+                  ? `${basePath}/view-service-item`
                   : `${basePath}/view`;
               router.push(`${viewPath}?id=${reserveItem.rq_id}`);
             }}
@@ -117,4 +117,4 @@ export const createRoomRequestsColumns = (): ColumnDef<RoomRequests>[] => [
 ]
 
 // Update the original columns export as well
-export const roomRequestsColumns: ColumnDef<RoomRequests>[] = createRoomRequestsColumns()
+export const itemRequestsColumns: ColumnDef<ItemRequests>[] = createItemRequestsColumns()

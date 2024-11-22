@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 18, 2024 at 09:07 AM
+-- Generation Time: Nov 22, 2024 at 01:22 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -60,18 +60,20 @@ CREATE TABLE `tbitems` (
   `item_total` int(12) NOT NULL,
   `item_remarks` varchar(255) NOT NULL,
   `item_status` varchar(255) NOT NULL,
-  `dept_id` int(12) NOT NULL
+  `dept_id` int(12) NOT NULL,
+  `item_reserved` int(12) NOT NULL,
+  `item_serviced` int(12) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `tbitems`
 --
 
-INSERT INTO `tbitems` (`item_id`, `item_category`, `item_control`, `item_quantity`, `item_measure`, `item_name`, `item_desc`, `item_buy_date`, `item_buy_cost`, `item_total`, `item_remarks`, `item_status`, `dept_id`) VALUES
-(1, 'Laboratory Equipments', NULL, 6, 'Units', 'Attachment Unit Intercourse - AUI Transceivers', 'with SN:\r\n-AAA-02614\r\n-AAA-02615\r\n-AAA-02616\r\n-AAA-02617\r\n2 units w/o S.N.', '2001-06-19', 3500, 21000, 'Complete', 'Available', 1),
-(2, 'Laboratory Equipments', '', 3, 'Units', 'Cable Tester', 'w/ S.N.\r\n-620679\r\n-653785\r\n-509825803 (replaced)', '2001-06-19', 7000, 21000, 'Complete', 'Available', 2),
-(3, 'Appliances/Electrical/Safety', '', 2, 'Units', 'Flashlights', 'Standard', '2005-06-19', 150, 300, 'Damaged', 'Available', 1),
-(9, 'Computer System and Peripherals', '', 2, 'Units', 'LED Projector', 'w/ power cable and hdmi cable for each unit', '2024-11-04', 10000, 20000, 'OK', 'Available', 2);
+INSERT INTO `tbitems` (`item_id`, `item_category`, `item_control`, `item_quantity`, `item_measure`, `item_name`, `item_desc`, `item_buy_date`, `item_buy_cost`, `item_total`, `item_remarks`, `item_status`, `dept_id`, `item_reserved`, `item_serviced`) VALUES
+(1, 'Laboratory Equipments', NULL, 6, 'Units', 'Attachment Unit Intercourse - AUI Transceivers', 'with SN:\r\n-AAA-02614\r\n-AAA-02615\r\n-AAA-02616\r\n-AAA-02617\r\n2 units w/o S.N.', '2001-06-19', 3500, 21000, 'Complete', 'Available', 1, 0, 0),
+(2, 'Laboratory Equipments', '', 3, 'Units', 'Cable Tester', 'w/ S.N.\r\n-620679\r\n-653785\r\n-509825803 (replaced)', '2001-06-19', 7000, 21000, 'Complete', 'Available', 2, 0, 0),
+(3, 'Appliances/Electrical/Safety', '', 2, 'Units', 'Flashlights', 'Standard', '2005-06-19', 150, 300, 'Damaged', 'Available', 1, 0, 0),
+(9, 'Computer System and Peripherals', '', 2, 'Units', 'LED Projector', 'w/ power cable and hdmi cable for each unit', '2024-11-04', 10000, 20000, 'OK', 'Available', 2, 0, 0);
 
 -- --------------------------------------------------------
 
@@ -103,8 +105,16 @@ CREATE TABLE `tbnotifs` (
   `notif_type` varchar(255) NOT NULL,
   `notif_content` varchar(255) NOT NULL,
   `notif_date` varchar(255) NOT NULL,
-  `notif_read` tinyint(1) NOT NULL
+  `notif_read` tinyint(1) NOT NULL,
+  `notif_related_id` int(12) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `tbnotifs`
+--
+
+INSERT INTO `tbnotifs` (`notif_id`, `notif_user_id`, `notif_type`, `notif_content`, `notif_date`, `notif_read`, `notif_related_id`) VALUES
+(1, 3, 'service_facility_update', 'Your request has been accepted. Click to view details.', '2024-11-20', 1, 21);
 
 -- --------------------------------------------------------
 
@@ -118,6 +128,7 @@ CREATE TABLE `tbrequests` (
   `dept_id` int(12) NOT NULL,
   `item_id` int(12) DEFAULT NULL,
   `room_id` int(12) DEFAULT NULL,
+  `rq_quantity` int(12) DEFAULT NULL,
   `rq_service_type` varchar(255) DEFAULT NULL,
   `rq_prio_level` varchar(255) NOT NULL,
   `rq_notes` varchar(255) NOT NULL,
@@ -132,19 +143,19 @@ CREATE TABLE `tbrequests` (
 -- Dumping data for table `tbrequests`
 --
 
-INSERT INTO `tbrequests` (`rq_id`, `rq_type`, `dept_id`, `item_id`, `room_id`, `rq_service_type`, `rq_prio_level`, `rq_notes`, `rq_create_date`, `rq_complete_date`, `rq_create_user_id`, `rq_accept_user_id`, `rq_status`) VALUES
-(1, 'Reserve Item', 2, 1, NULL, NULL, 'Moderate', 'test complete', '2024-09-30', '2024-10-6', 1, 2, 'Completed'),
-(2, 'Reserve Facility', 2, NULL, 1, NULL, 'Moderate', 'checking', '2024-10-01', '', 1, 2, 'Accepted'),
-(3, 'Service for Item', 2, 1, NULL, 'Maintenance', 'Moderate', 'test', '2024-10-01', NULL, 1, 3, 'Accepted'),
-(10, 'Reserve Item', 2, 2, NULL, NULL, 'Moderate', 'test', '2024-10-1', NULL, 1, NULL, 'Request Submitted'),
-(13, 'Reserve Item', 1, 3, NULL, NULL, 'Moderate', 'test', '2024-10-4', NULL, 1, NULL, 'Request Submitted'),
-(17, 'Reserve Item', 1, 1, NULL, NULL, 'Urgent', 'test session', '2024-10-5', NULL, 1, 3, 'Accepted'),
-(18, 'Service for Facility', 1, NULL, 1, 'Maintenance', 'Urgent', 'test approve maint', '2024-10-5', '', 1, 2, 'Service Aprroved'),
-(19, 'Service for Facility', 1, NULL, 1, 'Other', 'Urgent', 'test prio', '2024-10-5', NULL, 1, NULL, 'Request Submitted'),
-(20, 'Service for Item', 2, 3, NULL, 'Repair', 'Moderate', 'test submit', '2024-10-6', NULL, 2, 3, 'Accepted'),
-(21, 'Service for Facility', 1, NULL, 1, 'Installation', 'Moderate', 'AC', '2024-10-6', NULL, 3, NULL, 'Request Submitted'),
-(22, 'Reserve Facility', 2, NULL, 1, NULL, 'Urgent', 'test cmo queue', '2024-10-6', NULL, 2, 3, 'Accepted'),
-(23, 'Reserve Item', 2, 2, NULL, NULL, 'Moderate', 'test', '2024-10-8', NULL, 2, NULL, 'Request Submitted');
+INSERT INTO `tbrequests` (`rq_id`, `rq_type`, `dept_id`, `item_id`, `room_id`, `rq_quantity`, `rq_service_type`, `rq_prio_level`, `rq_notes`, `rq_create_date`, `rq_complete_date`, `rq_create_user_id`, `rq_accept_user_id`, `rq_status`) VALUES
+(1, 'Reserve Item', 2, 1, NULL, 1, NULL, 'Moderate', 'test complete', '2024-09-30', '2024-10-6', 1, 2, 'Completed'),
+(2, 'Reserve Facility', 2, NULL, 1, NULL, NULL, 'Moderate', 'checking', '2024-10-01', '', 1, 2, 'Accepted'),
+(3, 'Service for Item', 2, 1, NULL, 1, 'Maintenance', 'Moderate', 'test', '2024-10-01', NULL, 1, 3, 'Accepted'),
+(10, 'Reserve Item', 2, 2, NULL, 1, NULL, 'Moderate', 'test', '2024-10-1', NULL, 1, NULL, 'Request Submitted'),
+(13, 'Reserve Item', 1, 3, NULL, 1, NULL, 'Moderate', 'test', '2024-10-4', NULL, 1, NULL, 'Request Submitted'),
+(17, 'Reserve Item', 1, 1, NULL, 1, NULL, 'Urgent', 'test session', '2024-10-5', NULL, 1, 3, 'Accepted'),
+(18, 'Service for Facility', 1, NULL, 1, NULL, 'Maintenance', 'Urgent', 'test approve maint', '2024-10-5', '', 1, 2, 'Service Aprroved'),
+(19, 'Service for Facility', 1, NULL, 1, NULL, 'Other', 'Urgent', 'test prio', '2024-10-5', NULL, 1, NULL, 'Request Submitted'),
+(20, 'Service for Item', 2, 3, NULL, 1, 'Repair', 'Moderate', 'test submit', '2024-10-6', NULL, 2, 3, 'Accepted'),
+(21, 'Service for Facility', 1, NULL, 1, NULL, 'Installation', 'Moderate', 'AC', '2024-10-6', NULL, 3, 2, 'Accepted'),
+(22, 'Reserve Facility', 2, NULL, 1, NULL, NULL, 'Urgent', 'test cmo queue', '2024-10-6', NULL, 2, 3, 'Accepted'),
+(23, 'Reserve Item', 2, 2, NULL, 1, NULL, 'Moderate', 'test', '2024-10-8', NULL, 2, NULL, 'Request Submitted');
 
 -- --------------------------------------------------------
 
@@ -184,15 +195,21 @@ CREATE TABLE `tbschedules` (
   `sched_id` int(12) NOT NULL,
   `sched_user_id` int(12) NOT NULL,
   `sched_dept_id` int(12) NOT NULL,
+  `sched_days_of_week` varchar(255) NOT NULL,
   `sched_time_in` varchar(255) NOT NULL,
   `sched_time_out` varchar(255) NOT NULL,
-  `sched_mon` tinyint(1) NOT NULL,
-  `sched_tue` tinyint(1) NOT NULL,
-  `sched_wed` tinyint(1) NOT NULL,
-  `sched_thu` tinyint(1) NOT NULL,
-  `sched_fri` tinyint(1) NOT NULL,
-  `sched_sat` tinyint(1) NOT NULL
+  `sched_start_date` varchar(255) NOT NULL,
+  `sched_end_date` varchar(255) NOT NULL,
+  `sched_notes` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `tbschedules`
+--
+
+INSERT INTO `tbschedules` (`sched_id`, `sched_user_id`, `sched_dept_id`, `sched_days_of_week`, `sched_time_in`, `sched_time_out`, `sched_start_date`, `sched_end_date`, `sched_notes`) VALUES
+(1, 2, 1, 'Tuesday, Thursday', '08:00', '12:00', '2024-11-20', '2024-12-20', 'test edit'),
+(2, 3, 2, 'Monday, Wednesday, Friday', '08:00', '12:00', '2025-01-06', '2025-02-28', 'sample');
 
 -- --------------------------------------------------------
 
@@ -222,7 +239,7 @@ INSERT INTO `tbuseraccounts` (`user_id`, `user_idnum`, `user_password`, `user_fn
 (3, 10000002, 'tech2', 'Joe', 'CMO', 'tech@mail.com', '12345678', 'Technical Staff', 2),
 (4, 19140284, 'yumol', 'Ruthello John', 'Yumol', 'yumol.ruthellojohn157@gmail.com', '12345678', 'Administrator', 3),
 (5, 20200754, 'josepulmones', 'Jose Ma.', 'Pulmones Jr.', '21jmpulmones@gmail.com', '09150411484', 'Technical Staff', 3),
-(6, 19099456, 'glenn', 'Glenn', 'Toñacao', 'glenntoniacao@gmail.com', '0905268395', 'Technical Staff', 3),
+(6, 19099456, 'glenn', 'Glenn', 'Toñacao', 'glenntoniacao@gmail.com', '0905268395', 'Technical Staff', 2),
 (7, 19084821, 'hannah', 'Hannah Jane', 'Ferrer', 'hannahjaneferrer2@gmail.com', '0923445642', 'Technical Staff', 3),
 (8, 20181622, 'jijil31', 'Angel Dianne', 'Ocier', 'angeldianneocier31@gmail.com', '09319100322', 'Technical Staff', 3);
 
@@ -298,7 +315,7 @@ ALTER TABLE `tbitems`
 -- AUTO_INCREMENT for table `tbnotifs`
 --
 ALTER TABLE `tbnotifs`
-  MODIFY `notif_id` int(12) NOT NULL AUTO_INCREMENT;
+  MODIFY `notif_id` int(12) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `tbrequests`
@@ -316,7 +333,7 @@ ALTER TABLE `tbrooms`
 -- AUTO_INCREMENT for table `tbschedules`
 --
 ALTER TABLE `tbschedules`
-  MODIFY `sched_id` int(12) NOT NULL AUTO_INCREMENT;
+  MODIFY `sched_id` int(12) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `tbuseraccounts`

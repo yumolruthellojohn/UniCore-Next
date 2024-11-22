@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { createRoomRequestsColumns, RoomRequests } from "@/app/admin/requests/relate-room-columns"
+import { createRoomRequestsColumns, RoomRequests } from "@/app/technical/facilities/relate-room-columns"
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import axios from "axios";

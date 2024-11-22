@@ -31,6 +31,7 @@ export default function EditServiceRoomRequest(){
         room_name: '',
         room_status: '',
         rq_service_type: '',
+        rq_create_user_id: '',
         rq_status: '',
         rq_notes: '',
     });
@@ -128,6 +129,14 @@ export default function EditServiceRoomRequest(){
                 console.log(newRoomStatus);
                 await axios.put(`http://${ip_address}:8081/rooms/status/${formData.room_id}`, { room_status: newRoomStatus });
             }
+
+            // Create notification for the request creator
+            await axios.post(`http://${ip_address}:8081/notifications/add`, {
+                notif_user_id: formData.rq_create_user_id,
+                notif_type: "service_facility_update",
+                notif_content: `Your request has recevied status update. Click to view details.`,
+                notif_related_id: requestID
+            });
 
             setShowSuccessDialog(true);
         } catch (err) {

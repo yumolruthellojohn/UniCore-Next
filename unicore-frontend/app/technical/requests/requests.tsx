@@ -166,7 +166,7 @@ export default function Requests({ session }: { session: Session | null }) {
                 </Card>
             </div>
             <br />
-            <Accordion type="single" collapsible className='bg-white px-2 py-1 rounded'>
+            <Accordion type="single" collapsible defaultValue="table-1" className='bg-white px-2 py-1 rounded'>
                 <AccordionItem value='table-1'>
                     <AccordionTrigger>
                         <h1 className="text-2xl font-bold px-2">On Queue</h1>
@@ -183,7 +183,7 @@ export default function Requests({ session }: { session: Session | null }) {
             </Accordion>
             <br />
             <Accordion type="single" collapsible className='bg-white px-2 py-1 rounded'>
-                <AccordionItem value='table-1'>
+                <AccordionItem value='table-2'>
                     <AccordionTrigger>
                         <h1 className="text-2xl font-bold px-2">My Workbench</h1>
                     </AccordionTrigger>
@@ -199,9 +199,9 @@ export default function Requests({ session }: { session: Session | null }) {
             </Accordion>
             <br />
             <Accordion type="single" collapsible className='bg-white px-2 py-1 rounded'>
-                <AccordionItem value='table-1'>
+                <AccordionItem value='table-3'>
                     <AccordionTrigger>
-                        <h1 className="text-2xl font-bold px-2">Submitted Requests</h1>
+                        <h1 className="text-2xl font-bold px-2">My Submitted Requests</h1>
                     </AccordionTrigger>
                     <AccordionContent>
                         <DataTable 

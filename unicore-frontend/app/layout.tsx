@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/navbar";
+import ScrollToTop from "@/components/scroll/scroll-to-top";
 import { SessionProvider } from "next-auth/react";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -19,9 +20,12 @@ export default function RootLayout({
   return (
     <SessionProvider>
       <html lang="en">
-        <body className={`${inter.className} pt-16`}>
+        <body className={inter.className}>
+          <ScrollToTop />
           <Navbar />
-          {children}
+            <main id="main-content">
+              {children}
+            </main>
         </body>
       </html>
     </SessionProvider>

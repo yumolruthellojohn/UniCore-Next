@@ -98,7 +98,15 @@ export const createItemRequestsColumns = (): ColumnDef<ItemRequests>[] => [
             variant='ghost' 
             size="icon" 
             title="View Details"
-            onClick={() => router.push(`/admin/requests/view?id=${reserveItem.rq_id}`)}
+            onClick={() => {
+              const basePath = '/admin/requests';
+              const viewPath = reserveItem.rq_type === 'Reserve Item'
+                ? `${basePath}/view-reserve-item`
+                : reserveItem.rq_type === 'Service for Item'
+                  ? `${basePath}/view-service-item`
+                  : `${basePath}/view`;
+              router.push(`${viewPath}?id=${reserveItem.rq_id}`);
+            }}
           >
             <Eye className="h-4 w-4" />
           </Button>

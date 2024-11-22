@@ -42,6 +42,14 @@ interface ServiceRoom {
     rq_status: string
 }
 
+interface Requestor {
+    user_idnum: number
+    user_email: string
+    user_contact: string
+    dept_id: number
+    dept_name: string
+}
+
 export default function ServiceRoomQueueView({ session }: { session: Session | null }) {
     //const { data: session, status } = useSession();
 
@@ -51,6 +59,7 @@ export default function ServiceRoomQueueView({ session }: { session: Session | n
     const searchParams = useSearchParams();
     const requestID = searchParams.get('id');
     const [request, setRequest] = useState<ServiceRoom | null>(null);
+    const [requestor, setRequestor] = useState<Requestor | null>(null);
     const router = useRouter();
     const { toast } = useToast();
     const [requestAcceptance, setRequestAcceptance] = useState({
@@ -64,6 +73,12 @@ export default function ServiceRoomQueueView({ session }: { session: Session | n
                 // Fetch request details
                 const roomResponse = await axios.get(`http://${ip_address}:8081/requests/service_room/${requestID}`);
                 setRequest(roomResponse.data[0]);
+
+                const requestorID = roomResponse.data[0].rq_create_user_id;
+
+                // Fetch requestor details
+                const requestorResponse = await axios.get(`http://${ip_address}:8081/users/${requestorID}`);
+                setRequestor(requestorResponse.data[0]);
             }
         };
 
@@ -113,7 +128,7 @@ export default function ServiceRoomQueueView({ session }: { session: Session | n
     };
 
     return (
-        <div className="container mx-auto py-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 max-w-4xl gap-4 mb-8">
             <Card className="w-full max-w-[600px] px-4 sm:px-6 md:px-8">
                 <CardHeader className="flex flex-row items-center justify-between">
                     <CardTitle>Request Details</CardTitle>
@@ -152,6 +167,18 @@ export default function ServiceRoomQueueView({ session }: { session: Session | n
                         </AlertDialogContent>
                     </AlertDialog>
                 </CardFooter>
+            </Card>
+            <Card className="w-full max-w-[600px] px-4 sm:px-6 md:px-8">
+                <CardHeader className="flex flex-row items-center justify-between">
+                    <CardTitle>Requestor Details</CardTitle>
+                </CardHeader>
+                <CardContent className="grid grid-cols-1 gap-4">
+                    <p><strong>ID Number:</strong> {requestor?.user_idnum}</p>
+                    <p><strong>Name:</strong> {request.rq_create_user_fname + " " + request.rq_create_user_lname}</p>
+                    <p><strong>E-mail Address:</strong> {requestor?.user_email}</p>
+                    <p><strong>Contact Number:</strong> {requestor?.user_contact}</p>
+                    <p><strong>Department:</strong> {requestor?.dept_name}</p>
+                </CardContent>
             </Card>
         </div>
     );

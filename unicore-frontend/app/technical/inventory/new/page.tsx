@@ -38,6 +38,8 @@ export default function AddInventoryItem() {
         item_remarks: '',
         item_status: 'Available', //Default to avail
         dept_id: '1', // Default to 'None' department
+        item_reserved: 0, //Default
+        item_serviced: 0 //Default
     });
 
     const [departments, setDepartments] = useState<Department[]>([]);
@@ -126,6 +128,7 @@ export default function AddInventoryItem() {
                                     id="item_control"
                                     value={formData.item_control}
                                     onChange={(e) => handleChange('item_control', e.target.value)}
+                                    placeholder="(Optional)"
                                 />
                             </div>
                             <div className="space-y-2">

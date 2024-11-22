@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
@@ -49,6 +50,7 @@ export default function NewReserveItem({ session }: { session: Session | null })
         rq_type: 'Reserve Item',
         dept_id: '1', // Default to BMO department
         item_id: '',
+        rq_quantity: 0,
         rq_prio_level: 'Moderate', // Default to 'Moderate' priority
         rq_notes: '',
         rq_create_date: currentDate,
@@ -158,6 +160,16 @@ export default function NewReserveItem({ session }: { session: Session | null })
                                         ))}
                                     </SelectContent>
                                 </Select>
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="rq_quantity">Requested Quantity:</Label>
+                                <Input
+                                    type="number"
+                                    id="rq_quantity"
+                                    value={formData.rq_quantity}
+                                    onChange={(e) => handleChange('rq_quantity', parseInt(e.target.value))}
+                                    required
+                                />
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="rq_prio_level">Priority Level:</Label>

@@ -133,8 +133,34 @@ export const createRequestQueueColumns = (onDataChange: () => void, currentUserI
                   ...prevState,
                   rq_accept_user_id: id_response.data[0].user_id,
               }));*/
+              let notif_type_new = null;
+              switch (requestQueue.rq_type) {
+                case "Reserve Item":
+                  notif_type_new = "reserve_item_update";
+                  break;
+                case "Reserve Facility":
+                  notif_type_new = "reserve_facility_update";
+                  break;
+                case "Service for Item":
+                  notif_type_new = "service_item_update";
+                  break;
+                case "Service for Facility":
+                  notif_type_new = "service_facility_update";
+                  break;
+                default:
+                  notif_type_new = "undefined";
+              }
               
               await axios.put(`http://${ip_address}:8081/requests/accept/${requestQueue.rq_id}`, requestAcceptance);
+
+              // Create notification for the request creator
+              await axios.post(`http://${ip_address}:8081/notifications/add`, {
+                notif_user_id: requestQueue.rq_create_user_id,
+                notif_type: notif_type_new,
+                notif_content: `Your request has been accepted. Click to view details.`,
+                notif_related_id: requestQueue.rq_id
+              });
+              
               toast({
                 title: "Request accepted",
                 description: "You accepted the request and it is now in your workbench.",

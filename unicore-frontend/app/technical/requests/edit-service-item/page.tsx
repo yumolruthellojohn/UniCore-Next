@@ -31,7 +31,10 @@ export default function EditServiceItemRequest(){
         item_name: '',
         item_quantity: '',
         item_status: '',
+        item_serviced: '',
+        rq_quantity: '',
         rq_service_type: '',
+        rq_create_user_id: '',
         rq_status: '',
         rq_notes: '',
     });
@@ -70,14 +73,17 @@ export default function EditServiceItemRequest(){
 
             //update item status from inventory
             let newItemQuantity: number | null = null; // Variable to hold the new item quantity
+            let newItemServiced: number | null = null; // Variable to hold the new item serviced
             let newItemStatus: string | null = null; // Variable to hold the new item status
 
             switch (formData.rq_status) {
                 case "Service Approved":
-                    newItemQuantity = parseInt(formData.item_quantity) - 1;
+                    newItemQuantity = parseInt(formData.item_quantity) - parseInt(formData.rq_quantity);
+                    newItemServiced = parseInt(formData.item_serviced) + parseInt(formData.rq_quantity);
                     break;
                 case "Completed":
-                    newItemQuantity = parseInt(formData.item_quantity) + 1;
+                    newItemQuantity = parseInt(formData.item_quantity) + parseInt(formData.rq_quantity);
+                    newItemServiced = parseInt(formData.item_serviced) - parseInt(formData.rq_quantity);
                     break;
             }
 
@@ -90,9 +96,17 @@ export default function EditServiceItemRequest(){
             if (newItemQuantity && newItemStatus) {
                 console.log("New Item Quantity: " + newItemQuantity);
                 console.log("New Item Status: " + newItemStatus);
-                await axios.put(`http://${ip_address}:8081/items/quantity/${formData.item_id}`, { item_quantity: newItemQuantity });
+                await axios.put(`http://${ip_address}:8081/items/quantity_serviced/${formData.item_id}`, { item_quantity: newItemQuantity, item_serviced: newItemServiced });
                 await axios.put(`http://${ip_address}:8081/items/status/${formData.item_id}`, { item_status: newItemStatus });
             }
+
+            // Create notification for the request creator
+            await axios.post(`http://${ip_address}:8081/notifications/add`, {
+                notif_user_id: formData.rq_create_user_id,
+                notif_type: "service_item_update",
+                notif_content: `Your request has recevied status update. Click to view details.`,
+                notif_related_id: requestID
+            });
 
             setShowSuccessDialog(true);
         } catch (err) {
@@ -124,7 +138,7 @@ export default function EditServiceItemRequest(){
                         <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
                             <div className="py-2">
                                 <p className="text-blue-800">
-                                    Items that are Reserved or Not Available may be due to other requests.<br />
+                                    Items that are "Not Available" may be due to other requests.<br />
                                     Please check any ongoing requests for this item accordingly.<br />
                                     Adding details to Notes is highly recommended.<br />
                                     Only set the request status as Completed after the service is finished.
@@ -133,6 +147,7 @@ export default function EditServiceItemRequest(){
                             <div className="space-y-2">
                                 <p><strong>Item Name:</strong> {formData.item_name}</p>
                                 <p><strong>Item Status:</strong> {formData.item_status}</p>
+                                <p><strong>Requested Quantity:</strong> {formData.rq_quantity}</p>
                                 <p><strong>No. of Available Items:</strong> {formData.item_quantity}</p>
                                 <p><strong>Service Type:</strong> {formData.rq_service_type}</p>
                             </div>

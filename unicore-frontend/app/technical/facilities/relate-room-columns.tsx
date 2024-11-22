@@ -99,7 +99,7 @@ export const createRoomRequestsColumns = (): ColumnDef<RoomRequests>[] => [
             size="icon" 
             title="View Details"
             onClick={() => {
-              const basePath = '/admin/requests';
+              const basePath = '/technical/requests';
               const viewPath = reserveItem.rq_type === 'Reserve Facility'
                 ? `${basePath}/view-reserve-room`
                 : reserveItem.rq_type === 'Service for Facility'

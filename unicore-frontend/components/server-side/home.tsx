@@ -16,7 +16,7 @@ export default async function Home() {
   console.log("fetched dept: " + usertype);
   
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-24">
+    <main className="flex min-h-screen flex-col items-center justify-center p-24 max-w-full">
       <Card className="max-w-sm">
         <CardHeader>
           <Image

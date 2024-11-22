@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { createItemRequestsColumns, ItemRequests } from "@/app/admin/requests/relate-item-columns"
+import { createItemRequestsColumns, ItemRequests } from "@/app/technical/inventory/relate-item-columns";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import axios from "axios";
@@ -37,6 +37,8 @@ interface Item {
   item_status: string;
   dept_id: number;
   dept_name: string;
+  item_reserved: number
+  item_serviced: number
 }
 
 const filterRelateItemColumn = {
@@ -119,6 +121,8 @@ export default function ItemView() {
                     <p><strong>Condition Remarks:</strong> {item.item_remarks}</p>
                     <p><strong>Department:</strong> {item.dept_name}</p>
                     <p><strong>Status:</strong> {item.item_status}</p>
+                    <p><strong>Reserved:</strong> {item.item_reserved}</p>
+                    <p><strong>Serviced:</strong> {item.item_status}</p>
                 </CardContent>
                 <CardFooter className="flex flex-col sm:flex-row justify-between gap-4">
                     <Button 

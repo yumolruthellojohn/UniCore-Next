@@ -86,16 +86,16 @@ export const createRequestSubmittedColumns = (onDataChange: () => void): ColumnD
         let url;
         switch (requestQueue.rq_type) {
           case "Reserve Item":
-            url = `/technical/requests/view-reserve-item-queue?id=${requestQueue.rq_id}`;
+            url = `/technical/requests/view-reserve-item?id=${requestQueue.rq_id}`;
             break;
           case "Reserve Facility":
-            url = `/technical/requests/view-reserve-facility-queue?id=${requestQueue.rq_id}`;
+            url = `/technical/requests/view-reserve-facility?id=${requestQueue.rq_id}`;
             break;
           case "Service for Item":
-            url = `/technical/requests/view-service-item-queue?id=${requestQueue.rq_id}`;
+            url = `/technical/requests/view-service-item?id=${requestQueue.rq_id}`;
             break;
           case "Service for Facility":
-            url = `/technical/requests/view-service-facility-queue?id=${requestQueue.rq_id}`;
+            url = `/technical/requests/view-service-facility?id=${requestQueue.rq_id}`;
             break;
           default:
             url = `/technical/requests/`; // Fallback URL

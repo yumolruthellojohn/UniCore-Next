@@ -29,6 +29,28 @@ app.post("/login", (req, res) => {
     });
 });
 
+//get users
+app.get("/users", (req, res) => {
+    const sql = "SELECT * FROM tbuseraccounts WHERE `user_id` != 1";
+    db.query(sql, (err, result) => {
+      if(err) return res.json({Message: "Error inside server"});
+      else return res.json(result);
+  });
+});
+
+//get user
+app.get("/users/:id", (req, res) => {
+  const user_id = req.params.id
+  const sql = "SELECT *, tbdepartments.dept_name FROM tbuseraccounts INNER JOIN tbdepartments ON tbuseraccounts.dept_id=tbdepartments.dept_id WHERE `user_id` = ?";
+  db.query(sql, user_id, (err, result) => {
+      if (err) {
+        console.log(err);
+      } else {
+        res.send(result);
+      }
+  });
+});
+
 //get user id
 app.get("/users/user_id/:id", (req, res) => {
   const user_id = req.params.id
@@ -104,10 +126,12 @@ app.post("/items/add", (req, res) => {
     const item_remarks = req.body.item_remarks;
     const item_status = req.body.item_status;
     const dept_id = req.body.dept_id;
+    const item_reserved = req.body.item_reserved;
+    const item_serviced = req.body.item_serviced;
     
-    const sql = "INSERT INTO tbitems (item_category, item_control, item_quantity, item_measure, item_name, item_desc, item_buy_date, item_buy_cost, item_total, item_remarks, item_status, dept_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    const sql = "INSERT INTO tbitems (item_category, item_control, item_quantity, item_measure, item_name, item_desc, item_buy_date, item_buy_cost, item_total, item_remarks, item_status, dept_id, item_reserved, item_serviced) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-    db.query(sql, [item_category, item_control, item_quantity, item_measure, item_name, item_desc, item_buy_date, item_buy_cost, item_total, item_remarks, item_status, dept_id],
+    db.query(sql, [item_category, item_control, item_quantity, item_measure, item_name, item_desc, item_buy_date, item_buy_cost, item_total, item_remarks, item_status, dept_id, item_reserved, item_serviced],
       (err, result) => {
         if (err) {
           console.log(err);
@@ -144,13 +168,30 @@ app.put("/items/:id", (req, res) => {
     });
 });
 
-//items/quantity/:id
-app.put("/items/quantity/:id", (req, res) => {
+//items/quantity_reserved/:id
+app.put("/items/quantity_reserved/:id", (req, res) => {
   const itemId = req.params.id;
-  const sql = "UPDATE tbitems SET `item_quantity` = ? WHERE `item_id` = ?";
+  const sql = "UPDATE tbitems SET `item_quantity` = ?,  `item_reserved` = ? WHERE `item_id` = ?";
 
   const values = [
     req.body.item_quantity,
+    req.body.item_reserved
+  ]
+
+  db.query(sql, [...values, itemId], (err, data) => {
+    if (err) return res.send(err);
+    return res.json(data);
+  });
+});
+
+//items/quantity_serviced/:id
+app.put("/items/quantity_serviced/:id", (req, res) => {
+  const itemId = req.params.id;
+  const sql = "UPDATE tbitems SET `item_quantity` = ?,  `item_serviced` = ? WHERE `item_id` = ?";
+
+  const values = [
+    req.body.item_quantity,
+    req.body.item_serviced
   ]
 
   db.query(sql, [...values, itemId], (err, data) => {
@@ -432,15 +473,16 @@ app.post("/requests/reserve_item/add", (req, res) => {
     const rq_type = req.body.rq_type;
     const dept_id = req.body.dept_id;
     const item_id = req.body.item_id;
+    const rq_quantity = req.body.rq_quantity;
     const rq_prio_level = req.body.rq_prio_level;
     const rq_notes = req.body.rq_notes;
     const rq_create_date = req.body.rq_create_date;
     const rq_create_user_id = req.body.rq_create_user_id;
     const rq_status = req.body.rq_status;
     
-    const sql = "INSERT INTO tbrequests (rq_type, dept_id, item_id, rq_prio_level, rq_notes, rq_create_date, rq_create_user_id, rq_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    const sql = "INSERT INTO tbrequests (rq_type, dept_id, item_id, rq_quantity, rq_prio_level, rq_notes, rq_create_date, rq_create_user_id, rq_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-    db.query(sql, [rq_type, dept_id, item_id, rq_prio_level, rq_notes, rq_create_date, rq_create_user_id, rq_status],
+    db.query(sql, [rq_type, dept_id, item_id, rq_quantity, rq_prio_level, rq_notes, rq_create_date, rq_create_user_id, rq_status],
       (err, result) => {
         if (err) {
           console.log(err);
@@ -480,6 +522,7 @@ app.post("/requests/service_item/add", (req, res) => {
     const rq_type = req.body.rq_type;
     const dept_id = req.body.dept_id;
     const item_id = req.body.item_id;
+    const rq_quantity = req.body.rq_quantity;
     const rq_service_type = req.body.rq_service_type;
     const rq_prio_level = req.body.rq_prio_level;
     const rq_notes = req.body.rq_notes;
@@ -487,9 +530,9 @@ app.post("/requests/service_item/add", (req, res) => {
     const rq_create_user_id = req.body.rq_create_user_id;
     const rq_status = req.body.rq_status;
     
-    const sql = "INSERT INTO tbrequests (rq_type, dept_id, item_id, rq_service_type, rq_prio_level, rq_notes, rq_create_date, rq_create_user_id, rq_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    const sql = "INSERT INTO tbrequests (rq_type, dept_id, item_id, rq_quantity, rq_service_type, rq_prio_level, rq_notes, rq_create_date, rq_create_user_id, rq_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-    db.query(sql, [rq_type, dept_id, item_id, rq_service_type, rq_prio_level, rq_notes, rq_create_date, rq_create_user_id, rq_status],
+    db.query(sql, [rq_type, dept_id, item_id, rq_quantity, rq_service_type, rq_prio_level, rq_notes, rq_create_date, rq_create_user_id, rq_status],
       (err, result) => {
         if (err) {
           console.log(err);
@@ -660,6 +703,41 @@ app.get("/requests_summary", (req, res) => {
     });
 });
 
+// Endpoint to get the number of requests created in the past 4 months
+app.get('/requests/monthly', (req, res) => {
+  const sql = `
+      WITH RECURSIVE months AS (
+          SELECT 
+              DATE_FORMAT(CURDATE() - INTERVAL 3 MONTH, '%Y-%m-01') as date
+          UNION ALL
+          SELECT 
+              DATE_ADD(date, INTERVAL 1 MONTH)
+          FROM months
+          WHERE DATE_ADD(date, INTERVAL 1 MONTH) <= CURDATE()
+      )
+      SELECT 
+          DATE_FORMAT(m.date, '%M') AS month,
+          COUNT(r.rq_id) AS requests,
+          DATE_FORMAT(m.date, '%Y-%m') AS sort_date
+      FROM 
+          months m
+          LEFT JOIN tbrequests r ON DATE_FORMAT(STR_TO_DATE(r.rq_create_date, '%Y-%m-%d'), '%Y-%m') = DATE_FORMAT(m.date, '%Y-%m')
+      GROUP BY 
+          m.date
+      ORDER BY 
+          m.date;
+  `;
+  
+  db.query(sql, (err, result) => {
+      if (err) {
+          console.error('Database error:', err);
+          return res.json({ Message: "Error inside server" });
+      } else {
+          return res.json(result);
+      }
+  });
+});
+
 //departments
 app.get('/departments', (req, res) => {
     const sql = "SELECT * FROM tbdepartments";
@@ -667,6 +745,130 @@ app.get('/departments', (req, res) => {
         if(err) return res.json({Message: "Error inside server"});
         else return res.json(result);
     });
+});
+
+//schedules
+app.get('/schedules', (req, res) => {
+    const sql = "SELECT *, tbuseraccounts.user_fname, tbuseraccounts.user_lname, tbdepartments.dept_name FROM tbschedules INNER JOIN tbuseraccounts ON tbschedules.sched_user_id=tbuseraccounts.user_id INNER JOIN tbdepartments ON tbschedules.sched_dept_id=tbdepartments.dept_id";
+    db.query(sql, (err, result) => {
+        if(err) {
+            console.error('Database error:', err);
+            return res.json({Message: "Error inside server"});
+        }
+        console.log('API response:', result); // Debug log
+        return res.json(result);
+    });
+});
+
+//schedules/:id
+app.get("/schedules/:id", (req, res) => {
+    const sched_id = req.params.id;
+    const sql = "SELECT *, tbuseraccounts.user_fname, tbuseraccounts.user_lname, tbdepartments.dept_name FROM tbschedules INNER JOIN tbuseraccounts ON tbschedules.sched_user_id=tbuseraccounts.user_id INNER JOIN tbdepartments ON tbschedules.sched_dept_id=tbdepartments.dept_id WHERE tbschedules.sched_id = ?";
+    db.query(sql, sched_id, (err, result) => {
+        if (err) {
+            console.log(err);
+        } else {
+            res.send(result);
+        }
+    });
+});
+
+//schedules/add
+app.post("/schedules/add", (req, res) => {
+    const sched_user_id = req.body.sched_user_id;
+    const sched_dept_id = req.body.sched_dept_id;
+    const sched_days_of_week = req.body.sched_days_of_week;
+    const sched_time_in = req.body.sched_time_in;
+    const sched_time_out = req.body.sched_time_out;
+    const sched_start_date = req.body.sched_start_date;
+    const sched_end_date = req.body.sched_end_date;
+    const sched_notes = req.body.sched_notes;
+    
+    const sql = "INSERT INTO tbschedules (sched_user_id, sched_dept_id, sched_days_of_week, sched_time_in, sched_time_out, sched_start_date, sched_end_date, sched_notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+
+    db.query(sql, [sched_user_id, sched_dept_id, sched_days_of_week, sched_time_in, sched_time_out, sched_start_date, sched_end_date, sched_notes],
+        (err, result) => {
+            if (err) {
+                console.log(err);
+            } else {
+                res.send("Schedule Added Successfully!");
+            }
+        }
+    );
+});
+
+//schedules/edit/:id
+app.put("/schedules/:id", (req, res) => {
+    const schedId = req.params.id;
+    const sql = "UPDATE tbschedules SET `sched_user_id`= ?, `sched_dept_id`= ?, `sched_days_of_week`= ?, `sched_time_in`= ?, `sched_time_out`= ?, `sched_start_date`= ?, `sched_end_date`= ?, `sched_notes`= ? WHERE `sched_id` = ?";
+
+    const values = [
+        req.body.sched_user_id,
+        req.body.sched_dept_id,
+        req.body.sched_days_of_week,
+        req.body.sched_time_in,
+        req.body.sched_time_out,
+        req.body.sched_start_date,
+        req.body.sched_end_date,
+        req.body.sched_notes
+    ];
+
+    db.query(sql, [...values, schedId], (err, data) => {
+        if (err) return res.send(err);
+        return res.json(data);
+    });
+});
+
+//schedules/delete/:id
+app.delete("/schedules/:id", (req, res) => {
+    const schedId = req.params.id;
+    const sql = "DELETE FROM tbschedules WHERE `sched_id` = ?";
+
+    db.query(sql, [schedId], (err, data) => {
+        if (err) return res.send(err);
+        return res.json(data);
+    });
+});
+
+
+// Get notifications for a user
+app.get("/notifications/:userId", (req, res) => {
+  const userId = req.params.userId;
+  const sql = "SELECT * FROM tbnotifs WHERE notif_user_id = ? ORDER BY notif_date DESC LIMIT 10";
+  
+  db.query(sql, [userId], (err, result) => {
+      if(err) return res.json({Message: "Error inside server"});
+      return res.json(result);
+  });
+});
+
+// Create new notification
+app.post("/notifications/add", (req, res) => {
+  const sql = "INSERT INTO tbnotifs (notif_user_id, notif_type, notif_content, notif_date, notif_read, notif_related_id) VALUES (?, ?, ?, ?, 0, ?)";
+  
+  const values = [
+      req.body.notif_user_id,
+      req.body.notif_type,
+      req.body.notif_content,
+      currentDate,
+      req.body.notif_related_id
+  ];
+
+  db.query(sql, values, (err, result) => {
+      if(err) return res.json({Message: "Error inside server"});
+      return res.json(result);
+  });
+});
+
+// Mark notifications as read
+app.put("/notifications/mark-read/:userId", (req, res) => {
+  const userId = req.params.userId;
+  const sql = "UPDATE tbnotifs SET notif_read = 1 WHERE notif_user_id = ? AND notif_read = 0";
+  
+  db.query(sql, [userId], (err, result) => {
+      if(err) return res.json({Message: "Error inside server"});
+      return res.json(result);
+  });
 });
 
 //listen

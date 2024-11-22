@@ -13,8 +13,10 @@ body {
   /* Smooth gradient with multiple shades of blue */
 }
 
-#sheet {
-  margin-top: 65px; /* Adds space below the navbar */
+#main-content {
+  padding-top: 4rem; /* 64px, equivalent to navbar height */
+  min-height: calc(100vh - 4rem);
+  position: relative;
 }
 
 #login_idnum::-webkit-outer-spin-button, #login_idnum::-webkit-inner-spin-button{

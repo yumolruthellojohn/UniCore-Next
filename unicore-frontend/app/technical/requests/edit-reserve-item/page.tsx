@@ -31,6 +31,9 @@ export default function EditReserveItemRequest(){
         item_name: '',
         item_quantity: '',
         item_status: '',
+        item_reserved: '',
+        rq_quantity: '',
+        rq_create_user_id: '',
         rq_status: '',
         rq_notes: '',
     });
@@ -70,14 +73,17 @@ export default function EditReserveItemRequest(){
             //update item quantity and status from inventory
 
             let newItemQuantity: number | null = null; // Variable to hold the new item quantity
+            let newItemReserved: number | null = null; // Variable to hold the new item reserved
             let newItemStatus: string | null = null; // Variable to hold the new item status
 
             switch (formData.rq_status) {
                 case "Reserved: In Use":
-                    newItemQuantity = parseInt(formData.item_quantity) - 1;
+                    newItemQuantity = parseInt(formData.item_quantity) - parseInt(formData.rq_quantity);
+                    newItemReserved = parseInt(formData.item_reserved) + parseInt(formData.rq_quantity);
                     break;
                 case "Completed":
-                    newItemQuantity = parseInt(formData.item_quantity) + 1;
+                    newItemQuantity = parseInt(formData.item_quantity) + parseInt(formData.rq_quantity);
+                    newItemReserved = parseInt(formData.item_reserved) - parseInt(formData.rq_quantity);
                     break;
             }
 
@@ -90,9 +96,17 @@ export default function EditReserveItemRequest(){
             if (newItemQuantity && newItemStatus) {
                 console.log("New Item Quantity: " + newItemQuantity);
                 console.log("New Item Status: " + newItemStatus);
-                await axios.put(`http://${ip_address}:8081/items/quantity/${formData.item_id}`, { item_quantity: newItemQuantity });
+                await axios.put(`http://${ip_address}:8081/items/quantity_reserved/${formData.item_id}`, { item_quantity: newItemQuantity, item_reserved: newItemReserved });
                 await axios.put(`http://${ip_address}:8081/items/status/${formData.item_id}`, { item_status: newItemStatus });
             }
+
+            // Create notification for the request creator
+            await axios.post(`http://${ip_address}:8081/notifications/add`, {
+                notif_user_id: formData.rq_create_user_id,
+                notif_type: "reserve_item_update",
+                notif_content: `Your request has recevied status update. Click to view details.`,
+                notif_related_id: requestID
+            });
 
             setShowSuccessDialog(true);
         } catch (err) {
@@ -133,6 +147,7 @@ export default function EditReserveItemRequest(){
                             <div className="space-y-2">
                                 <p><strong>Item Name:</strong> {formData.item_name}</p>
                                 <p><strong>Item Status:</strong> {formData.item_status}</p>
+                                <p><strong>Requested Quantity:</strong> {formData.rq_quantity}</p>
                                 <p><strong>No. of Available Items:</strong> {formData.item_quantity}</p>
                             </div>
                             <div className="space-y-2">

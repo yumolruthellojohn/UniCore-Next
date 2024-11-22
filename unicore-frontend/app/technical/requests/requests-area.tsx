@@ -15,28 +15,42 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
+import { useEffect, useState } from 'react';
+import axios from 'axios';
+import { ip_address } from '@/app/ipconfig'
+
 export const description = "Area Chart not working at the moment"
-const chartData = [
-  { month: "May", requests: 0 },
-  { month: "June", requests: 0 },
-  { month: "July", requests: 0 },
-  { month: "August", requests: 0 },
-  { month: "September", requests: 2 },
-  { month: "October", requests: 10 },
-]
-const chartConfig = {
-  requests: {
-    label: "Requests",
-    color: "hsl(var(--chart-1))",
-  },
-} satisfies ChartConfig
+
 export function RequestsArea() {
+  const [chartData, setChartData] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(`http://${ip_address}:8081/requests/monthly`); // Replace with your actual API endpoint
+        console.log(response.data);
+        setChartData(response.data);
+      } catch (error) {
+        console.error('Error fetching chart data:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const chartConfig = {
+    requests: {
+      label: "Requests",
+      color: "hsl(var(--chart-1))",
+    },
+  } satisfies ChartConfig
+
   return (
     <Card className="max-w-[500px]">
       <CardHeader>
         <CardTitle>Requests Submission Activity</CardTitle>
         <CardDescription>
-          Development in Progress
+          Number of Submitted Requests for the past 4 months
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -55,7 +69,7 @@ export function RequestsArea() {
               tickLine={false}
               axisLine={false}
               tickMargin={8}
-              tickFormatter={(value) => value.slice(0, 3)}
+              tickFormatter={(value) => value.substring(0, 3)}
             />
             <ChartTooltip
               cursor={false}
@@ -72,16 +86,6 @@ export function RequestsArea() {
         </ChartContainer>
       </CardContent>
       <CardFooter>
-        <div className="flex w-full items-start gap-2 text-sm">
-          <div className="grid gap-2">
-            <div className="flex items-center gap-2 font-medium leading-none">
-              Development in Progress
-            </div>
-            <div className="flex items-center gap-2 leading-none text-muted-foreground">
-              Chart is not working at the moment
-            </div>
-          </div>
-        </div>
       </CardFooter>
     </Card>
   )
