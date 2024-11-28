@@ -25,6 +25,7 @@ export default function EditReserveItemRequest(){
     const requestID = searchParams.get('id');
     const [loading, setLoading] = useState(true);
     const [showSuccessDialog, setShowSuccessDialog] = useState(false);
+    const [currentRequestStatus, setCurrentRequestStatus] = useState("");
 
     const [formData, setFormData] = useState({
         item_id: '',
@@ -51,6 +52,7 @@ export default function EditReserveItemRequest(){
             // Log the response to see what data you're getting
             console.log('Fetched request data:', response.data);
             setFormData(response.data[0]);
+            setCurrentRequestStatus(response.data[0].rq_status);
             setLoading(false);
         } catch (error) {
             console.error('Error fetching request data:', error);
@@ -120,6 +122,26 @@ export default function EditReserveItemRequest(){
         router.push('/technical/requests');
     };
 
+    // function to determine available next statuses
+    const getAvailableStatuses = (currentStatus: string) => {
+        switch (currentStatus) {
+            case "Accepted":
+                return ["Pending", "Conflict", "Canceled", "Reserved: For Pickup"];
+            case "Pending":
+                return ["Reserved: For Pickup", "Conflict", "Canceled"];
+            case "Reserved: For Pickup":
+                return ["Reserved: In Use", "Canceled", "Completed"];
+            case "Reserved: In Use":
+                return ["Reserved: For Return", "Completed"];
+            case "Reserved: For Return":
+                return ["Completed"];
+            case "Conflict":
+                return ["Pending", "Canceled"];
+            default:
+                return []; // No changes allowed for Completed or Canceled status
+        }
+    };
+
     if (loading) {
         return <div>Loading...</div>;
     }
@@ -152,19 +174,19 @@ export default function EditReserveItemRequest(){
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="rq_status">Request Status: </Label>
-                                <Select onValueChange={(value) => handleChange('rq_status', value)} value={formData.rq_status}>
+                                <Select 
+                                    onValueChange={(value) => handleChange('rq_status', value)} 
+                                    value={formData.rq_status}
+                                >
                                     <SelectTrigger>
                                         <SelectValue placeholder="Select status" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="Accepted">Accepted</SelectItem>
-                                        <SelectItem value="Pending">Pending</SelectItem>
-                                        <SelectItem value="Conflict">Conflict</SelectItem>
-                                        <SelectItem value="Canceled">Canceled</SelectItem>
-                                        <SelectItem value="Reserved: For Pickup">Reserved: For Pickup</SelectItem>
-                                        <SelectItem value="Reserved: In Use">Reserved: In Use</SelectItem>
-                                        <SelectItem value="Reserved: For Return">Reserved: For Return</SelectItem>
-                                        <SelectItem value="Completed">Completed</SelectItem>
+                                        {getAvailableStatuses(currentRequestStatus).map((status) => (
+                                            <SelectItem key={status} value={status}>
+                                                {status}
+                                            </SelectItem>
+                                        ))}
                                     </SelectContent>
                                 </Select>
                             </div>

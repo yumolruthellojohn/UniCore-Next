@@ -65,6 +65,21 @@ export function NotificationBellTechnical({ userId }: { userId: number }) {
       case 'service_facility_update':
         router.push(`/technical/requests/view-service-facility?id=${notification.notif_related_id}`)
         break
+      case 'reserve_item_update_conflict':
+        router.push(`/technical/requests/view-reserve-item-bench?id=${notification.notif_related_id}`)
+        break
+      case 'reserve_facility_update_conflict':
+        router.push(`/technical/requests/view-reserve-facility-bench?id=${notification.notif_related_id}`)
+        break
+      case 'service_item_update_conflict':
+        router.push(`/technical/requests/view-service-item-bench?id=${notification.notif_related_id}`)
+        break
+      case 'service_facility_update_conflict':
+        router.push(`/technical/requests/view-service-facility-bench?id=${notification.notif_related_id}`)
+        break
+      case 'new_job_request':
+        router.push(`/technical/requests/job-requests/view-for-approval?id=${notification.notif_related_id}`)
+        break
       // Add more cases as needed
       default:
         console.log('No navigation defined for this notification type')
@@ -98,7 +113,11 @@ export function NotificationBellTechnical({ userId }: { userId: number }) {
                 className={`p-3 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors ${
                   notif.notif_read ? 'bg-gray-50' : 'bg-blue-50'
                 }`}
-                onClick={() => handleNotificationClick(notif)}
+                onClick={() => {
+                  if (!notif.notif_read) { // Only handle click if notification is unread
+                    handleNotificationClick(notif);
+                  }
+                }}
               >
                 <p className="text-sm">{notif.notif_content}</p>
                 <p className="text-xs text-gray-500 mt-1">

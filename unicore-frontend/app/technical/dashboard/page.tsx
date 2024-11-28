@@ -6,6 +6,7 @@ import { Component as RequestsDonut } from "../requests/requests-donut"
 import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { DataTableAdd } from "@/components/data-table/data-table-add-button";
 import { RequestsArea } from "../requests/requests-area";
+import { RequestsAreaCompleted } from "../requests/requests-area-completed";
 import { ip_address } from '@/app/ipconfig';
 
 interface RequestsData {
@@ -89,6 +90,7 @@ export default function Dashboard() {
                     data={completedRequestsData}
                 />
                 <RequestsArea></RequestsArea>
+                <RequestsAreaCompleted></RequestsAreaCompleted>
             </div>
         </div>
     )

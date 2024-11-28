@@ -23,7 +23,10 @@ export default async function Navbar() {
       ) : (
         <div className="flex items-center gap-2">
           <span className="mr-2 text-sm sm:text-base truncate max-w-[150px] sm:max-w-[400px]">
-            {session.user.name}
+            <span className="block sm:hidden">{session.user.user_fname}</span>
+            <span className="hidden sm:block">
+                {session.user.user_fname} {session.user.user_lname}
+            </span>
           </span>
           <NotificationBellTechnical userId={parseInt(session.user.user_id)} />
           <form action={handleSignOut}>

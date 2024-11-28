@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 22, 2024 at 01:22 AM
+-- Generation Time: Nov 28, 2024 at 08:49 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -39,7 +39,15 @@ CREATE TABLE `tbdepartments` (
 INSERT INTO `tbdepartments` (`dept_id`, `dept_name`) VALUES
 (1, 'Building Maintenance Office (BMO)'),
 (2, 'Computer Maintenance Office (CMO)'),
-(3, 'College of Computer Studies (CCS)');
+(3, 'College of Computer Studies (CCS)'),
+(4, 'College of Engineering (CE)'),
+(5, 'College of Business Education (CBE)'),
+(6, 'College of Customs Administration (CCA)'),
+(7, 'College of Criminology (CC)'),
+(8, 'Library'),
+(9, 'Guidance Services'),
+(10, 'Registrar'),
+(11, 'Administrative Affairs');
 
 -- --------------------------------------------------------
 
@@ -70,28 +78,66 @@ CREATE TABLE `tbitems` (
 --
 
 INSERT INTO `tbitems` (`item_id`, `item_category`, `item_control`, `item_quantity`, `item_measure`, `item_name`, `item_desc`, `item_buy_date`, `item_buy_cost`, `item_total`, `item_remarks`, `item_status`, `dept_id`, `item_reserved`, `item_serviced`) VALUES
-(1, 'Laboratory Equipments', NULL, 6, 'Units', 'Attachment Unit Intercourse - AUI Transceivers', 'with SN:\r\n-AAA-02614\r\n-AAA-02615\r\n-AAA-02616\r\n-AAA-02617\r\n2 units w/o S.N.', '2001-06-19', 3500, 21000, 'Complete', 'Available', 1, 0, 0),
-(2, 'Laboratory Equipments', '', 3, 'Units', 'Cable Tester', 'w/ S.N.\r\n-620679\r\n-653785\r\n-509825803 (replaced)', '2001-06-19', 7000, 21000, 'Complete', 'Available', 2, 0, 0),
-(3, 'Appliances/Electrical/Safety', '', 2, 'Units', 'Flashlights', 'Standard', '2005-06-19', 150, 300, 'Damaged', 'Available', 1, 0, 0),
-(9, 'Computer System and Peripherals', '', 2, 'Units', 'LED Projector', 'w/ power cable and hdmi cable for each unit', '2024-11-04', 10000, 20000, 'OK', 'Available', 2, 0, 0);
+(1, 'Laboratory Equipments', 'CISCO-023', 6, 'Units', 'Attachment Unit Intercourse - AUI Transceivers', 'with SN:\r\n-AAA-02614\r\n-AAA-02615\r\n-AAA-02616\r\n-AAA-02617\r\n2 units w/o S.N.', '2001-06-19', 3500, 21000, 'Complete', 'Available', 2, 0, 0),
+(2, 'Laboratory Equipments', 'CISCO-025', 3, 'Units', 'Cable Tester', 'w/ S.N.\r\n-620679\r\n-653785\r\n-509825803 (replaced)', '2001-06-19', 7000, 21000, 'Complete', 'Available', 2, 0, 0),
+(3, 'Appliances, Electrical, Safety', '', 2, 'Units', 'Flashlights', 'Standard', '2005-06-19', 150, 300, 'Damaged', 'Available', 2, 0, 0),
+(9, 'Computer System and Peripherals', '', 1, 'Units', 'LED Projector', 'w/ power cable and hdmi cable for each unit', '2024-11-04', 10000, 20000, 'OK', 'Available', 2, 1, 0),
+(10, 'Appliances, Electrical, Safety', '', 1, 'pc', 'NSS 3-Socket Extension Outlet', 'NS-8164 10A 250V', '2024-08-01', 200, 200, 'Ok', 'Available', 2, 0, 0),
+(11, 'Furnitures and Fixtures', '', 30, 'Pcs', 'Tables', 'Multi-Purpose', '2005-06-25', 1200, 36000, 'Ok', 'Available', 1, 0, 0),
+(12, 'Furnitures and Fixtures', '', 30, 'Pcs', 'Ergonomic Chairs', 'Clerical chair w/o arm, w/ gas lift', '2005-07-25', 1000, 30000, 'Damaged: 1', 'Available', 1, 0, 0),
+(13, 'Appliances/Electrical/Safety', '', 10, 'Pcs', 'Extension Cables', '4 Outlets', '2007-09-13', 300, 3000, 'Ok', 'Available', 1, 0, 0);
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `tblogs`
+-- Table structure for table `tbjobrequests`
 --
 
-CREATE TABLE `tblogs` (
-  `log_id` int(12) NOT NULL,
-  `log_type` varchar(255) NOT NULL,
-  `log_date` varchar(255) NOT NULL,
-  `log_user_id` int(12) DEFAULT NULL,
-  `log_item_id` int(12) DEFAULT NULL,
-  `log_room_id` int(12) DEFAULT NULL,
-  `log_rq_id` int(12) DEFAULT NULL,
-  `log_sched_id` int(12) DEFAULT NULL,
-  `log_details` varchar(255) DEFAULT NULL
+CREATE TABLE `tbjobrequests` (
+  `job_id` int(12) NOT NULL,
+  `job_rq_id` int(12) NOT NULL,
+  `job_dept_id` int(12) NOT NULL,
+  `job_create_date` varchar(255) NOT NULL,
+  `job_items` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`job_items`)),
+  `job_purpose` varchar(255) NOT NULL,
+  `job_create_user_id` int(12) NOT NULL,
+  `job_letter` mediumtext DEFAULT NULL,
+  `job_bmo_approval` varchar(255) NOT NULL,
+  `job_bmo_user_id` int(11) DEFAULT NULL,
+  `job_bmo_notes` varchar(255) DEFAULT NULL,
+  `job_custodian_approval` varchar(255) NOT NULL,
+  `job_custodian_user_id` int(12) DEFAULT NULL,
+  `job_custodian_notes` varchar(255) DEFAULT NULL,
+  `job_cads_approval` varchar(255) NOT NULL,
+  `job_cads_user_id` int(12) DEFAULT NULL,
+  `job_cads_notes` varchar(255) DEFAULT NULL,
+  `job_recommendation` mediumtext DEFAULT NULL,
+  `job_estimated_cost` int(12) DEFAULT NULL,
+  `job_recommend_user_id` int(12) DEFAULT NULL,
+  `job_status` varchar(255) DEFAULT NULL,
+  `job_remarks` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `tbjobrequests`
+--
+
+INSERT INTO `tbjobrequests` (`job_id`, `job_rq_id`, `job_dept_id`, `job_create_date`, `job_items`, `job_purpose`, `job_create_user_id`, `job_letter`, `job_bmo_approval`, `job_bmo_user_id`, `job_bmo_notes`, `job_custodian_approval`, `job_custodian_user_id`, `job_custodian_notes`, `job_cads_approval`, `job_cads_user_id`, `job_cads_notes`, `job_recommendation`, `job_estimated_cost`, `job_recommend_user_id`, `job_status`, `job_remarks`) VALUES
+(1, 1, 2, '2024-11-25', '[{\"quantity\":1,\"name_desc\":\"item1\"},{\"quantity\":2,\"name_desc\":\"item2\"},{\"quantity\":3,\"name_desc\":\"item3\"}]', 'testing', 6, 'Dear 123\n\nI am writing to formally request the following job items for our department:\n\n123\n\nThe purpose of this request is 123\n\nThank you for considering this request. I look forward to your prompt response.\n\nSincerely,\n[Your Name]\n[Your Position]\n[Your Department]\n[Date]', 'Approved', 2, 'Forwarding', 'Approved', 9, 'ok', 'Approved', 10, 'ok', 'test', 10, 2, 'For Canvas', 'ok'),
+(2, 2, 2, '2024-11-25', '[{\"quantity\":7,\"name_desc\":\"item7\"},{\"quantity\":8,\"name_desc\":\"item8\"}]', 'test', 6, 'Dear 78\nI am writing to formally request the following job items for our department:\n\n1. [Item Description 1] - Quantity: [Quantity 1]\n2. [Item Description 2] - Quantity: [Quantity 2]\n3. [Item Description 3] - Quantity: [Quantity 3]\n\nThe purpose of this request is [briefly explain the purpose of the request]. \n\nThank you for considering this request. I look forward to your prompt response.\n\nSincerely,\n[Your Name]\n[Your Position]\n[Your Department]\n[Date]', 'Pending', NULL, NULL, 'Pending', 9, 'no', 'Pending', NULL, NULL, NULL, NULL, NULL, 'Pending', NULL),
+(3, 3, 3, '2024-11-26', '[{\"quantity\":1,\"name_desc\":\"qwe\"},{\"quantity\":2,\"name_desc\":\"asd\"},{\"quantity\":2,\"name_desc\":\"zxc\"}]', 'asd', 5, 'Dear asd\n\nI am writing to formally request the following job items for our department:\n\n1. [Item Description 1] - Quantity: [Quantity 1]\n2. [Item Description 2] - Quantity: [Quantity 2]\n3. [Item Description 3] - Quantity: [Quantity 3]\n\nThe purpose of this request is [briefly explain the purpose of the request]. \n\nThank you for considering this request. I look forward to your prompt response.\n\nSincerely,\n[Your Name]\n[Your Position]\n[Your Department]\n[Date]', 'Pending', NULL, NULL, 'Pending', NULL, NULL, 'Pending', NULL, NULL, NULL, NULL, NULL, 'Pending', NULL),
+(4, 4, 3, '2024-11-27', '[{\"quantity\":1,\"name_desc\":\"item1\"},{\"quantity\":2,\"name_desc\":\"item2\"},{\"quantity\":3,\"name_desc\":\"item3\"}]', 'test', 5, 'Dear [Recipient\'s Name],\n\nI am writing to formally request the following job items for our department:\n\n1. [Item Description 1] - Quantity: [Quantity 1]\n2. [Item Description 2] - Quantity: [Quantity 2]\n3. [Item Description 3] - Quantity: [Quantity 3]\n\nThe purpose of this request is [briefly explain the purpose of the request]. \n\nThank you for considering this request. I look forward to your prompt response.\n\nSincerely,\n[Your Name]\n[Your Position]\n[Your Department]\n[Date]', '', NULL, NULL, 'Approved', 9, 'ok', 'Approved', 10, 'approve', 'test', 10000, 2, 'For Canvas', 'ok');
+
+--
+-- Triggers `tbjobrequests`
+--
+DELIMITER $$
+CREATE TRIGGER `before_insert_tbjobrequests` BEFORE INSERT ON `tbjobrequests` FOR EACH ROW BEGIN
+    -- Directly assign the next job_rq_id value to NEW.job_rq_id
+    SET NEW.job_rq_id = (SELECT IFNULL(MAX(job_rq_id), 0) + 1 FROM tbjobrequests);
+END
+$$
+DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -114,7 +160,19 @@ CREATE TABLE `tbnotifs` (
 --
 
 INSERT INTO `tbnotifs` (`notif_id`, `notif_user_id`, `notif_type`, `notif_content`, `notif_date`, `notif_read`, `notif_related_id`) VALUES
-(1, 3, 'service_facility_update', 'Your request has been accepted. Click to view details.', '2024-11-20', 1, 21);
+(1, 3, 'service_facility_update', 'Your request has been accepted. Click to view details.', '2024-11-20', 1, 21),
+(2, 1, 'reserve_item_update', 'Your request has been accepted. Click to view details.', '2024-11-22', 1, 10),
+(3, 6, 'reserve_item_update', 'Your request has been accepted. Click to view details.', '2024-11-22', 1, 25),
+(4, 6, 'reserve_item_update', 'Your request has recevied status update. Click to view details.', '2024-11-22', 1, 25),
+(5, 6, 'reserve_item_update', 'Your request has been accepted. Click to view details.', '2024-11-22', 1, 26),
+(6, 6, 'reserve_item_update', 'Your request has recevied status update. Click to view details.', '2024-11-22', 1, 26),
+(7, 6, 'reserve_item_update', 'Your request has been accepted. Click to view details.', '2024-11-22', 1, 27),
+(8, 6, 'reserve_item_update', 'Your request has recevied status update. Click to view details.', '2024-11-22', 1, 27),
+(9, 6, 'reserve_item_update', 'Your request has been accepted. Click to view details.', '2024-11-25', 1, 1),
+(10, 6, 'reserve_item_update', 'Your request has recevied status update. Click to view details.', '2024-11-25', 1, 1),
+(11, 6, 'reserve_item_update', 'Your request has recevied status update. Click to view details.', '2024-11-25', 1, 1),
+(12, 6, 'reserve_item_update', 'Your request has recevied status update. Click to view details.', '2024-11-25', 1, 1),
+(13, 6, 'reserve_item_update', 'Your request has recevied status update. Click to view details.', '2024-11-25', 1, 1);
 
 -- --------------------------------------------------------
 
@@ -131,6 +189,10 @@ CREATE TABLE `tbrequests` (
   `rq_quantity` int(12) DEFAULT NULL,
   `rq_service_type` varchar(255) DEFAULT NULL,
   `rq_prio_level` varchar(255) NOT NULL,
+  `rq_start_date` varchar(255) NOT NULL,
+  `rq_end_date` varchar(255) NOT NULL,
+  `rq_start_time` varchar(255) NOT NULL,
+  `rq_end_time` varchar(255) NOT NULL,
   `rq_notes` varchar(255) NOT NULL,
   `rq_create_date` varchar(255) NOT NULL,
   `rq_complete_date` varchar(255) DEFAULT NULL,
@@ -143,19 +205,9 @@ CREATE TABLE `tbrequests` (
 -- Dumping data for table `tbrequests`
 --
 
-INSERT INTO `tbrequests` (`rq_id`, `rq_type`, `dept_id`, `item_id`, `room_id`, `rq_quantity`, `rq_service_type`, `rq_prio_level`, `rq_notes`, `rq_create_date`, `rq_complete_date`, `rq_create_user_id`, `rq_accept_user_id`, `rq_status`) VALUES
-(1, 'Reserve Item', 2, 1, NULL, 1, NULL, 'Moderate', 'test complete', '2024-09-30', '2024-10-6', 1, 2, 'Completed'),
-(2, 'Reserve Facility', 2, NULL, 1, NULL, NULL, 'Moderate', 'checking', '2024-10-01', '', 1, 2, 'Accepted'),
-(3, 'Service for Item', 2, 1, NULL, 1, 'Maintenance', 'Moderate', 'test', '2024-10-01', NULL, 1, 3, 'Accepted'),
-(10, 'Reserve Item', 2, 2, NULL, 1, NULL, 'Moderate', 'test', '2024-10-1', NULL, 1, NULL, 'Request Submitted'),
-(13, 'Reserve Item', 1, 3, NULL, 1, NULL, 'Moderate', 'test', '2024-10-4', NULL, 1, NULL, 'Request Submitted'),
-(17, 'Reserve Item', 1, 1, NULL, 1, NULL, 'Urgent', 'test session', '2024-10-5', NULL, 1, 3, 'Accepted'),
-(18, 'Service for Facility', 1, NULL, 1, NULL, 'Maintenance', 'Urgent', 'test approve maint', '2024-10-5', '', 1, 2, 'Service Aprroved'),
-(19, 'Service for Facility', 1, NULL, 1, NULL, 'Other', 'Urgent', 'test prio', '2024-10-5', NULL, 1, NULL, 'Request Submitted'),
-(20, 'Service for Item', 2, 3, NULL, 1, 'Repair', 'Moderate', 'test submit', '2024-10-6', NULL, 2, 3, 'Accepted'),
-(21, 'Service for Facility', 1, NULL, 1, NULL, 'Installation', 'Moderate', 'AC', '2024-10-6', NULL, 3, 2, 'Accepted'),
-(22, 'Reserve Facility', 2, NULL, 1, NULL, NULL, 'Urgent', 'test cmo queue', '2024-10-6', NULL, 2, 3, 'Accepted'),
-(23, 'Reserve Item', 2, 2, NULL, 1, NULL, 'Moderate', 'test', '2024-10-8', NULL, 2, NULL, 'Request Submitted');
+INSERT INTO `tbrequests` (`rq_id`, `rq_type`, `dept_id`, `item_id`, `room_id`, `rq_quantity`, `rq_service_type`, `rq_prio_level`, `rq_start_date`, `rq_end_date`, `rq_start_time`, `rq_end_time`, `rq_notes`, `rq_create_date`, `rq_complete_date`, `rq_create_user_id`, `rq_accept_user_id`, `rq_status`) VALUES
+(1, 'Reserve Item', 2, 2, NULL, 2, NULL, 'Urgent', '2024-11-25', '2024-11-25', '12:00', '15:00', 'test\npickup\nin use', '2024-11-25', '2024-11-25', 6, 6, 'Completed'),
+(2, 'Reserve Facility', 2, NULL, 1, NULL, NULL, 'Moderate', '2024-11-29', '2024-11-29', '13:00', '16:00', 'test', '2024-11-26', NULL, 6, NULL, 'Request Submitted');
 
 -- --------------------------------------------------------
 
@@ -167,6 +219,7 @@ CREATE TABLE `tbrooms` (
   `room_id` int(12) NOT NULL,
   `room_bldg` varchar(255) NOT NULL,
   `room_floor` varchar(255) NOT NULL,
+  `room_type` varchar(255) NOT NULL,
   `room_name` varchar(255) NOT NULL,
   `room_desc` varchar(255) NOT NULL,
   `room_status` varchar(255) NOT NULL,
@@ -177,13 +230,13 @@ CREATE TABLE `tbrooms` (
 -- Dumping data for table `tbrooms`
 --
 
-INSERT INTO `tbrooms` (`room_id`, `room_bldg`, `room_floor`, `room_name`, `room_desc`, `room_status`, `dept_id`) VALUES
-(1, 'Old Building', '2nd Floor', 'Cisco Laboratory', 'Laboratory for networking and other computer-related activities', 'Service Approved: Maintenance', 2),
-(2, 'Old Building', '2nd Floor', 'Computer Maintenance Office', 'Main office of CMO department', 'Available', 2),
-(3, 'CBE Building', '4th Floor', 'CBE AVR', 'Audio Visual Room', 'Available', 1),
-(4, 'Maritime Building', '6th Floor', 'Maritime AVR', 'Audio Visual Room', 'Available', 1),
-(5, 'BE Building', '8th Floor', 'BE Auditorium', 'Auditorium', 'Available', 1),
-(6, 'Annex B', '1st Floor', 'Function Hall', 'Ground', 'Available', 1);
+INSERT INTO `tbrooms` (`room_id`, `room_bldg`, `room_floor`, `room_type`, `room_name`, `room_desc`, `room_status`, `dept_id`) VALUES
+(1, 'Old Building', '2nd Floor', 'Laboratory', 'Cisco Laboratory', 'Laboratory for networking and other computer-related activities', 'Service Approved: Maintenance', 2),
+(2, 'Old Building', '2nd Floor', 'Office', 'Computer Maintenance Office', 'Main office of CMO department', 'Available', 2),
+(3, 'CBE Building', '4th Floor', 'Multi-Purpose', 'CBE AVR', 'Audio Visual Room', 'Available', 1),
+(4, 'Maritime Building', '6th Floor', 'Multi-Purpose', 'Maritime AVR', 'Audio Visual Room', 'Available', 1),
+(5, 'BE Building', '8th Floor', 'Multi-Purpose', 'BE Auditorium', 'Auditorium', 'Available', 1),
+(6, 'Annex B', '1st Floor', 'Multi-Purpose', 'Function Hall', 'Ground', 'Available', 1);
 
 -- --------------------------------------------------------
 
@@ -200,16 +253,18 @@ CREATE TABLE `tbschedules` (
   `sched_time_out` varchar(255) NOT NULL,
   `sched_start_date` varchar(255) NOT NULL,
   `sched_end_date` varchar(255) NOT NULL,
-  `sched_notes` varchar(255) NOT NULL
+  `sched_notes` varchar(255) DEFAULT NULL,
+  `sched_create_dept_id` int(12) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `tbschedules`
 --
 
-INSERT INTO `tbschedules` (`sched_id`, `sched_user_id`, `sched_dept_id`, `sched_days_of_week`, `sched_time_in`, `sched_time_out`, `sched_start_date`, `sched_end_date`, `sched_notes`) VALUES
-(1, 2, 1, 'Tuesday, Thursday', '08:00', '12:00', '2024-11-20', '2024-12-20', 'test edit'),
-(2, 3, 2, 'Monday, Wednesday, Friday', '08:00', '12:00', '2025-01-06', '2025-02-28', 'sample');
+INSERT INTO `tbschedules` (`sched_id`, `sched_user_id`, `sched_dept_id`, `sched_days_of_week`, `sched_time_in`, `sched_time_out`, `sched_start_date`, `sched_end_date`, `sched_notes`, `sched_create_dept_id`) VALUES
+(1, 2, 1, 'Tuesday, Thursday', '08:00', '12:00', '2024-11-20', '2024-12-20', '08:00AM - 12:00PM TTh', 1),
+(2, 3, 2, 'Monday, Wednesday, Friday', '08:00', '12:00', '2025-01-06', '2025-02-28', 'sample', 2),
+(4, 7, 3, 'Monday, Tuesday, Wednesday, Thursday, Friday', '09:00', '12:00', '2024-11-25', '2024-12-27', 'testing', 3);
 
 -- --------------------------------------------------------
 
@@ -226,22 +281,26 @@ CREATE TABLE `tbuseraccounts` (
   `user_email` varchar(255) NOT NULL,
   `user_contact` varchar(255) NOT NULL,
   `user_type` varchar(255) NOT NULL,
-  `dept_id` int(12) NOT NULL
+  `user_position` varchar(255) NOT NULL,
+  `dept_id` int(12) NOT NULL,
+  `user_status` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `tbuseraccounts`
 --
 
-INSERT INTO `tbuseraccounts` (`user_id`, `user_idnum`, `user_password`, `user_fname`, `user_lname`, `user_email`, `user_contact`, `user_type`, `dept_id`) VALUES
-(1, 10000000, 'admin', 'Joe', 'Admin', 'admin@mail.com', '12345678', 'Administrator', 2),
-(2, 10000001, 'tech1', 'Joe', 'BMO', 'tech@mail.com', '12345678', 'Technical Staff', 1),
-(3, 10000002, 'tech2', 'Joe', 'CMO', 'tech@mail.com', '12345678', 'Technical Staff', 2),
-(4, 19140284, 'yumol', 'Ruthello John', 'Yumol', 'yumol.ruthellojohn157@gmail.com', '12345678', 'Administrator', 3),
-(5, 20200754, 'josepulmones', 'Jose Ma.', 'Pulmones Jr.', '21jmpulmones@gmail.com', '09150411484', 'Technical Staff', 3),
-(6, 19099456, 'glenn', 'Glenn', 'Toñacao', 'glenntoniacao@gmail.com', '0905268395', 'Technical Staff', 2),
-(7, 19084821, 'hannah', 'Hannah Jane', 'Ferrer', 'hannahjaneferrer2@gmail.com', '0923445642', 'Technical Staff', 3),
-(8, 20181622, 'jijil31', 'Angel Dianne', 'Ocier', 'angeldianneocier31@gmail.com', '09319100322', 'Technical Staff', 3);
+INSERT INTO `tbuseraccounts` (`user_id`, `user_idnum`, `user_password`, `user_fname`, `user_lname`, `user_email`, `user_contact`, `user_type`, `user_position`, `dept_id`, `user_status`) VALUES
+(1, 10000000, 'admin', 'Joe', 'Admin', 'admin@mail.com', '12345678', 'Administrator', 'Administrator', 2, 'Activated'),
+(2, 10000001, 'tech1', 'Joe', 'BMO', 'tech@mail.com', '12345678', 'Technical Staff', 'Supervisor', 1, 'Activated'),
+(3, 10000002, 'tech2', 'Joe', 'CMO', 'tech@mail.com', '12345678', 'Technical Staff', 'Supervisor', 2, 'Activated'),
+(4, 19140284, 'yumol', 'Ruthello John', 'Yumol', 'yumol.ruthellojohn157@gmail.com', '12345678', 'Administrator', 'Administrator', 3, 'Activated'),
+(5, 20200754, 'josepulmones', 'Jose Ma.', 'Pulmones Jr.', '21jmpulmones@gmail.com', '09150411484', 'Technical Staff', 'Supervisor', 3, 'Activated'),
+(6, 19099456, 'glenn', 'Glenn', 'Toñacao', 'glenntoniacao@gmail.com', '0905268395', 'Technical Staff', 'Working Student', 2, 'Activated'),
+(7, 19084821, 'hannah', 'Hannah Jane', 'Ferrer', 'hannahjaneferrer2@gmail.com', '0923445642', 'Technical Staff', 'Working Student', 3, 'Activated'),
+(8, 20181622, 'jijil31', 'Angel Dianne', 'Ocier', 'angeldianneocier31@gmail.com', '09319100322', 'Technical Staff', 'Working Student', 3, 'Activated'),
+(9, 10000003, 'cust1', 'Joe', 'Custodian', 'test@email.com', '12324567', 'Technical Staff', 'Property Custodian', 11, 'Activated'),
+(10, 10000004, 'cads1', 'Joe', 'CADS', 'test@email.com', '12324567', 'Technical Staff', 'CADS Director', 11, 'Activated');
 
 --
 -- Indexes for dumped tables
@@ -259,6 +318,14 @@ ALTER TABLE `tbdepartments`
 ALTER TABLE `tbitems`
   ADD PRIMARY KEY (`item_id`),
   ADD KEY `dept_id for item` (`dept_id`);
+
+--
+-- Indexes for table `tbjobrequests`
+--
+ALTER TABLE `tbjobrequests`
+  ADD PRIMARY KEY (`job_id`),
+  ADD UNIQUE KEY `job_id` (`job_id`),
+  ADD UNIQUE KEY `job_id_2` (`job_id`);
 
 --
 -- Indexes for table `tbnotifs`
@@ -303,25 +370,31 @@ ALTER TABLE `tbuseraccounts`
 -- AUTO_INCREMENT for table `tbdepartments`
 --
 ALTER TABLE `tbdepartments`
-  MODIFY `dept_id` int(12) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `dept_id` int(12) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `tbitems`
 --
 ALTER TABLE `tbitems`
-  MODIFY `item_id` int(12) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `item_id` int(12) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+
+--
+-- AUTO_INCREMENT for table `tbjobrequests`
+--
+ALTER TABLE `tbjobrequests`
+  MODIFY `job_id` int(12) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `tbnotifs`
 --
 ALTER TABLE `tbnotifs`
-  MODIFY `notif_id` int(12) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `notif_id` int(12) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT for table `tbrequests`
 --
 ALTER TABLE `tbrequests`
-  MODIFY `rq_id` int(12) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+  MODIFY `rq_id` int(12) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `tbrooms`
@@ -333,13 +406,13 @@ ALTER TABLE `tbrooms`
 -- AUTO_INCREMENT for table `tbschedules`
 --
 ALTER TABLE `tbschedules`
-  MODIFY `sched_id` int(12) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `sched_id` int(12) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `tbuseraccounts`
 --
 ALTER TABLE `tbuseraccounts`
-  MODIFY `user_id` int(12) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `user_id` int(12) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- Constraints for dumped tables

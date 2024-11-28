@@ -19,6 +19,7 @@ import {
     AccordionTrigger,
   } from "@/components/ui/accordion";
 import { ip_address } from '@/app/ipconfig';
+import GenerateRequestPDFReport from './report';
 
 
 const filterRequestQueueColumn = {
@@ -141,7 +142,7 @@ export default function Requests({ session }: { session: Session | null }) {
 
     return (
         <div className="container mx-auto py-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-3xl">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl">
                 <Card className="w-full">
                     <CardHeader className="pb-3">
                       <CardTitle>Requests</CardTitle>
@@ -161,7 +162,7 @@ export default function Requests({ session }: { session: Session | null }) {
                         </CardDescription>
                     </CardHeader>
                     <CardFooter>
-                        <Button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Generate PDF</Button>
+                        <GenerateRequestPDFReport></GenerateRequestPDFReport>
                     </CardFooter>
                 </Card>
             </div>

@@ -17,6 +17,10 @@ interface ReserveItem {
     item_name: string
     rq_quantity: number
     rq_prio_level: string
+    rq_start_date: string
+    rq_end_date: string
+    rq_start_time: string
+    rq_end_time: string
     rq_notes: string
     rq_create_date: string
     rq_complete_date: string
@@ -61,7 +65,7 @@ export default function ReserveItemBenchView() {
                 <CardHeader className="flex flex-row items-center justify-between">
                     <CardTitle>Request Details</CardTitle>
                     <Link href="/technical/requests" className="text-blue-500 hover:text-blue-700">
-                        Back
+                        Back to Requests
                     </Link>
                 </CardHeader>
                 <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -73,6 +77,8 @@ export default function ReserveItemBenchView() {
                     <p><strong>Requested Quantity:</strong> {request.rq_quantity}</p>
                     <p><strong>Priority Level:</strong> {request.rq_prio_level}</p>
                     <p><strong>Submitted by:</strong> {request.rq_create_user_fname + " " + request.rq_create_user_lname}</p>
+                    <p><strong>Reservation Date:</strong> From {request.rq_start_date} To {request.rq_end_date}</p>
+                    <p><strong>Reservation Time:</strong> From {request.rq_start_time} To {request.rq_end_time}</p>
                     <p><strong>Notes:</strong> {request.rq_notes}</p>
                     <p><strong>Respondent:</strong> {request.rq_accept_user_fname + " " + request.rq_accept_user_lname}</p>
                     <p><strong>Status:</strong> {request.rq_status}</p>

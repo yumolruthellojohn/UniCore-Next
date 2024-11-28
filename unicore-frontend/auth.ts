@@ -34,10 +34,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                     }
                     else if (Object.keys(response.data).length)
                     {
-                        user = response.data[0];
-                        console.log(response.data[0]);
-                        console.log(user);
-                        return user;
+                        if (response.data[0].user_status === "Deactivated")
+                        {
+                            console.log("Account deactivated. Contact Administrator for help.");
+                        }
+                        else if (response.data[0].user_status === "Activated")
+                        {
+                            user = response.data[0];
+                            console.log(response.data[0]);
+                            console.log(user);
+                            return user;
+                        }
                     }
 
                     return null;
@@ -72,7 +79,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 token.fname = user.user_fname as string;
                 token.lname = user.user_lname as string;
                 token.role = user.user_type as string;
+                token.position = user.user_position as string;
                 token.dept_id = user.dept_id as string;
+                token.status = user.user_status as string;
             }
             if (trigger === "update" && session) {
                 token = { ...token, ...session };
@@ -82,8 +91,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session: ({ session, token }) => {
             session.user.user_id = token.id;
             session.user.name = token.fname + " " + token.lname;
+            session.user.user_fname = token.fname;
+            session.user.user_lname = token.lname;
             session.user.user_type = token.role;
+            session.user.user_position = token.position;
             session.user.dept_id = token.dept_id;
+            session.user.user_status = token.status;
             return session;
         }
     },

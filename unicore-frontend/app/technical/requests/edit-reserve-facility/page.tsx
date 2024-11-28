@@ -25,6 +25,7 @@ export default function EditReserveRoomRequest(){
     const requestID = searchParams.get('id');
     const [loading, setLoading] = useState(true);
     const [showSuccessDialog, setShowSuccessDialog] = useState(false);
+    const [currentRequestStatus, setCurrentRequestStatus] = useState("");
 
     const [formData, setFormData] = useState({
         room_id: '',
@@ -48,6 +49,7 @@ export default function EditReserveRoomRequest(){
             // Log the response to see what data you're getting
             console.log('Fetched request data:', response.data);
             setFormData(response.data[0]);
+            setCurrentRequestStatus(response.data[0].rq_status);
             setLoading(false);
         } catch (error) {
             console.error('Error fetching request data:', error);
@@ -104,6 +106,22 @@ export default function EditReserveRoomRequest(){
         router.push('/technical/requests');
     };
 
+    // function to determine available next statuses
+    const getAvailableStatuses = (currentStatus: string) => {
+        switch (currentStatus) {
+            case "Accepted":
+                return ["Pending", "Conflict", "Canceled", "Reserved"];
+            case "Pending":
+                return ["Reserved", "Conflict", "Canceled"];
+            case "Reserved":
+                return ["Completed"];
+            case "Conflict":
+                return ["Pending", "Canceled"];
+            default:
+                return []; // No changes allowed for Completed or Canceled status
+        }
+    };
+
     if (loading) {
         return <div>Loading...</div>;
     }
@@ -134,17 +152,20 @@ export default function EditReserveRoomRequest(){
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="rq_status">Request Status: </Label>
-                                <Select onValueChange={(value) => handleChange('rq_status', value)} value={formData.rq_status}>
+                                <Select 
+                                    onValueChange={(value) => handleChange('rq_status', value)} 
+                                    value={formData.rq_status}
+                                    disabled={formData.rq_status === "Completed" || formData.rq_status === "Canceled"}
+                                >
                                     <SelectTrigger>
                                         <SelectValue placeholder="Select status" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="Accepted">Accepted</SelectItem>
-                                        <SelectItem value="Pending">Pending</SelectItem>
-                                        <SelectItem value="Conflict">Conflict</SelectItem>
-                                        <SelectItem value="Canceled">Canceled</SelectItem>
-                                        <SelectItem value="Reserved">Reserved</SelectItem>
-                                        <SelectItem value="Completed">Completed</SelectItem>
+                                        {getAvailableStatuses(currentRequestStatus).map((status) => (
+                                            <SelectItem key={status} value={status}>
+                                                {status}
+                                            </SelectItem>
+                                        ))}
                                     </SelectContent>
                                 </Select>
                             </div>

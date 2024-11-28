@@ -25,6 +25,7 @@ export default function EditServiceRoomRequest(){
     const requestID = searchParams.get('id');
     const [loading, setLoading] = useState(true);
     const [showSuccessDialog, setShowSuccessDialog] = useState(false);
+    const [currentRequestStatus, setCurrentRequestStatus] = useState("");
 
     const [formData, setFormData] = useState({
         room_id: '',
@@ -49,6 +50,7 @@ export default function EditServiceRoomRequest(){
             // Log the response to see what data you're getting
             console.log('Fetched request data:', response.data);
             setFormData(response.data[0]);
+            setCurrentRequestStatus(response.data[0].rq_status);
             setLoading(false);
         } catch (error) {
             console.error('Error fetching request data:', error);
@@ -72,7 +74,7 @@ export default function EditServiceRoomRequest(){
             let newRoomStatus: string | null = null; // Variable to hold the new item status
 
             switch (formData.rq_status) {
-                case "Service Aprroved":
+                case "Service Approved":
                     switch (formData.rq_service_type){
                         case "Maintenance":
                             newRoomStatus = "Service Approved: Maintenance"
@@ -150,6 +152,26 @@ export default function EditServiceRoomRequest(){
         router.push('/technical/requests');
     };
 
+    // function to determine available next statuses
+    const getAvailableStatuses = (currentStatus: string) => {
+        switch (currentStatus) {
+            case "Accepted":
+                return ["Pending", "Conflict", "Canceled", "Service Approved"];
+            case "Pending":
+                return ["Service Approved", "Conflict", "Canceled"];
+            case "Service Approved":
+                return ["Service in Progress", "Canceled", "Completed"];
+            case "Service in Progress":
+                return ["Service Post-Checks", "Completed"];
+            case "Service Post-Checks":
+                return ["Completed"];
+            case "Conflict":
+                return ["Pending", "Canceled"];
+            default:
+                return []; // No changes allowed for Completed or Canceled status
+        }
+    };
+
     if (loading) {
         return <div>Loading...</div>;
     }
@@ -181,19 +203,20 @@ export default function EditServiceRoomRequest(){
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="rq_status">Request Status: </Label>
-                                <Select onValueChange={(value) => handleChange('rq_status', value)} value={formData.rq_status}>
+                                <Select 
+                                    onValueChange={(value) => handleChange('rq_status', value)} 
+                                    value={formData.rq_status}
+                                    disabled={formData.rq_status === "Completed" || formData.rq_status === "Canceled"}
+                                >
                                     <SelectTrigger>
                                         <SelectValue placeholder="Select status" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="Accepted">Accepted</SelectItem>
-                                        <SelectItem value="Pending">Pending</SelectItem>
-                                        <SelectItem value="Conflict">Conflict</SelectItem>
-                                        <SelectItem value="Canceled">Canceled</SelectItem>
-                                        <SelectItem value="Service Aprroved">Service Aprroved</SelectItem>
-                                        <SelectItem value="Service in Progress">Service in Progress</SelectItem>
-                                        <SelectItem value="Service Post-Checks">Service Post-Checks</SelectItem>
-                                        <SelectItem value="Completed">Completed</SelectItem>
+                                        {getAvailableStatuses(currentRequestStatus).map((status) => (
+                                            <SelectItem key={status} value={status}>
+                                                {status}
+                                            </SelectItem>
+                                        ))}
                                     </SelectContent>
                                 </Select>
                             </div>

@@ -51,6 +51,10 @@ export default function NewServiceItem({ session }: { session: Session | null })
         rq_quantity: 0,
         rq_service_type: 'Maintenance',
         rq_prio_level: 'Moderate', // Default to 'Moderate' priority
+        rq_start_date: '',
+        rq_end_date: '',
+        rq_start_time: '',
+        rq_end_time: '',
         rq_notes: '',
         rq_create_date: currentDate,
         rq_create_user_id: '',
@@ -94,10 +98,18 @@ export default function NewServiceItem({ session }: { session: Session | null })
     }, []);
 
     const handleChange = (name: string, value: string | number) => {
-        setFormData(prevState => ({
-            ...prevState,
-            [name]: value,
-        }));
+        setFormData(prevState => {
+            const newState = {
+                ...prevState,
+                [name]: value,
+            };
+
+            if (name === 'rq_prio_level' && value === 'Urgent') {
+                newState.rq_start_date = currentDate;
+            }
+
+            return newState;
+        });
     };
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -195,6 +207,52 @@ export default function NewServiceItem({ session }: { session: Session | null })
                                         <SelectItem value="Urgent">Urgent</SelectItem>
                                     </SelectContent>
                                 </Select>
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="rq_start_date">Start Date:</Label>
+                                {formData.rq_prio_level === 'Urgent' ? (
+                                    <div className="p-2 bg-gray-100 rounded-md">
+                                        Today ({currentDate})
+                                    </div>
+                                ) : (
+                                    <Input
+                                        type="date"
+                                        id="rq_start_date"
+                                        value={formData.rq_start_date}
+                                        onChange={(e) => handleChange('rq_start_date', e.target.value)}
+                                        required
+                                    />
+                                )}
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="rq_end_date">End Date:</Label>
+                                <Input
+                                    type="date"
+                                    id="rq_end_date"
+                                    value={formData.rq_end_date}
+                                    onChange={(e) => handleChange('rq_end_date', e.target.value)}
+                                    required
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="rq_start_time">Start Time:</Label>
+                                <Input
+                                    type="time"
+                                    id="rq_start_time"
+                                    value={formData.rq_start_time}
+                                    onChange={(e) => handleChange('rq_start_time', e.target.value)}
+                                    required
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="rq_end_time">End Time:</Label>
+                                <Input
+                                    type="time"
+                                    id="rq_end_time"
+                                    value={formData.rq_end_time}
+                                    onChange={(e) => handleChange('rq_end_time', e.target.value)}
+                                    required
+                                />
                             </div>
                             <div className="space-y-2 md:col-span-2">
                                 <Label htmlFor="rq_notes">Request Notes:</Label>

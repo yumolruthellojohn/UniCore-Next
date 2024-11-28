@@ -27,6 +27,7 @@ interface Room {
   room_id: number;
   room_bldg: string;
   room_floor: string;
+  room_type: string;
   room_name: string;
   room_desc: string;
   room_status: string;
@@ -104,6 +105,7 @@ export default function RoomView() {
                     <p><strong>ID:</strong> {room.room_id}</p>
                     <p><strong>Building:</strong> {room.room_bldg}</p>
                     <p><strong>Floor Level:</strong> {room.room_floor}</p>
+                    <p><strong>Type:</strong> {room.room_type}</p>
                     <p><strong>Name:</strong> {room.room_name}</p>
                     <p><strong>Description:</strong> {room.room_desc}</p>
                     <p><strong>Status:</strong> {room.room_status}</p>

@@ -8,7 +8,8 @@ import {
     Package2,
     DoorOpen,
     StickyNote,
-    CalendarDays
+    CalendarDays,
+    SquareUserRound
 } from "lucide-react";
 
 export const sidebarItems = [
@@ -33,9 +34,14 @@ export const sidebarItems = [
         icon: <DoorOpen className="h-4 w-4" />
     },
     {
-      label: "W.S. Schedules",
-      href: "/admin/wschedules",
-      icon: <CalendarDays className="h-4 w-4" />
+        label: "W.S. Schedules",
+        href: "/admin/wschedules",
+        icon: <CalendarDays className="h-4 w-4" />
+    },
+    {
+        label: "User Accounts",
+        href: "/admin/accounts",
+        icon: <SquareUserRound className="h-4 w-4" />
     }
 ]
 

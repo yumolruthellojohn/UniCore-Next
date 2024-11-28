@@ -9,6 +9,7 @@ import { Toaster } from "@/components/ui/toaster";
 import axios from "axios";
 import { Button } from '@/components/ui/button';
 import { ip_address } from '@/app/ipconfig';
+import GeneratePDFReport from './report';
 
 async function getData(): Promise<Item[]> {
     let item = null;
@@ -64,7 +65,7 @@ export default function Inventory() {
                   </CardDescription>
                 </CardHeader>
                 <CardFooter>
-                  <Button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Generate PDF</Button>
+                  <GeneratePDFReport></GeneratePDFReport>
                 </CardFooter>
               </Card>
             </div>

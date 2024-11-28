@@ -9,6 +9,7 @@ import { Toaster } from "@/components/ui/toaster";
 import axios from "axios";
 import { Button } from '@/components/ui/button';
 import { ip_address } from '@/app/ipconfig';
+import GenerateFacilityPDFReport from './report';
 
 async function getData(): Promise<Room[]> {
     let room = null;
@@ -44,7 +45,7 @@ export default function Rooms() {
 
     return (
         <div className="container mx-auto py-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-2xl">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-3xl">
               <Card className="w-full">
                 <CardHeader className="pb-3">
                   <CardTitle>Facilities</CardTitle>
@@ -64,7 +65,7 @@ export default function Rooms() {
                   </CardDescription>
                 </CardHeader>
                 <CardFooter>
-                  <Button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Generate PDF</Button>
+                  <GenerateFacilityPDFReport></GenerateFacilityPDFReport>
                 </CardFooter>
               </Card>
             </div>

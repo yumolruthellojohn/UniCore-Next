@@ -17,6 +17,9 @@ import { ip_address } from '@/app/ipconfig';
 
 export type Room = {
   room_id: number
+  room_bldg: string
+  room_floor: string
+  room_type: string
   room_name: string
   room_desc: string
   room_status: string
@@ -31,6 +34,20 @@ export const createColumns = (onDataChange: () => void): ColumnDef<Room>[] => [
       <DataTableColumnHeader column={column} className="w-[10%] min-w-[60px]" title="ID" />
     ),
     cell: ({ row }) => <div className="text-center">{row.getValue('room_id')}</div>,
+  },
+  {
+    accessorKey: 'room_bldg',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} className="w-[20%] min-w-[120px] hidden md:table-cell" title="Building" />
+    ),
+    cell: ({ row }) => <div className="hidden md:block text-center">{row.getValue('room_bldg')}</div>,
+  },
+  {
+    accessorKey: 'room_floor',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} className="w-[20%] min-w-[120px] hidden md:table-cell" title="Floor Level" />
+    ),
+    cell: ({ row }) => <div className="hidden md:block text-center">{row.getValue('room_floor')}</div>,
   },
   {
     accessorKey: 'room_name',

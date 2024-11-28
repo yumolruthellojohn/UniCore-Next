@@ -9,7 +9,9 @@ declare module "next-auth" {
         user_fname: string
         user_lname: string
         user_type: string
+        user_position: string
         dept_id: string
+        user_status: string
     }
     interface Session {
         user: User
@@ -22,6 +24,8 @@ declare module "next-auth/jwt" {
         fname: string
         lname: string
         role: string
+        position: string
         dept_id: string
+        status: string
     }
 }

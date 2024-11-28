@@ -51,7 +51,14 @@ export const createRequestAcceptColumns = (onDataChange: () => void): ColumnDef<
     header: ({ column }) => (
       <DataTableColumnHeader column={column} className="w-[10%] min-w-[80px]" title="Priority Level" />
     ),
-    cell: ({ row }) => <div className="text-center">{row.getValue('rq_prio_level')}</div>
+    cell: ({ row }) => {
+      const priority = row.getValue('rq_prio_level') as string;
+      return (
+        <div className={`text-center ${priority === 'Urgent' ? 'text-orange-500' : ''}`}>
+          {priority}
+        </div>
+      );
+    }
   },
   {
     accessorKey: 'rq_create_date',

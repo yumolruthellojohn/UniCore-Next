@@ -115,10 +115,10 @@ export default function AddInventoryItem() {
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="Computer System and Peripherals">Computer System and Peripherals</SelectItem>
-                                        <SelectItem value="Appliances/Electrical/Safety">Appliances/Electrical/Safety</SelectItem>
+                                        <SelectItem value="Appliances/Electrical/Safety">Appliances, Electrical, Safety</SelectItem>
                                         <SelectItem value="Furnitures and Fixtures">Furnitures and Fixtures</SelectItem>
                                         <SelectItem value="Laboratory Equipments">Laboratory Equipments</SelectItem>
-                                        <SelectItem value="Cleaning Aids/Materials">Cleaning Aids/Materials</SelectItem>
+                                        <SelectItem value="Cleaning Aids/Materials">Cleaning Aids, Materials</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>

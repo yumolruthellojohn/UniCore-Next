@@ -36,6 +36,7 @@ export default function EditRoom() {
     const [formData, setFormData] = useState({
         room_bldg: '',
         room_floor: '',
+        room_type: '',
         room_name: '',
         room_desc: '',
         dept_id: '',
@@ -133,7 +134,7 @@ export default function EditRoom() {
                                         <SelectValue placeholder="Select floor level" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="1st Floor">1st Floor</SelectItem>
+                                        <SelectItem value="Ground Level">Ground Level</SelectItem>
                                         <SelectItem value="2nd Floor">2nd Floor</SelectItem>
                                         <SelectItem value="3rd Floor">3rd Floor</SelectItem>
                                         <SelectItem value="4th Floor">4th Floor</SelectItem>
@@ -141,6 +142,22 @@ export default function EditRoom() {
                                         <SelectItem value="6th Floor">6th Floor</SelectItem>
                                         <SelectItem value="7th Floor">7th Floor</SelectItem>
                                         <SelectItem value="8th Floor">8th Floor</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="room_type">Type:</Label>
+                                <Select onValueChange={(value) => handleChange('room_type', value)} value={formData.room_type}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select type" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="Lecture">Lecture</SelectItem>
+                                        <SelectItem value="Laboratory">Laboratory</SelectItem>
+                                        <SelectItem value="Office">Office</SelectItem>
+                                        <SelectItem value="Multi-Purpose">Multi-Purpose</SelectItem>
+                                        <SelectItem value="Stock Room">Stock Room</SelectItem>
+                                        <SelectItem value="Other">Other</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
