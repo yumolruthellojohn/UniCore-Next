@@ -16,7 +16,7 @@ interface Departments {
     dept_name: string;
 }
 
-export default function GenerateFacilityPDFReport() {
+export default function GenerateSchedulesPDFReport() {
     const [selectFilter, setSelectFilter] = useState({ filter: "department" });
     const [filter, setFilter] = useState({ dept_id: '' });
     const [departments, setDepartments] = useState<Departments[]>([]);
@@ -74,7 +74,7 @@ export default function GenerateFacilityPDFReport() {
 
         const campus_name = "UNIVERSITY OF CEBU LAPU-LAPU MANDAUE";
         const campus_address = "A.C. Cortez Ave., Looc, Mandaue City";
-        const report_title = "FACILITIES INFORMATION REPORT";
+        const report_title = "WORKING STUDENT SCHEDULES INFORMATION REPORT";
         const report_date = `As of ${month} ${day}, ${year}`;
 
         const campus_name_width = doc.getTextWidth(campus_name);
@@ -93,10 +93,10 @@ export default function GenerateFacilityPDFReport() {
 
         try {
             if (selectFilter.filter === 'department' && filter.dept_id) {
-                const response = await axios.get(`http://${ip_address}:8081/rooms/deptID/${filter.dept_id}`);
+                const response = await axios.get(`http://${ip_address}:8081/schedules/deptID/lname/${filter.dept_id}`);
                 tableData = response.data;
             } else if (selectFilter.filter === 'all') {
-                const response = await axios.get(`http://${ip_address}:8081/rooms`);
+                const response = await axios.get(`http://${ip_address}:8081/schedules/lname`);
                 tableData = response.data;
             }
 
@@ -105,7 +105,7 @@ export default function GenerateFacilityPDFReport() {
             if (selectFilter.filter === 'department' && filter.dept_id) {
                 try {
                     const response = await axios.get(`http://${ip_address}:8081/departments/${filter.dept_id}`);
-                    topText = "Department: " + response.data[0].dept_name;
+                    topText = "Assigned Department: " + response.data[0].dept_name;
                 }
                 catch (error) {
                     console.error('Error fetching department name:', error);
@@ -122,14 +122,14 @@ export default function GenerateFacilityPDFReport() {
             doc.text(topText, topTextAlign, 35);
 
             // Define headers and body
-            const headers = ['Building', 'Floor Level', 'Type', 'Name', 'Description', 'Status'];
-            const body = tableData.map(room => [
-                room.room_bldg,
-                room.room_floor,
-                room.room_type,
-                room.room_name,
-                room.room_desc,
-                room.room_status
+            const headers = ['Name', 'Days of Week', 'Time In', 'Time Out', 'Start Date', 'End Date'];
+            const body = tableData.map(schedule => [
+                schedule.user_lname + ", " + schedule.user_fname,
+                schedule.sched_days_of_week,
+                schedule.sched_time_in,
+                schedule.sched_time_out,
+                schedule.sched_start_date,
+                schedule.sched_end_date
             ]);
 
             // Add table to PDF with autoTable
@@ -161,7 +161,7 @@ export default function GenerateFacilityPDFReport() {
                 doc.text(pageNumberText, x, y);
             }
 
-            doc.save("unicore_facilities_report.pdf");
+            doc.save("unicore_schedules_report.pdf");
             setShowSuccessDialog(false);
         } catch (error) {
             console.error('Error fetching facilities:', error);
@@ -189,7 +189,7 @@ export default function GenerateFacilityPDFReport() {
                                 <RadioGroup value={selectFilter.filter} defaultValue="department" onValueChange={(value) => handleSelectFilterChange('filter', value)}>
                                     <div className="flex items-center space-x-2 px-5">
                                         <RadioGroupItem id="r1" value="department" />
-                                        <Label htmlFor="r1">Department</Label>
+                                        <Label htmlFor="r1">Assigned Department</Label>
                                     </div>
                                     <div className="flex items-center space-x-2 px-5">
                                         <RadioGroupItem id="r2" value="all" />
@@ -218,7 +218,7 @@ export default function GenerateFacilityPDFReport() {
 
                             {selectFilter.filter === 'all' && (
                                 <div className="space-y-2">
-                                    <h3>Report will include all facilities</h3>
+                                    <h3>Report will include all schedules</h3>
                                 </div>
                             )}
                         </div>

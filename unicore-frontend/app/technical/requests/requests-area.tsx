@@ -46,9 +46,9 @@ export function RequestsArea() {
   } satisfies ChartConfig
 
   return (
-    <Card className="max-w-[500px]">
+    <Card className="max-w-5xl">
       <CardHeader>
-        <CardTitle>Requests Submission Activity</CardTitle>
+        <CardTitle>Standard Requests Submission Activity</CardTitle>
         <CardDescription>
           Number of Submitted Requests for the past 4 months
         </CardDescription>

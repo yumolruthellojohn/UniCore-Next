@@ -26,6 +26,7 @@ export default function EditJobRequest() {
         job_items: [] as JobItem[],
         job_purpose: '',
         job_letter: '',
+        job_bmo_approval: 'Pending', // Reset to Pending
         job_custodian_approval: 'Pending', // Reset to Pending
         job_cads_approval: 'Pending', // Reset to Pending
         job_status: 'Pending'
@@ -53,6 +54,7 @@ export default function EditJobRequest() {
                     job_items: jobRequest.job_items,
                     job_purpose: jobRequest.job_purpose,
                     job_letter: jobRequest.job_letter,
+                    job_bmo_approval: 'Pending', // Reset to Pending
                     job_custodian_approval: 'Pending', // Reset to Pending
                     job_cads_approval: 'Pending', // Reset to Pending
                     job_status: 'Pending'

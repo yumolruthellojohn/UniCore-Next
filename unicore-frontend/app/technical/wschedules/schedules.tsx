@@ -20,6 +20,7 @@ import FullCalendar from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
+import GenerateSchedulesPDFReport from './report'
 
 const filterScheduleColumn = {
     id: "user_fname",
@@ -38,7 +39,7 @@ export default function Schedules({ session }: { session: Session | null }) {
     const getScheduleData = useCallback(async () => {
         if (userDept) {
             try {
-                const sched_response = await axios.get(`http://${ip_address}:8081/schedules/deptID/${userDept}`)
+                const sched_response = await axios.get(`http://${ip_address}:8081/schedules`)
                 return sched_response.data
             } catch (error) {
                 console.error('Error fetching data:', error)
@@ -54,7 +55,7 @@ export default function Schedules({ session }: { session: Session | null }) {
             const response = await axios.get(
                 userPosition === "Working Student"
                     ? `http://${ip_address}:8081/schedules/userID/${userID}`
-                    : `http://${ip_address}:8081/schedules/deptID/${userDept}`
+                    : `http://${ip_address}:8081/schedules`
             )
 
             const formattedEvents = response.data.map((event: any) => ({
@@ -128,18 +129,33 @@ export default function Schedules({ session }: { session: Session | null }) {
                         </CardDescription>
                     </CardHeader>
                     <CardFooter>
-                    {userPosition !== "Working Student" && (
+                    {userPosition !== "Working Student" ? (
                         <DataTableAdd text="Create New Schedule" href="/technical/wschedules/new" />
+                    ) : (
+                        <h3>For concenrns about your schedule, please contact your supervisor.</h3>
                     )}
                     </CardFooter>
                 </Card>
+                {userPosition !== "Working Student" && (
+                    <Card className="w-full">
+                        <CardHeader className="pb-3">
+                            <CardTitle>Export Data</CardTitle>
+                            <CardDescription className="text-balance leading-relaxed">
+                                Fetch all data and export to PDF.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardFooter>
+                            <GenerateSchedulesPDFReport></GenerateSchedulesPDFReport>
+                        </CardFooter>
+                    </Card>
+                )}
             </div>
             <br />
             {userPosition !== "Working Student" && (
                 <Accordion type="single" collapsible className='bg-white px-2 py-1 rounded'>
                     <AccordionItem value='table-1'>
                         <AccordionTrigger>
-                            <h1 className="text-2xl font-bold px-2">Schedule Table</h1>
+                            <h1 className="text-2xl font-bold px-2">Schedules Table</h1>
                         </AccordionTrigger>
                         <AccordionContent>
                             <DataTable 
@@ -157,7 +173,7 @@ export default function Schedules({ session }: { session: Session | null }) {
                 <div className="min-w-[800px]">
                     <FullCalendar
                         plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-                        initialView="timeGridWeek"
+                        initialView="dayGridMonth"
                         headerToolbar={{
                             left: 'prev,next today',
                             center: 'title',
@@ -170,6 +186,7 @@ export default function Schedules({ session }: { session: Session | null }) {
                         allDaySlot={false}
                         slotMinTime={'07:00:00'}
                         slotMaxTime={'22:00:00'}
+                        slotEventOverlap={true}
                         eventDidMount={(info) => {
                             if (info.view.type === 'dayGridMonth') {
                                 info.el.style.whiteSpace = 'wrap';

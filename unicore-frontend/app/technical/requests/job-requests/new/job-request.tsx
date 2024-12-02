@@ -51,6 +51,7 @@ Sincerely,
 [Your Position]
 [Your Department]
 [Date]`,
+        job_bmo_approval: 'Pending',
         job_custodian_approval: 'Pending',
         job_cads_approval: 'Pending',
         job_status: 'Pending'

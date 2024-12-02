@@ -206,7 +206,6 @@ export default function EditServiceRoomRequest(){
                                 <Select 
                                     onValueChange={(value) => handleChange('rq_status', value)} 
                                     value={formData.rq_status}
-                                    disabled={formData.rq_status === "Completed" || formData.rq_status === "Canceled"}
                                 >
                                     <SelectTrigger>
                                         <SelectValue placeholder="Select status" />

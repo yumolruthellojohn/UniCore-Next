@@ -53,7 +53,7 @@ interface WorkDays {
 }
 
 export default function AddWorkSchedule({ session }: { session: Session | null }) {
-    console.log('Session data:', session)
+    //console.log('Session data:', session)
     const userID = session?.user?.user_id;
     const userDept = session?.user?.dept_id;
     const userPosition = session?.user?.user_position;
@@ -92,7 +92,7 @@ export default function AddWorkSchedule({ session }: { session: Session | null }
             try {
                 const [deptResponse, usersResponse] = await Promise.all([
                     axios.get(`http://${ip_address}:8081/departments`),
-                    axios.get(`http://${ip_address}:8081/users/dept/${userDept}`)
+                    axios.get(`http://${ip_address}:8081/users/position/working`)
                 ]);
                 setDepartments(deptResponse.data);
                 setUsers(usersResponse.data);
@@ -126,7 +126,21 @@ export default function AddWorkSchedule({ session }: { session: Session | null }
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         try {
-            await axios.post(`http://${ip_address}:8081/schedules/add`, formData);
+            let sched_new_id = 0;
+
+            const response = await axios.post(`http://${ip_address}:8081/schedules/add`, formData);
+            console.log('Response from API:', response);
+            sched_new_id = response.data.sched_id;
+            console.log(sched_new_id);
+
+            //Create notification for staff
+            await axios.post(`http://${ip_address}:8081/notifications/add`, {
+                notif_user_id: formData.sched_user_id,
+                notif_type: "schedule_new",
+                notif_content: `You are assigned to a new schedule.`,
+                notif_related_id: sched_new_id
+            });
+
             setShowSuccessDialog(true);
         } catch (err) {
             console.log(err);
@@ -170,7 +184,7 @@ export default function AddWorkSchedule({ session }: { session: Session | null }
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label htmlFor="sched_user_id">Staff Member:</Label>
-                                <Select onValueChange={(value) => handleChange('sched_user_id', value)}>
+                                <Select onValueChange={(value) => handleChange('sched_user_id', value)} required>
                                     <SelectTrigger>
                                         <SelectValue placeholder="Select staff member" />
                                     </SelectTrigger>
@@ -185,8 +199,8 @@ export default function AddWorkSchedule({ session }: { session: Session | null }
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="sched_dept_id">Department:</Label>
-                                <Select onValueChange={(value) => handleChange('sched_dept_id', value)}>
+                                <Label htmlFor="sched_dept_id">Assigned Department:</Label>
+                                <Select onValueChange={(value) => handleChange('sched_dept_id', value)} required>
                                     <SelectTrigger>
                                         <SelectValue placeholder="Select department" />
                                     </SelectTrigger>
@@ -298,14 +312,6 @@ export default function AddWorkSchedule({ session }: { session: Session | null }
                                             onCheckedChange={() => handleDayChange('saturday')}
                                         />
                                         <Label htmlFor="saturday" className="font-normal whitespace-nowrap">Saturday</Label>
-                                    </div>
-                                    <div className="flex items-center space-x-2 min-w-[120px]">
-                                        <Checkbox 
-                                            id="sunday" 
-                                            checked={workDays.sunday}
-                                            onCheckedChange={() => handleDayChange('sunday')}
-                                        />
-                                        <Label htmlFor="sunday" className="font-normal whitespace-nowrap">Sunday</Label>
                                     </div>
                                 </div>
                             </div>

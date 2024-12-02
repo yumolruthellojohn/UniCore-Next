@@ -68,13 +68,13 @@ export default function UserView() {
                     <p><strong>Department:</strong> {user.dept_name}</p>
                     <p><strong>Status:</strong> {user.user_status}</p>
                 </CardContent>
-                <CardFooter className="flex justify-center">
+                <CardFooter className="flex justify-between">
                     <Button 
                         className="w-full sm:w-auto" 
                         variant="default" 
                         onClick={handleEdit}
                     >
-                        Edit
+                        Edit Account
                     </Button>
                 </CardFooter>
             </Card>

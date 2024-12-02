@@ -173,7 +173,7 @@ export default function EditUserAccount() {
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="user_type">User Type:</Label>
-                                <Select onValueChange={(value) => handleChange('user_type', value)} defaultValue={formData.user_type}>
+                                <Select onValueChange={(value) => handleChange('user_type', value)} value={formData.user_type} required>
                                     <SelectTrigger>
                                         <SelectValue placeholder="Select a user type" />
                                     </SelectTrigger>
@@ -186,11 +186,13 @@ export default function EditUserAccount() {
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="user_position">Position:</Label>
-                                <Select onValueChange={(value) => handleChange('user_position', value)} defaultValue={formData.user_position}>
+                                <Select onValueChange={(value) => handleChange('user_position', value)} value={formData.user_position} required>
                                     <SelectTrigger>
                                         <SelectValue placeholder="Select a position" />
                                     </SelectTrigger>
                                     <SelectContent>
+                                        <SelectItem value="Director">Director</SelectItem>
+                                        <SelectItem value="Supervisor">Supervisor</SelectItem>
                                         <SelectItem value="CMO Staff">CMO Staff</SelectItem>
                                         <SelectItem value="BMO Staff">BMO Staff</SelectItem>
                                         <SelectItem value="CADS Staff">CADS Staff</SelectItem>
@@ -203,7 +205,7 @@ export default function EditUserAccount() {
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="dept_id">Department:</Label>
-                                <Select onValueChange={(value) => handleChange('dept_id', value)} defaultValue={formData.dept_id}>
+                                <Select onValueChange={(value) => handleChange('dept_id', value)} value={formData.dept_id} required>
                                     <SelectTrigger>
                                         <SelectValue placeholder="Select a department" />
                                     </SelectTrigger>
@@ -218,7 +220,7 @@ export default function EditUserAccount() {
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="user_status">Status:</Label>
-                                <Select onValueChange={(value) => handleChange('user_status', value)} defaultValue={formData.user_status}>
+                                <Select onValueChange={(value) => handleChange('user_status', value)} value={formData.user_status} required>
                                     <SelectTrigger>
                                         <SelectValue placeholder="Select a status" />
                                     </SelectTrigger>

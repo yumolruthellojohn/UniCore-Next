@@ -18,8 +18,8 @@ import {
 } from "@/components/ui/chart"
 
 interface RequestsDonutProps {
-  title: string;
-  description: string;
+  //title: string;
+  //description: string;
   data: Array<{
     browser: string;  // This represents requests_types
     visitors: number; // This represents requests_count
@@ -27,8 +27,8 @@ interface RequestsDonutProps {
   }>;
 }
 
-export function Component({ title, description, data }: RequestsDonutProps) {
-  console.log("RequestsDonut props:", { title, description, data })
+export function Component({ data }: RequestsDonutProps) {
+  console.log("RequestsDonut props:", { data })
   const totalValue = React.useMemo(() => {
     return data.reduce((acc, curr) => acc + curr.visitors, 0)
   }, [data])
@@ -38,8 +38,8 @@ export function Component({ title, description, data }: RequestsDonutProps) {
   return (
     <Card className="flex flex-col">
       <CardHeader className="items-center pb-0">
-        <CardTitle>{title}</CardTitle>
-        <CardDescription>{description}</CardDescription>
+        {/*<CardTitle>{title}</CardTitle>*/}
+        {/*<CardDescription>{description}</CardDescription>*/}
       </CardHeader>
       <CardContent className="flex-1 pb-0">
         {!hasData ? (

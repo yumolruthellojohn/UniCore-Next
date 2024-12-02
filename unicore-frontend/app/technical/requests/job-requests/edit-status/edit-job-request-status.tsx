@@ -26,7 +26,10 @@ interface JobRequest {
     job_create_date: string;
     job_items: JobItem[];
     job_purpose: string;
-    job_create_user: string;
+    job_create_user_id: number;
+    job_bmo_approval: string;
+    job_bmo_user_id: number;
+    job_bmo_notes: string;
     job_custodian_approval: string;
     job_custodian_user_id: number;
     job_custodian_notes: string;
@@ -128,6 +131,15 @@ export default function EditJobRequest({ session }: EditJobRequestProps) {
         try {
             await axios.put(`http://${ip_address}:8081/jobrequests/status/${jobId}`, requestData); // Adjust the endpoint as needed
             console.log('Form submitted:', requestData);
+
+            //Send notification to requestor
+            await axios.post(`http://${ip_address}:8081/notifications/add`, {
+                notif_user_id: jobRequest?.job_create_user_id,
+                notif_type: "jobrequest_update_status",
+                notif_content: `Your BMO job request has recevied a status update.`,
+                notif_related_id: jobRequest?.job_id
+            });
+
             setShowSuccessDialog(true);
         } catch (err) {
             console.error('Error fetching job request data:', err);
@@ -148,19 +160,21 @@ export default function EditJobRequest({ session }: EditJobRequestProps) {
                         Back to Job Requests
                     </Link>
                 </CardHeader>
-                <CardContent className="grid grid-cols-1 gap-4">
-                    <p><strong>Job ID:</strong> {jobRequest?.job_id}</p>
-                    <p><strong>Requisition ID:</strong> {jobRequest?.job_rq_id}</p>
-                    <p><strong>Department:</strong> {jobRequest?.dept_name}</p>
-                    <p><strong>Date Submitted:</strong> {jobRequest?.job_create_date}</p>
+                <CardContent className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <p><strong>Job ID:</strong> {jobRequest?.job_id}</p>
+                        <p><strong>Requisition ID:</strong> {jobRequest?.job_rq_id}</p>
+                        <p><strong>Department:</strong> {jobRequest?.dept_name}</p>
+                        <p><strong>Date Submitted:</strong> {jobRequest?.job_create_date}</p>
+                        <p><strong>Purpose:</strong> {jobRequest?.job_purpose}</p>
+                        <p><strong>Submitted By:</strong> {jobRequest?.create_user_fname + " " + jobRequest?.create_user_lname}</p>
+                    </div>
                     <p><strong>Items:</strong></p>
                     <ul>
                         {jobRequest?.job_items?.map((item, index) => (
                             <li key={index}>{item.name_desc} (Quantity: {item.quantity})</li>
                         ))}
                     </ul>
-                    <p><strong>Purpose:</strong> {jobRequest?.job_purpose}</p>
-                    <p><strong>Submitted By:</strong> {jobRequest?.create_user_fname + " " + jobRequest?.create_user_lname}</p>
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div className="space-y-2">
                             <Label htmlFor="job_recommendation">Recommendation:</Label>
@@ -190,10 +204,12 @@ export default function EditJobRequest({ session }: EditJobRequestProps) {
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="Pending">Pending</SelectItem>
+                                    <SelectItem value="Ongoing">Ongoing</SelectItem>
                                     <SelectItem value="For Canvas">For Canvas</SelectItem>
                                     <SelectItem value="For PO Approval">For PO Approval</SelectItem>
                                     <SelectItem value="For Ordering">For Ordering</SelectItem>
                                     <SelectItem value="For Delivery">For Delivery</SelectItem>
+                                    <SelectItem value="Completed">Completed</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>

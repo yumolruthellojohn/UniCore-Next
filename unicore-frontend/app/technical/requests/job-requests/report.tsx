@@ -16,7 +16,7 @@ interface Departments {
     dept_name: string;
 }
 
-export default function GenerateFacilityPDFReport() {
+export default function GenerateBMOJobPDFReport() {
     const [selectFilter, setSelectFilter] = useState({ filter: "department" });
     const [filter, setFilter] = useState({ dept_id: '' });
     const [departments, setDepartments] = useState<Departments[]>([]);
@@ -74,7 +74,7 @@ export default function GenerateFacilityPDFReport() {
 
         const campus_name = "UNIVERSITY OF CEBU LAPU-LAPU MANDAUE";
         const campus_address = "A.C. Cortez Ave., Looc, Mandaue City";
-        const report_title = "FACILITIES INFORMATION REPORT";
+        const report_title = "BMO JOB REQUESTS INFORMATION REPORT";
         const report_date = `As of ${month} ${day}, ${year}`;
 
         const campus_name_width = doc.getTextWidth(campus_name);
@@ -93,10 +93,10 @@ export default function GenerateFacilityPDFReport() {
 
         try {
             if (selectFilter.filter === 'department' && filter.dept_id) {
-                const response = await axios.get(`http://${ip_address}:8081/rooms/deptID/${filter.dept_id}`);
+                const response = await axios.get(`http://${ip_address}:8081/jobrequests/deptID/${filter.dept_id}`);
                 tableData = response.data;
             } else if (selectFilter.filter === 'all') {
-                const response = await axios.get(`http://${ip_address}:8081/rooms`);
+                const response = await axios.get(`http://${ip_address}:8081/jobrequests/all`);
                 tableData = response.data;
             }
 
@@ -122,14 +122,15 @@ export default function GenerateFacilityPDFReport() {
             doc.text(topText, topTextAlign, 35);
 
             // Define headers and body
-            const headers = ['Building', 'Floor Level', 'Type', 'Name', 'Description', 'Status'];
-            const body = tableData.map(room => [
-                room.room_bldg,
-                room.room_floor,
-                room.room_type,
-                room.room_name,
-                room.room_desc,
-                room.room_status
+            const headers = ['Job ID', 'Requisition ID', 'Date Submitted', 'Purpose', 'Estimated Cost', 'Status', 'Remarks'];
+            const body = tableData.map(jobrequest => [
+                jobrequest.job_id,
+                jobrequest.job_rq_id,
+                jobrequest.job_create_date,
+                jobrequest.job_purpose,
+                jobrequest.job_estimated_cost,
+                jobrequest.job_status,
+                jobrequest.job_remarks
             ]);
 
             // Add table to PDF with autoTable
@@ -161,7 +162,7 @@ export default function GenerateFacilityPDFReport() {
                 doc.text(pageNumberText, x, y);
             }
 
-            doc.save("unicore_facilities_report.pdf");
+            doc.save("unicore_bmojobrequests_report.pdf");
             setShowSuccessDialog(false);
         } catch (error) {
             console.error('Error fetching facilities:', error);
@@ -218,7 +219,7 @@ export default function GenerateFacilityPDFReport() {
 
                             {selectFilter.filter === 'all' && (
                                 <div className="space-y-2">
-                                    <h3>Report will include all facilities</h3>
+                                    <h3>Report will include all job requests</h3>
                                 </div>
                             )}
                         </div>

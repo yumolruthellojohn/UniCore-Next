@@ -84,13 +84,15 @@ export default function ServiceItemBenchView() {
                     <p><strong>Status:</strong> {request.rq_status}</p>
                 </CardContent>
                 <CardFooter className="flex flex-col sm:flex-row justify-between gap-4">
-                    <Button 
-                        className="w-full sm:w-auto" 
-                        variant="default" 
-                        onClick={handleEdit}
-                    >
-                        Update Request
-                    </Button>
+                    {request.rq_status !== "Completed" && (
+                        <Button 
+                            className="w-full sm:w-auto" 
+                            variant="default" 
+                            onClick={handleEdit}
+                        >
+                            Update Request
+                        </Button>
+                    )}
                 </CardFooter>
             </Card>
         </div>

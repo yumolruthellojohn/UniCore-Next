@@ -105,6 +105,20 @@ app.get("/users/dept/:id", (req, res) => {
   });
 });
 
+//get users by user_position "Working Student"
+app.get("/users/position/working", (req, res) => {
+  const user_position = "Working Student";
+  const sql = "SELECT *, tbdepartments.dept_name FROM tbuseraccounts INNER JOIN tbdepartments ON tbuseraccounts.dept_id=tbdepartments.dept_id WHERE tbuseraccounts.user_position = ? AND tbuseraccounts.user_id != 1";
+  
+  db.query(sql, user_position, (err, result) => {
+    if (err) {
+      console.log(err);
+      return res.status(500).json({ error: "Database query failed" });
+    } else {
+      res.json(result);
+    }
+  });
+});
 
 //add user
 app.post("/users/add", (req, res) => {
@@ -159,6 +173,43 @@ app.put("/users/edit/:id", (req, res) => {
     return res.json(data);
   });
 });
+
+//change user password
+app.put("/users/password/:id", (req, res) => {
+  const userId = req.params.id;
+  const sql = "UPDATE tbuseraccounts SET `user_password`= ? WHERE `user_id` = ?";
+
+  const values = [
+    req.body.user_password,
+  ];
+
+  db.query(sql, [...values, userId], (err, data) => {
+    if (err) {
+      console.log(err);
+      return res.status(500).send(err);
+    }
+    return res.json(data);
+  });
+});
+
+//deactivate user
+app.put("/users/deactivate/:id", (req, res) => {
+  const userId = req.params.id;
+  const sql = "UPDATE tbuseraccounts SET `user_status`= ? WHERE `user_id` = ?";
+
+  const values = [
+    "Deactivated",
+  ];
+
+  db.query(sql, [...values, userId], (err, data) => {
+    if (err) {
+      console.log(err);
+      return res.status(500).send(err);
+    }
+    return res.json(data);
+  });
+});
+
 
 //items
 app.get("/items", (req, res) => {
@@ -585,6 +636,42 @@ app.get("/requests/relate_room/:id", (req, res) => {
   });
 });
 
+//requests/created/recent
+app.get("/requests/created/recent", (req, res) => {
+  const sql = `
+      SELECT * FROM tbrequests
+      WHERE rq_status != 'Completed'
+      ORDER BY rq_create_date DESC
+      LIMIT 3
+  `;
+
+  db.query(sql, (err, result) => {
+      if (err) {
+          console.error('Error fetching recent requests:', err);
+          return res.status(500).json({ error: "Database query failed" });
+      }
+      return res.json(result);
+  });
+});
+
+//requests/completed/recent
+app.get("/requests/completed/recent", (req, res) => {
+  const sql = `
+      SELECT * FROM tbrequests
+      WHERE rq_status = 'Completed'
+      ORDER BY rq_complete_date DESC
+      LIMIT 3
+  `;
+
+  db.query(sql, (err, result) => {
+      if (err) {
+          console.error('Error fetching recent requests:', err);
+          return res.status(500).json({ error: "Database query failed" });
+      }
+      return res.json(result);
+  });
+});
+
 //requests/reserve_item/add
 app.post("/requests/reserve_item/add", (req, res) => {
   const rq_type = req.body.rq_type;
@@ -932,19 +1019,60 @@ app.delete("/requests/:id", (req, res) => {
   });
 });
 
-//requests_summary
-app.get("/requests_summary", (req, res) => {
+//requests/summary/weekly
+app.get("/requests/summary/weekly", (req, res) => {
   const sql = `
         SELECT 
             rq_type,
-            SUM(CASE WHEN rq_status != 'Completed' THEN 1 ELSE 0 END) AS ongoing_count,
-            SUM(CASE WHEN rq_status = 'Completed' THEN 1 ELSE 0 END) AS completed_count
+            SUM(CASE WHEN rq_status != 'Completed' AND WEEK(rq_create_date) = WEEK(CURDATE()) THEN 1 ELSE 0 END) AS ongoing_count,
+            SUM(CASE WHEN rq_status = 'Completed' AND WEEK(rq_complete_date) = WEEK(CURDATE()) THEN 1 ELSE 0 END) AS completed_count
         FROM tbrequests
+        WHERE YEAR(rq_create_date) = YEAR(CURDATE())  -- Ensure it's the current year
         GROUP BY rq_type
     `;
   db.query(sql, (err, result) => {
     if (err) return res.json({ Message: "Error inside server" });
     else return res.json(result);
+  });
+});
+
+// requests/summary/monthly
+app.get("/requests/summary/monthly", (req, res) => {
+  const sql = `
+      SELECT 
+          rq_type,
+          SUM(CASE WHEN rq_status != 'Completed' AND MONTH(rq_create_date) = MONTH(CURDATE()) AND YEAR(rq_create_date) = YEAR(CURDATE()) THEN 1 ELSE 0 END) AS ongoing_count,
+          SUM(CASE WHEN rq_status = 'Completed' AND MONTH(rq_complete_date) = MONTH(CURDATE()) AND YEAR(rq_create_date) = YEAR(CURDATE()) THEN 1 ELSE 0 END) AS completed_count
+      FROM tbrequests
+      GROUP BY rq_type
+  `;
+
+  db.query(sql, (err, result) => {
+      if (err) {
+          console.error('Error fetching monthly summary:', err);
+          return res.status(500).json({ error: "Database query failed" });
+      }
+      return res.json(result);
+  });
+});
+
+//requests/summary/quarter
+app.get("/requests/summary/quarter", (req, res) => {
+  const sql = `
+      SELECT 
+          rq_type,
+          SUM(CASE WHEN rq_status != 'Completed' AND QUARTER(rq_create_date) = QUARTER(CURDATE()) AND YEAR(rq_create_date) = YEAR(CURDATE()) THEN 1 ELSE 0 END) AS ongoing_count,
+          SUM(CASE WHEN rq_status = 'Completed' AND QUARTER(rq_complete_date) = QUARTER(CURDATE()) AND YEAR(rq_create_date) = YEAR(CURDATE()) THEN 1 ELSE 0 END) AS completed_count
+      FROM tbrequests
+      GROUP BY rq_type
+  `;
+
+  db.query(sql, (err, result) => {
+      if (err) {
+          console.error('Error fetching quarterly summary:', err);
+          return res.status(500).json({ error: "Database query failed" });
+      }
+      return res.json(result);
   });
 });
 
@@ -1013,6 +1141,91 @@ app.get('/requests/monthly/completed', (req, res) => {
     if (err) {
       console.error('Database error:', err);
       return res.json({ Message: "Error inside server" });
+    } else {
+      return res.json(result);
+    }
+  });
+});
+
+//jobrequests/all
+app.get("/jobrequests/all", (req, res) => {
+  const sql = `
+    SELECT 
+      jb.*, 
+      d.dept_name, 
+      u_create.user_fname AS create_user_fname, 
+      u_create.user_lname AS create_user_lname,
+      u_bmo.user_fname AS bmo_user_fname, 
+      u_bmo.user_lname AS bmo_user_lname,
+      u_custodian.user_fname AS custodian_user_fname, 
+      u_custodian.user_lname AS custodian_user_lname,
+      u_cads.user_fname AS cads_user_fname, 
+      u_cads.user_lname AS cads_user_lname,
+      u_recommend.user_fname AS recommend_user_fname, 
+      u_recommend.user_lname AS recommend_user_lname
+    FROM 
+      tbjobrequests jb
+    INNER JOIN 
+      tbdepartments d ON jb.job_dept_id = d.dept_id
+    INNER JOIN 
+      tbuseraccounts u_create ON jb.job_create_user_id = u_create.user_id
+    LEFT JOIN 
+      tbuseraccounts u_bmo ON jb.job_bmo_user_id = u_bmo.user_id
+    LEFT JOIN 
+      tbuseraccounts u_custodian ON jb.job_custodian_user_id = u_custodian.user_id
+    LEFT JOIN 
+      tbuseraccounts u_cads ON jb.job_cads_user_id = u_cads.user_id
+    LEFT JOIN 
+      tbuseraccounts u_recommend ON jb.job_recommend_user_id = u_recommend.user_id`;
+
+  db.query(sql, (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ Message: "Error inside server" });
+    } else {
+      return res.json(result);
+    }
+  });
+});
+
+//jobrequests/deptID/:id
+app.get("/jobrequests/deptID/:id", (req, res) => {
+  const deptId = req.params.id;
+  const sql = `
+    SELECT 
+      jb.*, 
+      d.dept_name, 
+      u_create.user_fname AS create_user_fname, 
+      u_create.user_lname AS create_user_lname,
+      u_bmo.user_fname AS bmo_user_fname, 
+      u_bmo.user_lname AS bmo_user_lname,
+      u_custodian.user_fname AS custodian_user_fname, 
+      u_custodian.user_lname AS custodian_user_lname,
+      u_cads.user_fname AS cads_user_fname, 
+      u_cads.user_lname AS cads_user_lname,
+      u_recommend.user_fname AS recommend_user_fname, 
+      u_recommend.user_lname AS recommend_user_lname
+    FROM 
+      tbjobrequests jb
+    INNER JOIN 
+      tbdepartments d ON jb.job_dept_id = d.dept_id
+    INNER JOIN 
+      tbuseraccounts u_create ON jb.job_create_user_id = u_create.user_id
+    LEFT JOIN 
+      tbuseraccounts u_bmo ON jb.job_bmo_user_id = u_bmo.user_id
+    LEFT JOIN 
+      tbuseraccounts u_custodian ON jb.job_custodian_user_id = u_custodian.user_id
+    LEFT JOIN 
+      tbuseraccounts u_cads ON jb.job_cads_user_id = u_cads.user_id
+    LEFT JOIN 
+      tbuseraccounts u_recommend ON jb.job_recommend_user_id = u_recommend.user_id
+    WHERE 
+      jb.job_dept_id = ?`;
+
+  db.query(sql, [deptId], (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ Message: "Error inside server" });
     } else {
       return res.json(result);
     }
@@ -1223,13 +1436,82 @@ app.get("/jobrequests/approved/:status", (req, res) => {
       AND jb.job_custodian_approval = ? 
       AND jb.job_cads_approval = ?`;
 
-  db.query(sql, [status, status], (err, result) => {
+  db.query(sql, [status, status, status], (err, result) => {
     if (err) {
       console.error(err);
       return res.status(500).json({ Message: "Error inside server" });
     } else {
       return res.json(result);
     }
+  });
+});
+
+//jobrequests/quarter/created
+app.get("/jobrequests/quarter/created", (req, res) => {
+  const sql = `
+      WITH RECURSIVE months AS (
+          SELECT 
+              DATE_FORMAT(CURDATE() - INTERVAL 3 MONTH, '%Y-%m-01') as date
+          UNION ALL
+          SELECT 
+              DATE_ADD(date, INTERVAL 1 MONTH)
+          FROM months
+          WHERE DATE_ADD(date, INTERVAL 1 MONTH) <= CURDATE()
+      )
+      SELECT 
+          DATE_FORMAT(m.date, '%M') AS month,
+          COUNT(j.job_id) AS requests,
+          DATE_FORMAT(m.date, '%Y-%m') AS sort_date
+      FROM 
+          months m
+          LEFT JOIN tbjobrequests j ON DATE_FORMAT(STR_TO_DATE(j.job_create_date, '%Y-%m-%d'), '%Y-%m') = DATE_FORMAT(m.date, '%Y-%m')
+      GROUP BY 
+          m.date
+      ORDER BY 
+          m.date;
+  `;
+
+  db.query(sql, (err, result) => {
+    if (err) {
+      console.error('Database error:', err);
+      return res.status(500).json({ error: "Database query failed" });
+    }
+    return res.json(result);
+  });
+});
+
+//jobrequests/quarter/completed
+app.get("/jobrequests/quarter/completed", (req, res) => {
+  const sql = `
+      WITH RECURSIVE months AS (
+          SELECT 
+              DATE_FORMAT(CURDATE() - INTERVAL 3 MONTH, '%Y-%m-01') as date
+          UNION ALL
+          SELECT 
+              DATE_ADD(date, INTERVAL 1 MONTH)
+          FROM months
+          WHERE DATE_ADD(date, INTERVAL 1 MONTH) <= CURDATE()
+      )
+      SELECT 
+          DATE_FORMAT(m.date, '%M') AS month,
+          COUNT(j.job_id) AS requests,
+          DATE_FORMAT(m.date, '%Y-%m') AS sort_date
+      FROM 
+          months m
+          LEFT JOIN tbjobrequests j ON DATE_FORMAT(STR_TO_DATE(j.job_complete_date, '%Y-%m-%d'), '%Y-%m') = DATE_FORMAT(m.date, '%Y-%m')
+      WHERE j.job_complete_date IS NULL OR (j.job_complete_date IS NOT NULL AND j.job_complete_date >= DATE_SUB(CURDATE(), INTERVAL 4 MONTH))
+      GROUP BY 
+          m.date
+      ORDER BY 
+          m.date;
+  `;
+
+  db.query(sql, (err, result) => {
+    if (err) {
+      console.error('Database error:', err);
+      return res.status(500).json({ error: "Database query failed" });
+    }
+    return res.json(result);
   });
 });
 
@@ -1373,6 +1655,11 @@ app.put("/jobrequests/status/:id", (req, res) => {
   const jobId = req.params.id;
   const { job_recommendation, job_estimated_cost, job_recommend_user_id, job_status, job_remarks } = req.body;
 
+  var complete_date = '';
+  if (req.body.job_status == 'Completed') {
+    complete_date = currentDate;
+  }
+
   const sql = `
     UPDATE tbjobrequests 
     SET 
@@ -1380,11 +1667,12 @@ app.put("/jobrequests/status/:id", (req, res) => {
       job_estimated_cost = ?, 
       job_recommend_user_id = ?, 
       job_status = ?, 
-      job_remarks = ? 
+      job_remarks = ?, 
+      job_complete_date = ? 
     WHERE 
       job_id = ?`;
 
-  const values = [job_recommendation, job_estimated_cost, job_recommend_user_id, job_status, job_remarks, jobId];
+  const values = [job_recommendation, job_estimated_cost, job_recommend_user_id, job_status, job_remarks, complete_date, jobId];
 
   db.query(sql, values, (err, result) => {
     if (err) {
@@ -1392,6 +1680,17 @@ app.put("/jobrequests/status/:id", (req, res) => {
       return res.status(500).json({ Message: "Error updating job request" });
     }
     return res.json({ Message: "Job request updated successfully!" });
+  });
+});
+
+//jobrequests/delete/:id
+app.delete("/jobrequests/delete/:id", (req, res) => {
+  const jobId = req.params.id;
+  const sql = "DELETE FROM tbjobrequests WHERE `job_id` = ?";
+
+  db.query(sql, [jobId], (err, data) => {
+    if (err) return res.send(err);
+    return res.json(data);
   });
 });
 
@@ -1427,6 +1726,19 @@ app.get('/schedules', (req, res) => {
   });
 });
 
+//schedules order by last name
+app.get('/schedules/lname', (req, res) => {
+  const sql = "SELECT *, tbuseraccounts.user_fname, tbuseraccounts.user_lname, tbdepartments.dept_name FROM tbschedules INNER JOIN tbuseraccounts ON tbschedules.sched_user_id=tbuseraccounts.user_id INNER JOIN tbdepartments ON tbschedules.sched_dept_id=tbdepartments.dept_id ORDER BY tbuseraccounts.user_lname";
+  db.query(sql, (err, result) => {
+    if (err) {
+      console.error('Database error:', err);
+      return res.json({ Message: "Error inside server" });
+    }
+    console.log('API response:', result); // Debug log
+    return res.json(result);
+  });
+});
+
 //schedules/:id
 app.get("/schedules/:id", (req, res) => {
   const sched_id = req.params.id;
@@ -1444,6 +1756,21 @@ app.get("/schedules/:id", (req, res) => {
 app.get("/schedules/deptID/:id", (req, res) => {
   const dept_id = req.params.id;
   const sql = "SELECT *, tbuseraccounts.user_fname, tbuseraccounts.user_lname, tbdepartments.dept_name FROM tbschedules INNER JOIN tbuseraccounts ON tbschedules.sched_user_id=tbuseraccounts.user_id INNER JOIN tbdepartments ON tbschedules.sched_dept_id=tbdepartments.dept_id WHERE tbschedules.sched_create_dept_id = ?";
+  
+  db.query(sql, dept_id, (err, result) => {
+    if (err) {
+      console.log(err);
+      return res.status(500).json({ error: "Database query failed" });
+    } else {
+      res.json(result);
+    }
+  });
+});
+
+//schedules/deptID/lname/:id order by last name
+app.get("/schedules/deptID/lname/:id", (req, res) => {
+  const dept_id = req.params.id;
+  const sql = "SELECT *, tbuseraccounts.user_fname, tbuseraccounts.user_lname, tbdepartments.dept_name FROM tbschedules INNER JOIN tbuseraccounts ON tbschedules.sched_user_id=tbuseraccounts.user_id INNER JOIN tbdepartments ON tbschedules.sched_dept_id=tbdepartments.dept_id WHERE tbschedules.sched_create_dept_id = ?  ORDER BY tbuseraccounts.user_lname";
   
   db.query(sql, dept_id, (err, result) => {
     if (err) {
@@ -1489,7 +1816,7 @@ app.post("/schedules/add", (req, res) => {
       if (err) {
         console.log(err);
       } else {
-        res.send("Schedule Added Successfully!");
+        return res.json({ message: "Schedule Added Successfully!", sched_id: result.insertId });
       }
     }
   );

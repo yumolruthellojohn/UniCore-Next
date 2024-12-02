@@ -45,7 +45,7 @@ export default function GenerateRequestPDFReport() {
 
         const campus_name = "UNIVERSITY OF CEBU LAPU-LAPU MANDAUE";
         const campus_address = "A.C. Cortez Ave., Looc, Mandaue City";
-        const report_title = "REQUESTS INFORMATION REPORT";
+        const report_title = "STANDARD REQUESTS INFORMATION REPORT";
         const report_date = `As of ${month} ${day}, ${year}`;
 
         const campus_name_width = doc.getTextWidth(campus_name);
@@ -152,7 +152,10 @@ export default function GenerateRequestPDFReport() {
                 body: body,
                 didDrawCell: (data: any) => {
                     // Check if the current cell is the last cell of the last row
-                    if (data.row.index === body.length - 1 && data.column.index === headers.length - 1) {
+                    if (body.length == 1 && data.row.index === body.length - 1 && data.column.index === headers.length - 1) {
+                        currentPage = 1;
+                    }
+                    else if (body.length > 1 && data.row.index === body.length - 1 && data.column.index === headers.length - 1) {
                         // Increment the current page count
                         currentPage++;
                     }

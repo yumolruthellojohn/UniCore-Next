@@ -145,7 +145,7 @@ export default function Requests({ session }: { session: Session | null }) {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl">
                 <Card className="w-full">
                     <CardHeader className="pb-3">
-                      <CardTitle>Requests</CardTitle>
+                      <CardTitle>Standard Requests</CardTitle>
                       <CardDescription className="max-w-lg text-balance leading-relaxed">
                         Manage the requests and view their details.
                       </CardDescription>

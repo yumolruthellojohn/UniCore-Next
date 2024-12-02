@@ -64,6 +64,7 @@ export default function EditWorkSchedule({ session }: { session: Session | null 
     const scheduleId = searchParams.get('id');
     
     const [formData, setFormData] = useState({
+        sched_id: '',
         sched_user_id: '',
         sched_dept_id: '',
         sched_days_of_week: '',
@@ -95,7 +96,7 @@ export default function EditWorkSchedule({ session }: { session: Session | null 
                 // Fetch schedule data along with departments and users
                 const [deptResponse, usersResponse, scheduleResponse] = await Promise.all([
                     axios.get(`http://${ip_address}:8081/departments`),
-                    axios.get(`http://${ip_address}:8081/users/dept/${userDept}`),
+                    axios.get(`http://${ip_address}:8081/users/position/working`),
                     axios.get(`http://${ip_address}:8081/schedules/${scheduleId}`)
                 ]);
 
@@ -151,6 +152,15 @@ export default function EditWorkSchedule({ session }: { session: Session | null 
         e.preventDefault();
         try {
             await axios.put(`http://${ip_address}:8081/schedules/${scheduleId}`, formData);
+
+            //Create notification for staff
+            await axios.post(`http://${ip_address}:8081/notifications/add`, {
+                notif_user_id: formData.sched_user_id,
+                notif_type: "schedule_update",
+                notif_content: `Your schedule has been updated.`,
+                notif_related_id: formData.sched_id
+            });
+
             setShowSuccessDialog(true);
         } catch (err) {
             console.log(err);
@@ -194,7 +204,7 @@ export default function EditWorkSchedule({ session }: { session: Session | null 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label htmlFor="sched_user_id">Staff Member:</Label>
-                                <Select onValueChange={(value) => handleChange('sched_user_id', value)} value={formData.sched_user_id.toString()}>
+                                <Select onValueChange={(value) => handleChange('sched_user_id', value)} value={formData.sched_user_id.toString()} required>
                                     <SelectTrigger>
                                         <SelectValue placeholder="Select staff member" />
                                     </SelectTrigger>
@@ -209,8 +219,8 @@ export default function EditWorkSchedule({ session }: { session: Session | null 
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="sched_dept_id">Department:</Label>
-                                <Select onValueChange={(value) => handleChange('sched_dept_id', value)} value={formData.sched_dept_id.toString()}>
+                                <Label htmlFor="sched_dept_id">Assigned Department:</Label>
+                                <Select onValueChange={(value) => handleChange('sched_dept_id', value)} value={formData.sched_dept_id.toString()} required>
                                     <SelectTrigger>
                                         <SelectValue placeholder="Select department" />
                                     </SelectTrigger>
@@ -322,14 +332,6 @@ export default function EditWorkSchedule({ session }: { session: Session | null 
                                             onCheckedChange={() => handleDayChange('saturday')}
                                         />
                                         <Label htmlFor="saturday" className="font-normal whitespace-nowrap">Saturday</Label>
-                                    </div>
-                                    <div className="flex items-center space-x-2 min-w-[120px]">
-                                        <Checkbox 
-                                            id="sunday" 
-                                            checked={workDays.sunday}
-                                            onCheckedChange={() => handleDayChange('sunday')}
-                                        />
-                                        <Label htmlFor="sunday" className="font-normal whitespace-nowrap">Sunday</Label>
                                     </div>
                                 </div>
                             </div>

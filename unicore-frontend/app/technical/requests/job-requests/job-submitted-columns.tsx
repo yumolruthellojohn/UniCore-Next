@@ -14,6 +14,7 @@ export type JobSubmitted = {
   job_rq_id: number
   job_dept_id: number
   job_create_date: string
+  job_bmo_approval: string
   job_custodian_approval: string
   job_cads_approval: string
   job_status: string
@@ -67,9 +68,9 @@ export const createJobSubmittedColumns = (onDataChange: () => void): ColumnDef<J
 
       const handleView = async () => {
         let url;
-        if (jobQueue.job_custodian_approval === "Approved" && jobQueue.job_cads_approval === "Approved") {
+        if (jobQueue.job_bmo_approval === "Approved" && jobQueue.job_custodian_approval === "Approved" && jobQueue.job_cads_approval === "Approved") {
             url = `/technical/requests/job-requests/view-status?id=${jobQueue.job_id}`; // URL for approved status
-        } else if (jobQueue.job_custodian_approval === "Declined" || jobQueue.job_cads_approval === "Declined") {
+        } else if (jobQueue.job_bmo_approval === "Declined" || jobQueue.job_custodian_approval === "Declined" || jobQueue.job_cads_approval === "Declined") {
             url = `/technical/requests/job-requests/view-submitted?id=${jobQueue.job_id}`; // URL for edit view
         } else {
             url = `/technical/requests/job-requests/view?id=${jobQueue.job_id}`; // URL for regular view

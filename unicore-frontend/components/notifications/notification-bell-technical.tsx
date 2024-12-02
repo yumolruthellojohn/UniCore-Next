@@ -77,8 +77,26 @@ export function NotificationBellTechnical({ userId }: { userId: number }) {
       case 'service_facility_update_conflict':
         router.push(`/technical/requests/view-service-facility-bench?id=${notification.notif_related_id}`)
         break
-      case 'new_job_request':
-        router.push(`/technical/requests/job-requests/view-for-approval?id=${notification.notif_related_id}`)
+      case 'jobrequest_update':
+        router.push(`/technical/requests/job-requests/view?id=${notification.notif_related_id}`)
+        break
+      case 'jobrequest_update_declined':
+        router.push(`/technical/requests/job-requests/view-submitted?id=${notification.notif_related_id}`)
+        break
+      case 'jobrequest_update_approved_all':
+        router.push(`/technical/requests/job-requests/view-status?id=${notification.notif_related_id}`)
+        break
+      case 'jobrequest_update_status':
+        router.push(`/technical/requests/job-requests/view-status?id=${notification.notif_related_id}`)
+        break
+      case 'schedule_new':
+        router.push(`/technical/wschedules/view?id=${notification.notif_related_id}`)
+        break
+      case 'schedule_update':
+        router.push(`/technical/wschedules/view?id=${notification.notif_related_id}`)
+        break
+      case 'schedule_remove':
+        router.push(`/technical/wschedules`)
         break
       // Add more cases as needed
       default:

@@ -17,6 +17,8 @@ import { Session } from 'next-auth';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { ip_address } from '@/app/ipconfig';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import GenerateBMOJobPDFReport from './report';
 
 const filterJobSubmittedColumn = {
     id: "job_id",
@@ -61,7 +63,7 @@ export default function JobRequests({ session }: { session: Session | null }) {
     console.log("Session data: " + currentUserID + " " + currentUserDept + " " + currentUserPosition);
 
     const [jobSubmittedData, setJobSubmittedData] = useState<JobSubmitted[]>([]);
-    const [jobBMOApprovalData, setJobBMOApprovalData] = useState<JobCadsApproval[]>([]);
+    const [jobBMOApprovalData, setJobBMOApprovalData] = useState<JobBMOApproval[]>([]);
     const [jobCadsApprovalData, setJobCadsApprovalData] = useState<JobCadsApproval[]>([]);
     const [jobCadsApprovedData, setJobCadsApprovedData] = useState<JobCadsApproved[]>([]);
     const [jobCustodianApprovalData, setJobCustodianApprovalData] = useState<JobCustodianApproval[]>([]);
@@ -71,6 +73,16 @@ export default function JobRequests({ session }: { session: Session | null }) {
     const getJobSubmittedData = useCallback(async () => {
         try {
             const response = await axios.get(`http://${ip_address}:8081/jobrequests/submitted/${currentUserID}`);
+            return response.data;
+        }
+        catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    }, [session]);
+
+    const getJobBMOApprovalData = useCallback(async () => {
+        try {
+            const response = await axios.get(`http://${ip_address}:8081/jobrequests/bmo_approval/Pending`);
             return response.data;
         }
         catch (error) {
@@ -130,6 +142,8 @@ export default function JobRequests({ session }: { session: Session | null }) {
     const refreshData = useCallback(async () => {
         const freshJobSubmittedData = await getJobSubmittedData();
         setJobSubmittedData(freshJobSubmittedData || []);
+        const freshJobBMOApprovalData = await getJobBMOApprovalData();
+        setJobBMOApprovalData(freshJobBMOApprovalData || []);
         const freshJobCadsApprovalData = await getJobCadsApprovalData();
         setJobCadsApprovalData(freshJobCadsApprovalData || []);
         const freshJobCadsApprovedData = await getJobCadsApprovedData();
@@ -147,6 +161,7 @@ export default function JobRequests({ session }: { session: Session | null }) {
     }, [refreshData]);
 
     const jobSubmittedColumns = useMemo(() => createJobSubmittedColumns(refreshData), [refreshData]);
+    const jobBMOApprovalColumns = useMemo(() => createJobBMOApprovalColumns(refreshData), [refreshData]);
     const jobCadsApprovalColumns = useMemo(() => createJobCadsApprovalColumns(refreshData), [refreshData]);
     const jobCadsApprovedColumns = useMemo(() => createJobCadsApprovedColumns(refreshData), [refreshData]);
     const jobCustodianApprovalColumns = useMemo(() => createJobCustodianApprovalColumns(refreshData), [refreshData]);
@@ -180,121 +195,141 @@ export default function JobRequests({ session }: { session: Session | null }) {
                         </CardDescription>
                     </CardHeader>
                     <CardFooter>
-                        <Button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Generate PDF</Button>
+                        <GenerateBMOJobPDFReport></GenerateBMOJobPDFReport>
                     </CardFooter>
                 </Card>
             </div>
             {currentUserPosition === "CADS Director" && (
                 <>
                 <br />
-                <Card className="max-w-6xl">
-                    <CardHeader className="pb-3">
-                        <CardTitle>Job Requests (For Approval)</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className='max-w-6xl'>
+                <Accordion type="single" collapsible defaultValue="table-1" className='bg-white px-2 py-1 rounded max-w-6xl'>
+                    <AccordionItem value='table-1'>
+                        <AccordionTrigger>
+                            <h1 className="text-2xl font-bold px-2">Job Requests (For Approval)</h1>
+                        </AccordionTrigger>
+                        <AccordionContent className='max-w-6xl'>
                             <DataTable 
                                 columns={jobCadsApprovalColumns}
                                 data={jobCadsApprovalData} 
                                 filterColumn={filterJobCadsApprovalColumn}
                                 onDataChange={refreshData}
                             />
-                        </div>
-                    </CardContent>
-                </Card>
+                        </AccordionContent>
+                    </AccordionItem>
+                </Accordion>
                 <br />
-                <Card className="max-w-6xl">
-                    <CardHeader className="pb-3">
-                        <CardTitle>Job Requests (Approved)</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className='max-w-6xl'>
+                <Accordion type="single" collapsible className='bg-white px-2 py-1 rounded max-w-6xl'>
+                    <AccordionItem value='table-2'>
+                        <AccordionTrigger>
+                            <h1 className="text-2xl font-bold px-2">Job Requests (Approved)</h1>
+                        </AccordionTrigger>
+                        <AccordionContent className='max-w-6xl'>
                             <DataTable 
                                 columns={jobCadsApprovedColumns}
                                 data={jobCadsApprovedData} 
                                 filterColumn={filterJobCadsApprovedColumn}
                                 onDataChange={refreshData}
                             />
-                        </div>
-                    </CardContent>
-                </Card>
+                        </AccordionContent>
+                    </AccordionItem>
+                </Accordion>
                 </>
             )}
             {currentUserPosition === "Property Custodian" && (
                 <>
                 <br />
-                <Card className="max-w-6xl">
-                    <CardHeader className="pb-3">
-                        <CardTitle>Job Requests (For Approval)</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className='max-w-6xl'>
+                <Accordion type="single" collapsible defaultValue="table-1" className='bg-white px-2 py-1 rounded max-w-6xl'>
+                    <AccordionItem value='table-1'>
+                        <AccordionTrigger>
+                            <h1 className="text-2xl font-bold px-2">Job Requests (For Approval)</h1>
+                        </AccordionTrigger>
+                        <AccordionContent className='max-w-6xl'>
                             <DataTable 
                                 columns={jobCustodianApprovalColumns}
                                 data={jobCustodianApprovalData}
                                 filterColumn={filterJobCustodianApprovalColumn}
                                 onDataChange={refreshData}
                             />
-                        </div>
-                    </CardContent>
-                </Card>
+                        </AccordionContent>
+                    </AccordionItem>
+                </Accordion>
                 <br />
-                <Card className="max-w-6xl">
-                    <CardHeader className="pb-3">
-                        <CardTitle>Job Requests (Approved)</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className='max-w-6xl'>
+                <Accordion type="single" collapsible className='bg-white px-2 py-1 rounded max-w-6xl'>
+                    <AccordionItem value='table-2'>
+                        <AccordionTrigger>
+                            <h1 className="text-2xl font-bold px-2">Job Requests (Approved)</h1>
+                        </AccordionTrigger>
+                        <AccordionContent className='max-w-6xl'>
                             <DataTable 
                                 columns={jobCustodianApprovedColumns}
                                 data={jobCustodianApprovedData}
                                 filterColumn={filterJobCustodianApprovedColumn}
                                 onDataChange={refreshData}
                             />
-                        </div>
-                    </CardContent>
-                </Card>
-                </>
-            )}
-            {currentUserDept == '1' && (
-                <>
-                <br />
-                <Card className="max-w-6xl">
-                    <CardHeader className="pb-3">
-                        <CardTitle>Job Requests Workbench</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className='max-w-6xl'>
-                            <DataTable 
-                                columns={jobStatusColumns}
-                                data={jobStatusData}
-                                filterColumn={filterJobStatusColumn}
-                                onDataChange={refreshData}
-                            />
-                        </div>
-                    </CardContent>
-                </Card>
+                        </AccordionContent>
+                    </AccordionItem>
+                </Accordion>
                 </>
             )}
             {/* Show My Submitted Job Requests card only if the user is not Property Custodian or CADS Staff */}
             {currentUserPosition !== "Property Custodian" && currentUserPosition !== "CADS Director" && (
                 <>
                 <br />
-                <Card className="max-w-6xl">
-                    <CardHeader className="pb-3">
-                        <CardTitle>My Submitted Job Requests</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className='max-w-6xl'>
+                <Accordion type="single" collapsible defaultValue="table-1" className='bg-white px-2 py-1 rounded max-w-6xl'>
+                    <AccordionItem value='table-1'>
+                        <AccordionTrigger>
+                            <h1 className="text-2xl font-bold px-2">My Submitted Job Requests</h1>
+                        </AccordionTrigger>
+                        <AccordionContent className='max-w-6xl'>
                             <DataTable 
                                 columns={jobSubmittedColumns}
                                 data={jobSubmittedData} 
                                 filterColumn={filterJobSubmittedColumn}
                                 onDataChange={refreshData}
                             />
-                        </div>
-                    </CardContent>
-                </Card>
+                        </AccordionContent>
+                    </AccordionItem>
+                </Accordion>
+                </>
+            )}
+            {currentUserDept == '1' && (
+                <>
+                <br />
+                <Accordion type="single" collapsible className='bg-white px-2 py-1 rounded max-w-6xl'>
+                    <AccordionItem value='table-2'>
+                        <AccordionTrigger>
+                            <h1 className="text-2xl font-bold px-2">Job Requests (For Approval)</h1>
+                        </AccordionTrigger>
+                        <AccordionContent className='max-w-6xl'>
+                            <DataTable 
+                                columns={jobBMOApprovalColumns}
+                                data={jobBMOApprovalData}
+                                filterColumn={filterJobBMOApprovalColumn}
+                                onDataChange={refreshData}
+                            />
+                        </AccordionContent>
+                    </AccordionItem>
+                </Accordion>
+                </>
+            )}
+            {currentUserDept == '1' && (
+                <>
+                <br />
+                <Accordion type="single" collapsible className='bg-white px-2 py-1 rounded max-w-6xl'>
+                    <AccordionItem value='table-3'>
+                        <AccordionTrigger>
+                            <h1 className="text-2xl font-bold px-2">Job Requests Workbench</h1>
+                        </AccordionTrigger>
+                        <AccordionContent className='max-w-6xl'>
+                            <DataTable 
+                                columns={jobStatusColumns}
+                                data={jobStatusData}
+                                filterColumn={filterJobStatusColumn}
+                                onDataChange={refreshData}
+                            />
+                        </AccordionContent>
+                    </AccordionItem>
+                </Accordion>
                 </>
             )}
             <Toaster />

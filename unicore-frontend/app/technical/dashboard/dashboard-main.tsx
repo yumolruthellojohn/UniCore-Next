@@ -1,17 +1,19 @@
 "use client"
 
+import { Session } from "next-auth";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { Component as RequestsDonut } from "@/app/technical/requests/requests-donut";
+import { Component as RequestsDonut } from "../requests/requests-donut";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { DataTableAdd } from "@/components/data-table/data-table-add-button";
-import { RequestsArea } from "@/app/technical/requests/requests-area";
-import { RequestsAreaCompleted } from "@/app/technical/requests/requests-area-completed";
-import { JobRequestAreaCreated } from "@/app/technical/requests/job-requests/job-area-created";
-import { JobRequestAreaCompleted } from "@/app/technical/requests/job-requests/job-area-completed";
+import { RequestsArea } from "../requests/requests-area";
+import { RequestsAreaCompleted } from "../requests/requests-area-completed";
+import { JobRequestAreaCreated } from "../requests/job-requests/job-area-created";
+import { JobRequestAreaCompleted } from "../requests/job-requests/job-area-completed";
 import { useRouter } from "next/navigation";
 import { ip_address } from '@/app/ipconfig';
+import RecentRequestButton from "./recent-request-button";
 
 interface RequestsWeeklyData {
   rq_type: string;
@@ -49,7 +51,7 @@ function getAlternatingColor(index: number): string {
     return `hsl(${hue}, 70%, ${lightness}%)`
 }
 
-export default function Dashboard() {
+export default function Dashboard({ session }: { session: Session | null }) {
     const router = useRouter();
 
     const [requestsWeeklyData, setRequestsWeeklyData] = useState<RequestsWeeklyData[]>([])
@@ -135,6 +137,78 @@ export default function Dashboard() {
     if (isLoading) return <div>Loading...</div>
     if (error) return <div>Error: {error}</div>
 
+    // Function to determine the button variant
+    const changeButtonVariant = (request: any) => {
+        return (request.dept_id === session?.user.dept_id || 
+                request.rq_create_user_id === session?.user.user_id || 
+                request.rq_accept_user_id === session?.user.user_id) 
+                ? "default" 
+                : "outline";
+    };
+
+    const handleClick = (request: any) => {
+        const userId = session?.user.user_id; // Assuming session.user is available
+        const deptId = session?.user.dept_id;
+        let url = ``;
+
+        if (request.rq_status === 'Request Submitted' && request.dept_id === deptId) {
+            switch (request.rq_type) {
+                case "Reserve Item":
+                  url = `/technical/requests/view-reserve-item-queue?id=${request.rq_id}`;
+                  break;
+                case "Reserve Facility":
+                  url = `/technical/requests/view-reserve-facility-queue?id=${request.rq_id}`;
+                  break;
+                case "Service for Item":
+                  url = `/technical/requests/view-service-item-queue?id=${request.rq_id}`;
+                  break;
+                case "Service for Facility":
+                  url = `/technical/requests/view-service-facility-queue?id=${request.rq_id}`;
+                  break;
+                default:
+                  url = `/technical/requests/`; // Fallback URL
+            }
+            router.push(url);
+        } else if (request.rq_accept_user_id === userId) {
+            switch (request.rq_type) {
+                case "Reserve Item":
+                  url = `/technical/requests/view-reserve-item-bench?id=${request.rq_id}`;
+                  break;
+                case "Reserve Facility":
+                  url = `/technical/requests/view-reserve-facility-bench?id=${request.rq_id}`;
+                  break;
+                case "Service for Item":
+                  url = `/technical/requests/view-service-item-bench?id=${request.rq_id}`;
+                  break;
+                case "Service for Facility":
+                  url = `/technical/requests/view-service-facility-bench?id=${request.rq_id}`;
+                  break;
+                default:
+                  url = `/technical/requests/`; // Fallback URL
+            }
+            router.push(url);
+            
+        } else if (request.rq_create_user_id === userId) {
+            switch (request.rq_type) {
+                case "Reserve Item":
+                  url = `/technical/requests/view-reserve-item?id=${request.rq_id}`;
+                  break;
+                case "Reserve Facility":
+                  url = `/technical/requests/view-reserve-facility?id=${request.rq_id}`;
+                  break;
+                case "Service for Item":
+                  url = `/technical/requests/view-service-item?id=${request.rq_id}`;
+                  break;
+                case "Service for Facility":
+                  url = `/technical/requests/view-service-facility?id=${request.rq_id}`;
+                  break;
+                default:
+                  url = `/technical/requests/`; // Fallback URL
+            }
+            router.push(url);
+        }
+    };
+
 
     return (
         <div className="p-4">
@@ -148,8 +222,8 @@ export default function Dashboard() {
                     </CardDescription>
                 </CardHeader>
                 <CardFooter className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                    <DataTableAdd text="Standard Requests" href="/admin/requests" />
-                    <DataTableAdd text="BMO JOB Requests" href="/admin/requests/job-requests" />
+                    <DataTableAdd text="Standard Requests" href="/technical/requests" />
+                    <DataTableAdd text="BMO JOB Requests" href="/technical/requests/job-requests" />
                 </CardFooter>
             </Card>
             <br />
@@ -185,6 +259,17 @@ export default function Dashboard() {
                         </Tabs>
                     </CardContent>
                     <CardFooter>
+                        <div className="grid grid-cols-1 gap-2">
+                            <h3>Most Recent:</h3>
+                            {recentSubmittedRequests.map((request) => (
+                                <RecentRequestButton 
+                                buttonVariant={changeButtonVariant(request)}
+                                key={request.rq_id}
+                                text={`ID: ${request.rq_id} | ${request.rq_type} | Priority: ${request.rq_prio_level}`}
+                                onClick={() => handleClick(request)}
+                                />
+                            ))}
+                        </div>
                     </CardFooter>
                 </Card>
                 <Card className="min-w-4xl">
@@ -216,6 +301,17 @@ export default function Dashboard() {
                         </Tabs>
                     </CardContent>
                     <CardFooter>
+                        <div className="grid grid-cols-1 gap-2">
+                            <h3>Most Recent:</h3>
+                            {recentCompletedRequests.map((request) => (
+                                <RecentRequestButton 
+                                    buttonVariant={changeButtonVariant(request)}
+                                    key={request.rq_id}
+                                    text={`ID: ${request.rq_id} | ${request.rq_type} | Priority: ${request.rq_prio_level}`}
+                                    onClick={() => handleClick(request)}
+                                />
+                            ))}
+                        </div>
                     </CardFooter>
                 </Card>
                 <RequestsArea></RequestsArea>

@@ -21,13 +21,13 @@ import { ip_address } from '@/app/ipconfig'
 
 export const description = "Area Chart not working at the moment"
 
-export function RequestsAreaCompleted() {
+export function JobRequestAreaCreated() {
   const [chartData, setChartData] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`http://${ip_address}:8081/requests/monthly/completed`); // Replace with your actual API endpoint
+        const response = await axios.get(`http://${ip_address}:8081/jobrequests/quarter/created`); // Replace with your actual API endpoint
         console.log(response.data);
         setChartData(response.data);
       } catch (error) {
@@ -40,7 +40,7 @@ export function RequestsAreaCompleted() {
 
   const chartConfig = {
     requests: {
-      label: "Requests",
+      label: "Job Requests",
       color: "hsl(var(--chart-1))",
     },
   } satisfies ChartConfig
@@ -48,9 +48,9 @@ export function RequestsAreaCompleted() {
   return (
     <Card className="max-w-5xl">
       <CardHeader>
-        <CardTitle>Standard Requests Completion Activity</CardTitle>
+        <CardTitle>BMO Job Requests Submission Activity</CardTitle>
         <CardDescription>
-          Number of Completed Requests for the past 4 months
+          Number of Submitted Job Requests for the past 4 months
         </CardDescription>
       </CardHeader>
       <CardContent>

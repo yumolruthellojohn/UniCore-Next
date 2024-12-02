@@ -93,6 +93,15 @@ export const createColumns = (onDataChange: () => void): ColumnDef<Schedule>[] =
       const handleDelete = async () => {
         try {
           await axios.delete(`http://${ip_address}:8081/schedules/${schedule.sched_id}`)
+
+          //Create notification for staff
+          await axios.post(`http://${ip_address}:8081/notifications/add`, {
+            notif_user_id: schedule.sched_user_id,
+            notif_type: "schedule_remove",
+            notif_content: `Your schedule has been removed.`,
+            notif_related_id: schedule.sched_id
+        });
+
           toast({
             title: "Schedule deleted",
             description: "The schedule has been successfully deleted.",

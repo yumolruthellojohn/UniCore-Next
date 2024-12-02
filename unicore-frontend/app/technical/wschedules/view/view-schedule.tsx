@@ -79,6 +79,15 @@ export default function ScheduleView({ session }: { session: Session | null }) {
     const handleDelete = async () => {
         try {
             await axios.delete(`http://${ip_address}:8081/schedules/${schedule.sched_id}`);
+
+            //Create notification for staff
+            await axios.post(`http://${ip_address}:8081/notifications/add`, {
+                notif_user_id: schedule.sched_user_id,
+                notif_type: "schedule_remove",
+                notif_content: `Your schedule has been removed.`,
+                notif_related_id: schedule.sched_id
+            });
+
             toast({
                 title: "Schedule deleted successfully",
                 description: "The schedule has been removed.",
@@ -100,13 +109,13 @@ export default function ScheduleView({ session }: { session: Session | null }) {
                 <CardHeader className="flex flex-row items-center justify-between">
                     <CardTitle>Schedule Details</CardTitle>
                     <Link href="/technical/wschedules" className="text-blue-500 hover:text-blue-700">
-                        Back
+                        Back to Schedules
                     </Link>
                 </CardHeader>
                 <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <p><strong>Schedule ID:</strong> {schedule.sched_id}</p>
                     <p><strong>Staff Name:</strong> {schedule.user_fname} {schedule.user_lname}</p>
-                    <p><strong>Department:</strong> {schedule.dept_name}</p>
+                    <p><strong>Assigned Department:</strong> {schedule.dept_name}</p>
                     <p><strong>Days of Week:</strong> {schedule.sched_days_of_week}</p>
                     <p><strong>Time In:</strong> {schedule.sched_time_in}</p>
                     <p><strong>Time Out:</strong> {schedule.sched_time_out}</p>
