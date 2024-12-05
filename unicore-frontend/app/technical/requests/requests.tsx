@@ -11,7 +11,6 @@ import { Toaster } from "@/components/ui/toaster";
 import axios from "axios";
 import { Session } from 'next-auth';
 import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
 import {
     Accordion,
     AccordionContent,
@@ -162,7 +161,7 @@ export default function Requests({ session }: { session: Session | null }) {
                         </CardDescription>
                     </CardHeader>
                     <CardFooter>
-                        <GenerateRequestPDFReport></GenerateRequestPDFReport>
+                        <GenerateRequestPDFReport username={session?.user.user_fname + " " + session?.user.user_lname}></GenerateRequestPDFReport>
                     </CardFooter>
                 </Card>
             </div>

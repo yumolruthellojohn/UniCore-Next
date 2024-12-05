@@ -672,6 +672,46 @@ app.get("/requests/completed/recent", (req, res) => {
   });
 });
 
+//requests/created_date/:startDate/:endDate
+app.get('/requests/created_date/:startDate/:endDate', (req, res) => {
+  const { startDate, endDate } = req.params;
+  const sql = `
+        SELECT r.*, d.dept_name, u.user_fname, u.user_lname 
+        FROM tbrequests r
+        INNER JOIN tbdepartments d ON r.dept_id = d.dept_id
+        INNER JOIN tbuseraccounts u ON r.rq_create_user_id = u.user_id
+        WHERE r.rq_create_date BETWEEN ? AND ?
+  `;
+
+  db.query(sql, [startDate, endDate], (err, result) => {
+      if (err) {
+          console.error(err);
+          return res.status(500).json({ Message: "Error inside server" });
+      }
+      return res.json(result);
+  });
+});
+
+//requests/completed_date/:startDate/:endDate
+app.get('/requests/completed_date/:startDate/:endDate', (req, res) => {
+  const { startDate, endDate } = req.params;
+  const sql = `
+        SELECT r.*, d.dept_name, u.user_fname, u.user_lname 
+        FROM tbrequests r
+        INNER JOIN tbdepartments d ON r.dept_id = d.dept_id
+        INNER JOIN tbuseraccounts u ON r.rq_create_user_id = u.user_id
+        WHERE r.rq_complete_date BETWEEN ? AND ?
+  `;
+
+  db.query(sql, [startDate, endDate], (err, result) => {
+      if (err) {
+          console.error(err);
+          return res.status(500).json({ Message: "Error inside server" });
+      }
+      return res.json(result);
+  });
+});
+
 //requests/reserve_item/add
 app.post("/requests/reserve_item/add", (req, res) => {
   const rq_type = req.body.rq_type;

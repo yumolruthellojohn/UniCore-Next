@@ -223,7 +223,7 @@ export default function GeneratePDFReport() {
                                         </SelectContent>
                                     </Select>
                                 </div>
-                                )}
+                            )}
 
                             {selectFilter.filter === 'category' && (
                                 <div className="space-y-2">

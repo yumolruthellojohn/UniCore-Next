@@ -9,6 +9,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  CardFooter
 } from "@/components/ui/card"
 import {
   ChartConfig,
@@ -97,7 +98,18 @@ export function Component({ data }: RequestsDonutProps) {
             </ChartContainer>
         )}
       </CardContent>
-      {/* Remove or modify the CardFooter as needed */}
+      {/* Color Legend */}
+      <CardFooter className="grid grid-cols-2 gap-2">
+        {data.map((entry, index) => (
+            <div key={index} className="flex items-center">
+              <div
+                className="w-4 h-4 mr-2"
+                style={{ backgroundColor: entry.fill }}
+              ></div>
+              <span>{entry.browser}</span>
+            </div>
+        ))}
+      </CardFooter>
     </Card>
   )
 }

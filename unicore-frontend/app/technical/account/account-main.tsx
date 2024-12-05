@@ -1,7 +1,6 @@
 "use client";
 
 import { Session } from "next-auth";
-import { handleSignOut } from "@/app/actions/authActions";
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -32,8 +31,6 @@ export default function AccountPage({ session }: { session: Session | null }) {
     const [user, setUser] = useState<User | null>(null);
     const [isEditing, setIsEditing] = useState(false);
     const [isChangingPassword, setIsChangingPassword] = useState(false);
-    const [isConfirmationDialogOpen, setIsConfirmationDialogOpen] = useState(false);
-    const [isDeactivationDialogOpen, setIsDeactivationDialogOpen] = useState(false);
     const [formData, setFormData] = useState({
         user_password: '',
         user_fname: '',
@@ -125,20 +122,6 @@ export default function AccountPage({ session }: { session: Session | null }) {
         }
     };
 
-    const handleDeactivate = async () => {
-        setIsConfirmationDialogOpen(true);
-    };
-
-    const handleDeactivateConfirmed = async () => {
-        try {
-            setIsConfirmationDialogOpen(false);
-            await axios.put(`http://${ip_address}:8081/users/deactivate/${userID}`);
-            setIsDeactivationDialogOpen(true);
-        } catch (error) {
-            console.error('Error deactivating account:', error);
-        }
-    };
-
     return (
         <div className="container mx-auto">
             <div className="w-full max-w-[600px]">
@@ -158,7 +141,6 @@ export default function AccountPage({ session }: { session: Session | null }) {
                         <CardFooter className="flex flex-col sm:flex-row justify-between gap-4">
                             <Button onClick={() => setIsEditing(true)}>Edit Details</Button>
                             <Button onClick={() => setIsChangingPassword(true)}>Change Password</Button>
-                            <Button variant={"destructive"} onClick={handleDeactivate}>Deactivate Account</Button>
                         </CardFooter>
                     </Card>
                 )}
@@ -258,39 +240,9 @@ export default function AccountPage({ session }: { session: Session | null }) {
                             )}
                             
                             <DialogFooter>
-                                <Button type="submit">Change Password</Button>
+                                <Button type="submit">Update Password</Button>
                             </DialogFooter>
                         </form>
-                    </DialogContent>
-                </Dialog>
-                
-                {/* Deactivation Confirmation Dialog */}
-                <Dialog open={isConfirmationDialogOpen} onOpenChange={setIsConfirmationDialogOpen}>
-                    <DialogContent>
-                        <DialogHeader>
-                            <DialogTitle>Are you sure?</DialogTitle>
-                            <DialogDescription>This will deactivate your account. By doing so, you will no longer have access to this web application.</DialogDescription>
-                        </DialogHeader>
-                        <DialogFooter>
-                            <Button onClick={() => setIsConfirmationDialogOpen(false)}>Cancel</Button>
-                            <Button variant={"destructive"} onClick={handleDeactivateConfirmed}>Yes, Deactivate my account</Button>
-                        </DialogFooter>
-                    </DialogContent>
-                </Dialog>
-
-                {/* Deactivation Dialog */}
-                <Dialog open={isDeactivationDialogOpen} onOpenChange={setIsDeactivationDialogOpen}>
-                    <DialogContent>
-                        <DialogHeader>
-                            <DialogTitle>Account Deactivated</DialogTitle>
-                            <DialogDescription>Your account is deactivated and will automatically log out. For further concerns, please contact the Administrator.</DialogDescription>
-                        </DialogHeader>
-                        <DialogFooter>
-                            <Button onClick={() => {
-                                setIsDeactivationDialogOpen(false);
-                                handleSignOut();
-                            }}>OK</Button>
-                        </DialogFooter>
                     </DialogContent>
                 </Dialog>
                 <Toaster />
