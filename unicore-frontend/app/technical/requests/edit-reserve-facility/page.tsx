@@ -110,13 +110,13 @@ export default function EditReserveRoomRequest(){
     const getAvailableStatuses = (currentStatus: string) => {
         switch (currentStatus) {
             case "Accepted":
-                return ["Pending", "Conflict", "Canceled", "Reserved"];
+                return ["Accepted", "Pending", "Conflict", "Canceled", "Reserved"];
             case "Pending":
-                return ["Reserved", "Conflict", "Canceled"];
+                return ["Pending", "Reserved", "Conflict", "Canceled"];
             case "Reserved":
-                return ["Completed"];
+                return ["Reserved", "Completed"];
             case "Conflict":
-                return ["Pending", "Canceled"];
+                return ["Pending", "Conflict", "Canceled"];
             default:
                 return []; // No changes allowed for Completed or Canceled status
         }
@@ -154,7 +154,7 @@ export default function EditReserveRoomRequest(){
                                 <Label htmlFor="rq_status">Request Status: </Label>
                                 <Select 
                                     onValueChange={(value) => handleChange('rq_status', value)} 
-                                    value={formData.rq_status}
+                                    value={formData.rq_status} required
                                 >
                                     <SelectTrigger>
                                         <SelectValue placeholder="Select status" />

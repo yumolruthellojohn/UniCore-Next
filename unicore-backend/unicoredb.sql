@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 28, 2024 at 08:49 AM
+-- Generation Time: Dec 09, 2024 at 07:26 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -115,18 +115,19 @@ CREATE TABLE `tbjobrequests` (
   `job_estimated_cost` int(12) DEFAULT NULL,
   `job_recommend_user_id` int(12) DEFAULT NULL,
   `job_status` varchar(255) DEFAULT NULL,
-  `job_remarks` varchar(255) DEFAULT NULL
+  `job_remarks` varchar(255) DEFAULT NULL,
+  `job_complete_date` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `tbjobrequests`
 --
 
-INSERT INTO `tbjobrequests` (`job_id`, `job_rq_id`, `job_dept_id`, `job_create_date`, `job_items`, `job_purpose`, `job_create_user_id`, `job_letter`, `job_bmo_approval`, `job_bmo_user_id`, `job_bmo_notes`, `job_custodian_approval`, `job_custodian_user_id`, `job_custodian_notes`, `job_cads_approval`, `job_cads_user_id`, `job_cads_notes`, `job_recommendation`, `job_estimated_cost`, `job_recommend_user_id`, `job_status`, `job_remarks`) VALUES
-(1, 1, 2, '2024-11-25', '[{\"quantity\":1,\"name_desc\":\"item1\"},{\"quantity\":2,\"name_desc\":\"item2\"},{\"quantity\":3,\"name_desc\":\"item3\"}]', 'testing', 6, 'Dear 123\n\nI am writing to formally request the following job items for our department:\n\n123\n\nThe purpose of this request is 123\n\nThank you for considering this request. I look forward to your prompt response.\n\nSincerely,\n[Your Name]\n[Your Position]\n[Your Department]\n[Date]', 'Approved', 2, 'Forwarding', 'Approved', 9, 'ok', 'Approved', 10, 'ok', 'test', 10, 2, 'For Canvas', 'ok'),
-(2, 2, 2, '2024-11-25', '[{\"quantity\":7,\"name_desc\":\"item7\"},{\"quantity\":8,\"name_desc\":\"item8\"}]', 'test', 6, 'Dear 78\nI am writing to formally request the following job items for our department:\n\n1. [Item Description 1] - Quantity: [Quantity 1]\n2. [Item Description 2] - Quantity: [Quantity 2]\n3. [Item Description 3] - Quantity: [Quantity 3]\n\nThe purpose of this request is [briefly explain the purpose of the request]. \n\nThank you for considering this request. I look forward to your prompt response.\n\nSincerely,\n[Your Name]\n[Your Position]\n[Your Department]\n[Date]', 'Pending', NULL, NULL, 'Pending', 9, 'no', 'Pending', NULL, NULL, NULL, NULL, NULL, 'Pending', NULL),
-(3, 3, 3, '2024-11-26', '[{\"quantity\":1,\"name_desc\":\"qwe\"},{\"quantity\":2,\"name_desc\":\"asd\"},{\"quantity\":2,\"name_desc\":\"zxc\"}]', 'asd', 5, 'Dear asd\n\nI am writing to formally request the following job items for our department:\n\n1. [Item Description 1] - Quantity: [Quantity 1]\n2. [Item Description 2] - Quantity: [Quantity 2]\n3. [Item Description 3] - Quantity: [Quantity 3]\n\nThe purpose of this request is [briefly explain the purpose of the request]. \n\nThank you for considering this request. I look forward to your prompt response.\n\nSincerely,\n[Your Name]\n[Your Position]\n[Your Department]\n[Date]', 'Pending', NULL, NULL, 'Pending', NULL, NULL, 'Pending', NULL, NULL, NULL, NULL, NULL, 'Pending', NULL),
-(4, 4, 3, '2024-11-27', '[{\"quantity\":1,\"name_desc\":\"item1\"},{\"quantity\":2,\"name_desc\":\"item2\"},{\"quantity\":3,\"name_desc\":\"item3\"}]', 'test', 5, 'Dear [Recipient\'s Name],\n\nI am writing to formally request the following job items for our department:\n\n1. [Item Description 1] - Quantity: [Quantity 1]\n2. [Item Description 2] - Quantity: [Quantity 2]\n3. [Item Description 3] - Quantity: [Quantity 3]\n\nThe purpose of this request is [briefly explain the purpose of the request]. \n\nThank you for considering this request. I look forward to your prompt response.\n\nSincerely,\n[Your Name]\n[Your Position]\n[Your Department]\n[Date]', '', NULL, NULL, 'Approved', 9, 'ok', 'Approved', 10, 'approve', 'test', 10000, 2, 'For Canvas', 'ok');
+INSERT INTO `tbjobrequests` (`job_id`, `job_rq_id`, `job_dept_id`, `job_create_date`, `job_items`, `job_purpose`, `job_create_user_id`, `job_letter`, `job_bmo_approval`, `job_bmo_user_id`, `job_bmo_notes`, `job_custodian_approval`, `job_custodian_user_id`, `job_custodian_notes`, `job_cads_approval`, `job_cads_user_id`, `job_cads_notes`, `job_recommendation`, `job_estimated_cost`, `job_recommend_user_id`, `job_status`, `job_remarks`, `job_complete_date`) VALUES
+(1, 1, 2, '2024-11-25', '[{\"quantity\":1,\"name_desc\":\"item1\"},{\"quantity\":2,\"name_desc\":\"item2\"},{\"quantity\":3,\"name_desc\":\"item3\"}]', 'testing', 6, 'Dear 123\n\nI am writing to formally request the following job items for our department:\n\n123\n\nThe purpose of this request is 123\n\nThank you for considering this request. I look forward to your prompt response.\n\nSincerely,\n[Your Name]\n[Your Position]\n[Your Department]\n[Date]', 'Approved', 2, 'Forwarding', 'Approved', 9, 'ok', 'Approved', 10, 'ok', 'test', 10, 2, 'Completed', 'ok', '2024-11-28'),
+(2, 2, 2, '2024-11-25', '[{\"quantity\":7,\"name_desc\":\"item7\"},{\"quantity\":8,\"name_desc\":\"item8\"}]', 'test', 6, 'Dear 78\nI am writing to formally request the following job items for our department:\n\n1. [Item Description 1] - Quantity: [Quantity 1]\n2. [Item Description 2] - Quantity: [Quantity 2]\n3. [Item Description 3] - Quantity: [Quantity 3]\n\nThe purpose of this request is [briefly explain the purpose of the request]. \n\nThank you for considering this request. I look forward to your prompt response.\n\nSincerely,\n[Your Name]\n[Your Position]\n[Your Department]\n[Date]', 'Approved', 2, 'testing', 'Pending', 9, 'no', 'Pending', NULL, NULL, NULL, NULL, NULL, 'Pending', NULL, NULL),
+(3, 3, 3, '2024-11-26', '[{\"quantity\":1,\"name_desc\":\"qwe\"},{\"quantity\":2,\"name_desc\":\"asd\"},{\"quantity\":2,\"name_desc\":\"zxc\"}]', 'asd', 5, 'Dear asd\n\nI am writing to formally request the following job items for our department:\n\n1. [Item Description 1] - Quantity: [Quantity 1]\n2. [Item Description 2] - Quantity: [Quantity 2]\n3. [Item Description 3] - Quantity: [Quantity 3]\n\nThe purpose of this request is [briefly explain the purpose of the request]. \n\nThank you for considering this request. I look forward to your prompt response.\n\nSincerely,\n[Your Name]\n[Your Position]\n[Your Department]\n[Date]', 'Pending', NULL, NULL, 'Pending', NULL, NULL, 'Pending', NULL, NULL, NULL, NULL, NULL, 'Pending', NULL, NULL),
+(4, 4, 3, '2024-11-27', '[{\"quantity\":1,\"name_desc\":\"item1\"},{\"quantity\":2,\"name_desc\":\"item2\"},{\"quantity\":3,\"name_desc\":\"item3\"}]', 'test', 5, 'Dear [Recipient\'s Name],\n\nI am writing to formally request the following job items for our department:\n\n1. [Item Description 1] - Quantity: [Quantity 1]\n2. [Item Description 2] - Quantity: [Quantity 2]\n3. [Item Description 3] - Quantity: [Quantity 3]\n\nThe purpose of this request is [briefly explain the purpose of the request]. \n\nThank you for considering this request. I look forward to your prompt response.\n\nSincerely,\n[Your Name]\n[Your Position]\n[Your Department]\n[Date]', 'Approved', 2, 'test aprob', 'Approved', 9, 'ok', 'Approved', 10, 'approve', 'test', 10000, 2, 'For Canvas', 'ok', NULL);
 
 --
 -- Triggers `tbjobrequests`
@@ -160,19 +161,18 @@ CREATE TABLE `tbnotifs` (
 --
 
 INSERT INTO `tbnotifs` (`notif_id`, `notif_user_id`, `notif_type`, `notif_content`, `notif_date`, `notif_read`, `notif_related_id`) VALUES
-(1, 3, 'service_facility_update', 'Your request has been accepted. Click to view details.', '2024-11-20', 1, 21),
-(2, 1, 'reserve_item_update', 'Your request has been accepted. Click to view details.', '2024-11-22', 1, 10),
-(3, 6, 'reserve_item_update', 'Your request has been accepted. Click to view details.', '2024-11-22', 1, 25),
-(4, 6, 'reserve_item_update', 'Your request has recevied status update. Click to view details.', '2024-11-22', 1, 25),
-(5, 6, 'reserve_item_update', 'Your request has been accepted. Click to view details.', '2024-11-22', 1, 26),
-(6, 6, 'reserve_item_update', 'Your request has recevied status update. Click to view details.', '2024-11-22', 1, 26),
-(7, 6, 'reserve_item_update', 'Your request has been accepted. Click to view details.', '2024-11-22', 1, 27),
-(8, 6, 'reserve_item_update', 'Your request has recevied status update. Click to view details.', '2024-11-22', 1, 27),
-(9, 6, 'reserve_item_update', 'Your request has been accepted. Click to view details.', '2024-11-25', 1, 1),
-(10, 6, 'reserve_item_update', 'Your request has recevied status update. Click to view details.', '2024-11-25', 1, 1),
-(11, 6, 'reserve_item_update', 'Your request has recevied status update. Click to view details.', '2024-11-25', 1, 1),
-(12, 6, 'reserve_item_update', 'Your request has recevied status update. Click to view details.', '2024-11-25', 1, 1),
-(13, 6, 'reserve_item_update', 'Your request has recevied status update. Click to view details.', '2024-11-25', 1, 1);
+(1, 7, 'service_item_update', 'Your request has been accepted. Click to view details.', '2024-12-1', 0, 4),
+(2, 7, 'service_item_update', 'Your request has recevied status update. Click to view details.', '2024-12-1', 0, 4),
+(3, 7, 'service_item_update', 'Your request has recevied status update. Click to view details.', '2024-12-1', 0, 4),
+(8, 6, 'schedule_new', 'You are assigned to a new schedule.', '2024-12-1', 1, 9),
+(9, 6, 'schedule_update', 'Your schedule has been updated.', '2024-12-1', 1, 8),
+(10, 8, 'reserve_facility_update', 'Your request has been accepted. Click to view details.', '2024-12-5', 0, 6),
+(11, 8, 'service_facility_update', 'Your request has been accepted. Click to view details.', '2024-12-5', 0, 5),
+(12, 6, 'reserve_item_update', 'Your request has recevied status update. Click to view details.', '2024-12-9', 0, 1),
+(13, 6, 'reserve_item_update', 'Your request has recevied status update. Click to view details.', '2024-12-9', 0, 1),
+(14, 6, 'reserve_item_update', 'Your request has recevied status update. Click to view details.', '2024-12-9', 0, 1),
+(15, 6, 'reserve_item_update', 'Your request has recevied status update. Click to view details.', '2024-12-9', 0, 1),
+(16, 6, 'reserve_item_update', 'Your request has recevied status update. Click to view details.', '2024-12-9', 0, 1);
 
 -- --------------------------------------------------------
 
@@ -206,8 +206,12 @@ CREATE TABLE `tbrequests` (
 --
 
 INSERT INTO `tbrequests` (`rq_id`, `rq_type`, `dept_id`, `item_id`, `room_id`, `rq_quantity`, `rq_service_type`, `rq_prio_level`, `rq_start_date`, `rq_end_date`, `rq_start_time`, `rq_end_time`, `rq_notes`, `rq_create_date`, `rq_complete_date`, `rq_create_user_id`, `rq_accept_user_id`, `rq_status`) VALUES
-(1, 'Reserve Item', 2, 2, NULL, 2, NULL, 'Urgent', '2024-11-25', '2024-11-25', '12:00', '15:00', 'test\npickup\nin use', '2024-11-25', '2024-11-25', 6, 6, 'Completed'),
-(2, 'Reserve Facility', 2, NULL, 1, NULL, NULL, 'Moderate', '2024-11-29', '2024-11-29', '13:00', '16:00', 'test', '2024-11-26', NULL, 6, NULL, 'Request Submitted');
+(1, 'Reserve Item', 2, 2, NULL, 2, NULL, 'Urgent', '2024-11-25', '2024-11-25', '12:00', '15:00', 'test\npickup\nin use', '2024-11-25', '', 6, 3, 'Accepted'),
+(2, 'Reserve Facility', 2, NULL, 1, NULL, NULL, 'Moderate', '2024-11-29', '2024-11-29', '13:00', '16:00', 'test', '2024-11-26', NULL, 6, NULL, 'Request Submitted'),
+(3, 'Reserve Item', 2, 9, NULL, 1, NULL, 'Moderate', '2024-12-03', '2024-12-03', '10:00', '11:00', 'reporting', '2024-12-1', NULL, 7, NULL, 'Request Submitted'),
+(4, 'Service for Item', 2, 3, NULL, 1, 'Repair', 'Moderate', '2024-12-05', '2024-12-06', '09:00', '11:00', 'repaired', '2024-12-1', '2024-12-1', 7, 3, 'Accepted'),
+(5, 'Service for Facility', 1, NULL, 1, NULL, 'Maintenance', 'Moderate', '2024-12-09', '2024-12-09', '13:00', '16:00', 'check pc units', '2024-12-1', NULL, 8, 2, 'Accepted'),
+(6, 'Reserve Facility', 2, NULL, 1, NULL, NULL, 'Moderate', '2024-12-11', '2024-12-11', '08:00', '11:00', 'workshop', '2024-12-1', NULL, 8, 3, 'Accepted');
 
 -- --------------------------------------------------------
 
@@ -262,9 +266,11 @@ CREATE TABLE `tbschedules` (
 --
 
 INSERT INTO `tbschedules` (`sched_id`, `sched_user_id`, `sched_dept_id`, `sched_days_of_week`, `sched_time_in`, `sched_time_out`, `sched_start_date`, `sched_end_date`, `sched_notes`, `sched_create_dept_id`) VALUES
-(1, 2, 1, 'Tuesday, Thursday', '08:00', '12:00', '2024-11-20', '2024-12-20', '08:00AM - 12:00PM TTh', 1),
-(2, 3, 2, 'Monday, Wednesday, Friday', '08:00', '12:00', '2025-01-06', '2025-02-28', 'sample', 2),
-(4, 7, 3, 'Monday, Tuesday, Wednesday, Thursday, Friday', '09:00', '12:00', '2024-11-25', '2024-12-27', 'testing', 3);
+(1, 8, 1, 'Tuesday, Thursday', '08:00', '12:00', '2024-11-20', '2024-12-20', '08:00AM - 12:00PM TTh', 1),
+(2, 6, 2, 'Monday, Wednesday, Friday', '08:00', '12:00', '2025-01-06', '2025-02-28', 'sample', 2),
+(4, 7, 3, 'Monday, Tuesday, Wednesday, Thursday, Friday', '09:00', '12:00', '2024-11-25', '2024-12-27', 'testing', 3),
+(8, 6, 2, 'Wednesday, Friday', '08:00', '12:00', '2024-12-16', '2024-12-20', 'test notif 3', 2),
+(9, 6, 2, 'Monday, Tuesday, Thursday', '13:00', '16:00', '2024-12-16', '2024-12-20', 'test notif 4', 2);
 
 -- --------------------------------------------------------
 
@@ -388,13 +394,13 @@ ALTER TABLE `tbjobrequests`
 -- AUTO_INCREMENT for table `tbnotifs`
 --
 ALTER TABLE `tbnotifs`
-  MODIFY `notif_id` int(12) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `notif_id` int(12) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT for table `tbrequests`
 --
 ALTER TABLE `tbrequests`
-  MODIFY `rq_id` int(12) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `rq_id` int(12) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `tbrooms`
@@ -406,7 +412,7 @@ ALTER TABLE `tbrooms`
 -- AUTO_INCREMENT for table `tbschedules`
 --
 ALTER TABLE `tbschedules`
-  MODIFY `sched_id` int(12) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `sched_id` int(12) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `tbuseraccounts`

@@ -205,7 +205,7 @@ export default function EditServiceRoomRequest(){
                                 <Label htmlFor="rq_status">Request Status: </Label>
                                 <Select 
                                     onValueChange={(value) => handleChange('rq_status', value)} 
-                                    value={formData.rq_status}
+                                    value={formData.rq_status} required
                                 >
                                     <SelectTrigger>
                                         <SelectValue placeholder="Select status" />

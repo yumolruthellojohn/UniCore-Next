@@ -126,17 +126,17 @@ export default function EditReserveItemRequest(){
     const getAvailableStatuses = (currentStatus: string) => {
         switch (currentStatus) {
             case "Accepted":
-                return ["Pending", "Conflict", "Canceled", "Reserved: For Pickup"];
+                return ["Accepted", "Pending", "Conflict", "Canceled", "Reserved: For Pickup"];
             case "Pending":
-                return ["Reserved: For Pickup", "Conflict", "Canceled"];
+                return ["Pending", "Reserved: For Pickup", "Conflict", "Canceled"];
             case "Reserved: For Pickup":
-                return ["Reserved: In Use", "Canceled", "Completed"];
+                return ["Reserved: For Pickup", "Reserved: In Use", "Canceled", "Completed"];
             case "Reserved: In Use":
-                return ["Reserved: For Return", "Completed"];
+                return ["Reserved: In Use", "Reserved: For Return", "Completed"];
             case "Reserved: For Return":
-                return ["Completed"];
+                return ["Reserved: For Return", "Completed"];
             case "Conflict":
-                return ["Pending", "Canceled"];
+                return ["Pending", "Conflict", "Canceled"];
             default:
                 return []; // No changes allowed for Completed or Canceled status
         }
@@ -176,7 +176,7 @@ export default function EditReserveItemRequest(){
                                 <Label htmlFor="rq_status">Request Status: </Label>
                                 <Select 
                                     onValueChange={(value) => handleChange('rq_status', value)} 
-                                    value={formData.rq_status}
+                                    value={formData.rq_status} required
                                 >
                                     <SelectTrigger>
                                         <SelectValue placeholder="Select status" />
