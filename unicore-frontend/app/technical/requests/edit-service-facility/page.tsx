@@ -225,6 +225,7 @@ export default function EditServiceRoomRequest(){
                                     id="rq_notes"
                                     value={formData.rq_notes}
                                     onChange={(e) => handleChange('rq_notes', e.target.value)}
+                                    required
                                 />
                             </div>
                         </div>
