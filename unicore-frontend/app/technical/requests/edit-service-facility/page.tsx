@@ -156,17 +156,17 @@ export default function EditServiceRoomRequest(){
     const getAvailableStatuses = (currentStatus: string) => {
         switch (currentStatus) {
             case "Accepted":
-                return ["Pending", "Conflict", "Canceled", "Service Approved"];
+                return ["Accepted", "Pending", "Conflict", "Canceled", "Service Approved"];
             case "Pending":
-                return ["Service Approved", "Conflict", "Canceled"];
+                return ["Pending", "Service Approved", "Conflict", "Canceled"];
             case "Service Approved":
-                return ["Service in Progress", "Canceled", "Completed"];
+                return ["Service Approved", "Service in Progress", "Canceled", "Completed"];
             case "Service in Progress":
-                return ["Service Post-Checks", "Completed"];
+                return ["Service in Progress", "Service Post-Checks", "Completed"];
             case "Service Post-Checks":
-                return ["Completed"];
+                return ["Service Post-Checks", "Completed"];
             case "Conflict":
-                return ["Pending", "Canceled"];
+                return ["Pending", "Conflict", "Canceled"];
             default:
                 return []; // No changes allowed for Completed or Canceled status
         }

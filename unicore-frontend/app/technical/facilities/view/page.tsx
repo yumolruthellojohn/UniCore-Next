@@ -77,7 +77,7 @@ export default function RoomView() {
             await axios.delete(`http://${ip_address}:8081/rooms/${room.room_id}`);
             toast({
                 title: "Facility deleted successfully",
-                description: "The room has been removed.",
+                description: "The facility has been removed.",
             })
             router.push('/technical/facilities');
         } catch (error) {
