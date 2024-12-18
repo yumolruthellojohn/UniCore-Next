@@ -122,7 +122,7 @@ export default function ItemView() {
                     <p><strong>Department:</strong> {item.dept_name}</p>
                     <p><strong>Status:</strong> {item.item_status}</p>
                     <p><strong>Reserved:</strong> {item.item_reserved}</p>
-                    <p><strong>Serviced:</strong> {item.item_status}</p>
+                    <p><strong>Serviced:</strong> {item.item_serviced}</p>
                 </CardContent>
                 <CardFooter className="flex flex-col sm:flex-row justify-between gap-4">
                     <Button 

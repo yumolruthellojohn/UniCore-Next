@@ -148,6 +148,7 @@ export const createRequestAcceptColumns = (onDataChange: () => void): ColumnDef<
             size="icon" 
             title="Update Request"
             onClick={handleUpdate}
+            disabled={requestAccept.rq_status === "Completed" || requestAccept.rq_status === "Canceled"}
           >
             <Edit className="h-4 w-4" />
           </Button>

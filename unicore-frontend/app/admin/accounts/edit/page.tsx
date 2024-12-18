@@ -180,7 +180,7 @@ export default function EditUserAccount() {
                                     <SelectContent>
                                         <SelectItem value="Administrator">Administrator</SelectItem>
                                         <SelectItem value="Technical Staff">Technical Staff</SelectItem>
-                                        <SelectItem value="Faculty">Faculty</SelectItem>
+                                        <SelectItem value="Non-technical Staff">Non-technical Staff</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>

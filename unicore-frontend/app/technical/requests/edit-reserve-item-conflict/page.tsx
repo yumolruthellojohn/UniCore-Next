@@ -35,6 +35,7 @@ export default function EditReserveItemConflict() {
 
     const [formData, setFormData] = useState({
         item_id: '',
+        dept_id: '',
         rq_quantity: '',
         rq_prio_level: '',
         rq_start_date: '',
@@ -56,14 +57,12 @@ export default function EditReserveItemConflict() {
         const fetchData = async () => {
             try {
                 // Fetch request details and items
-                const [requestResponse, itemsResponse] = await Promise.all([
-                    axios.get(`http://${ip_address}:8081/requests/${requestId}`),
-                    axios.get(`http://${ip_address}:8081/items`)
-                ]);
+                const requestResponse = await axios.get(`http://${ip_address}:8081/requests/${requestId}`);
                 
                 const request = requestResponse.data[0];
                 setFormData({
                     item_id: request.item_id.toString(),
+                    dept_id: request.dept_id.toString(),
                     rq_quantity: request.rq_quantity.toString(),
                     rq_prio_level: request.rq_prio_level,
                     rq_start_date: request.rq_start_date,
@@ -73,6 +72,9 @@ export default function EditReserveItemConflict() {
                     rq_notes: request.rq_notes,
                     rq_accept_user_id: request.rq_accept_user_id
                 });
+
+                const itemsResponse = await axios.get(`http://${ip_address}:8081/items/deptID/${formData.dept_id}`);
+
                 setItems(itemsResponse.data);
             } catch (error) {
                 console.error("Error fetching data:", error);

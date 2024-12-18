@@ -48,7 +48,7 @@ export default function NewReserveItem({ session }: { session: Session | null })
 
     const [formData, setFormData] = useState({
         rq_type: 'Reserve Item',
-        dept_id: '1', // Default to BMO department
+        dept_id: '', // Default to BMO department
         item_id: '',
         rq_quantity: 0,
         rq_prio_level: 'Moderate', // Default to 'Moderate' priority
@@ -88,8 +88,8 @@ export default function NewReserveItem({ session }: { session: Session | null })
             try {
                 const dept_response = await axios.get(`http://${ip_address}:8081/departments`); // Adjust this URL to your actual API endpoint
                 setDepartments(dept_response.data);
-                const item_response = await axios.get(`http://${ip_address}:8081/items`); // Adjust this URL to your actual API endpoint
-                setItems(item_response.data);
+                //const item_response = await axios.get(`http://${ip_address}:8081/items`); // Adjust this URL to your actual API endpoint
+                //setItems(item_response.data);
             } catch (error) {
                 console.error('Error fetching data:', error);
                 // Handle error (e.g., show error message to user)
@@ -99,7 +99,7 @@ export default function NewReserveItem({ session }: { session: Session | null })
         fetchItemDeptData();
     }, []);
 
-    const handleChange = (name: string, value: string | number) => {
+    const handleChange = async (name: string, value: string | number) => {
         setFormData(prevState => {
             const newState = {
                 ...prevState,
@@ -112,6 +112,18 @@ export default function NewReserveItem({ session }: { session: Session | null })
 
             return newState;
         });
+
+        // Fetch items when department changes
+        if (name === 'dept_id') {
+            try {
+                const response = await axios.get(`http://${ip_address}:8081/items/deptID/${value}`);
+                setItems(response.data);
+                // Clear the selected item when department changes
+                setFormData(prev => ({ ...prev, item_id: '' }));
+            } catch (error) {
+                console.error('Error fetching items for department:', error);
+            }
+        }
     };
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -145,8 +157,8 @@ export default function NewReserveItem({ session }: { session: Session | null })
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label htmlFor="dept_id">Department:</Label>
-                                <Select onValueChange={(value) => handleChange('dept_id', value)} defaultValue={formData.dept_id}>
+                                <Label htmlFor="dept_id">Submit to (Department):</Label>
+                                <Select onValueChange={(value) => handleChange('dept_id', value)} defaultValue={formData.dept_id} required>
                                     <SelectTrigger>
                                         <SelectValue placeholder="Select a department" />
                                     </SelectTrigger>
@@ -161,7 +173,7 @@ export default function NewReserveItem({ session }: { session: Session | null })
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="item_id">Item:</Label>
-                                <Select onValueChange={(value) => handleChange('item_id', value)} defaultValue={formData.item_id}>
+                                <Select onValueChange={(value) => handleChange('item_id', value)} defaultValue={formData.item_id} required>
                                     <SelectTrigger>
                                         <SelectValue placeholder="Select an item" />
                                     </SelectTrigger>
@@ -186,7 +198,7 @@ export default function NewReserveItem({ session }: { session: Session | null })
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="rq_prio_level">Priority Level:</Label>
-                                <Select onValueChange={(value) => handleChange('rq_prio_level', value)} defaultValue={formData.rq_prio_level}>
+                                <Select onValueChange={(value) => handleChange('rq_prio_level', value)} defaultValue={formData.rq_prio_level} required>
                                     <SelectTrigger>
                                         <SelectValue placeholder="Select priority level" />
                                     </SelectTrigger>

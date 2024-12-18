@@ -84,7 +84,7 @@ export default function NewServiceItem({ session }: { session: Session | null })
             }
 
             try {
-                const dept_response = await axios.get(`http://${ip_address}:8081/departments`); // Adjust this URL to your actual API endpoint
+                const dept_response = await axios.get(`http://${ip_address}:8081/departments/maintenance`); // Adjust this URL to your actual API endpoint
                 setDepartments(dept_response.data);
                 const item_response = await axios.get(`http://${ip_address}:8081/items`); // Adjust this URL to your actual API endpoint
                 setItems(item_response.data);
@@ -143,7 +143,7 @@ export default function NewServiceItem({ session }: { session: Session | null })
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label htmlFor="dept_id">Department:</Label>
+                                <Label htmlFor="dept_id">Submit to (Department):</Label>
                                 <Select onValueChange={(value) => handleChange('dept_id', value)} defaultValue={formData.dept_id}>
                                     <SelectTrigger>
                                         <SelectValue placeholder="Select a department" />

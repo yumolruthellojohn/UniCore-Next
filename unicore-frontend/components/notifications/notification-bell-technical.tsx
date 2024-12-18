@@ -139,7 +139,7 @@ export function NotificationBellTechnical({ userId }: { userId: number }) {
               >
                 <p className="text-sm">{notif.notif_content}</p>
                 <p className="text-xs text-gray-500 mt-1">
-                  {new Date(notif.notif_date).toLocaleString()}
+                  {notif.notif_date}
                 </p>
               </div>
             ))

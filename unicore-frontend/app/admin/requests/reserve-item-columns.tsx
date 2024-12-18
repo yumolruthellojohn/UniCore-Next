@@ -133,7 +133,7 @@ export const createReserveItemColumns = (onDataChange: () => void): ColumnDef<Re
             variant='ghost' 
             size="icon" 
             title="Edit Request"
-            onClick={() => router.push(`/admin/requests/edit?id=${reserveItem.rq_id}`)}
+            onClick={() => router.push(`/admin/requests/edit-reserve-item?id=${reserveItem.rq_id}`)}
           >
             <Edit className="h-4 w-4" />
           </Button>

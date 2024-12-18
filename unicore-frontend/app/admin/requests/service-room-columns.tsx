@@ -137,7 +137,7 @@ export const createServiceRoomColumns = (onDataChange: () => void): ColumnDef<Se
             variant='ghost' 
             size="icon" 
             title="View Details"
-            onClick={() => router.push(`/admin/requests/view-service-room?id=${service.rq_id}`)}
+            onClick={() => router.push(`/admin/requests/view-service-facility?id=${service.rq_id}`)}
           >
             <Eye className="h-4 w-4" />
           </Button>
@@ -145,7 +145,7 @@ export const createServiceRoomColumns = (onDataChange: () => void): ColumnDef<Se
             variant='ghost' 
             size="icon" 
             title="Edit Request"
-            onClick={() => router.push(`/admin/requests/edit?id=${service.rq_id}`)}
+            onClick={() => router.push(`/admin/requests/edit-service-facility?id=${service.rq_id}`)}
           >
             <Edit className="h-4 w-4" />
           </Button>

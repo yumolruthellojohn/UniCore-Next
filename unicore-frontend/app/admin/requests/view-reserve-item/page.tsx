@@ -65,8 +65,7 @@ export default function ReserveItemView() {
     }
 
     const handleEdit = () => {
-        //router.push(`/admin/rooms/edit?id=${room.room_id}`);
-        //TO DO: Request Edit Module 
+        router.push(`/admin/requests/edit-reserve-item?id=${request.rq_id}`);
     };
 
     const handleDelete = async () => {

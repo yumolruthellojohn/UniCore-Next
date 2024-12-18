@@ -80,8 +80,10 @@ export default function EditReserveItemRequest(){
 
             switch (formData.rq_status) {
                 case "Reserved: In Use":
-                    newItemQuantity = parseInt(formData.item_quantity) - parseInt(formData.rq_quantity);
-                    newItemReserved = parseInt(formData.item_reserved) + parseInt(formData.rq_quantity);
+                    if (currentRequestStatus != formData.rq_status) {
+                        newItemQuantity = parseInt(formData.item_quantity) - parseInt(formData.rq_quantity);
+                        newItemReserved = parseInt(formData.item_reserved) + parseInt(formData.rq_quantity);
+                    }
                     break;
                 case "Completed":
                     newItemQuantity = parseInt(formData.item_quantity) + parseInt(formData.rq_quantity);
@@ -130,7 +132,7 @@ export default function EditReserveItemRequest(){
             case "Pending":
                 return ["Pending", "Reserved: For Pickup", "Conflict", "Canceled"];
             case "Reserved: For Pickup":
-                return ["Reserved: For Pickup", "Reserved: In Use", "Canceled", "Completed"];
+                return ["Reserved: For Pickup", "Reserved: In Use", "Canceled"];
             case "Reserved: In Use":
                 return ["Reserved: In Use", "Reserved: For Return", "Completed"];
             case "Reserved: For Return":

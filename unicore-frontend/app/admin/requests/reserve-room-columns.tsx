@@ -125,7 +125,7 @@ export const createReserveRoomColumns = (onDataChange: () => void): ColumnDef<Re
             variant='ghost' 
             size="icon" 
             title="View Details"
-            onClick={() => router.push(`/admin/requests/view-reserve-room?id=${reserveRoom.rq_id}`)}
+            onClick={() => router.push(`/admin/requests/view-reserve-facility?id=${reserveRoom.rq_id}`)}
           >
             <Eye className="h-4 w-4" />
           </Button>
@@ -133,7 +133,7 @@ export const createReserveRoomColumns = (onDataChange: () => void): ColumnDef<Re
             variant='ghost' 
             size="icon" 
             title="Edit Request"
-            onClick={() => router.push(`/admin/requests/edit?id=${reserveRoom.rq_id}`)}
+            onClick={() => router.push(`/admin/requests/edit-reserve-facility?id=${reserveRoom.rq_id}`)}
           >
             <Edit className="h-4 w-4" />
           </Button>

@@ -154,7 +154,7 @@ export default function AddUserAccount() {
                                     <SelectContent>
                                         <SelectItem value="Administrator">Administrator</SelectItem>
                                         <SelectItem value="Technical Staff">Technical Staff</SelectItem>
-                                        <SelectItem value="Faculty">Non-technical Staff</SelectItem>
+                                        <SelectItem value="Non-technical Staff">Non-technical Staff</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>

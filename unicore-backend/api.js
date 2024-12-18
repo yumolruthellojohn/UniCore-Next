@@ -879,6 +879,37 @@ app.put("/requests/reserve_item_conflict/:id", (req, res) => {
   });
 });
 
+//requests/reserve_item_admin/:id
+app.put("/requests/reserve_item_admin/:id", (req, res) => {
+  const requestId = req.params.id;
+  const sql = "UPDATE tbrequests SET `item_id`= ?, `rq_quantity`= ?, `rq_prio_level`= ?, `rq_start_date`= ?, `rq_end_date`= ?, `rq_start_time`= ?, `rq_end_time`= ?, `rq_notes`= ?, `rq_accept_user_id`= ?, `rq_status`= ? WHERE `rq_id` = ? AND `rq_type` = 'Reserve Item'";
+
+  const values = [
+    req.body.item_id,
+    req.body.rq_quantity,
+    req.body.rq_prio_level,
+    req.body.rq_start_date,
+    req.body.rq_end_date,
+    req.body.rq_start_time,
+    req.body.rq_end_time,
+    req.body.rq_notes,
+    req.body.rq_accept_user_id,
+    req.body.rq_status
+  ];
+
+  db.query(sql, [...values, requestId], (err, data) => {
+    if (err) {
+      console.error("Database error:", err);
+      return res.status(500).send(err);
+    }
+    return res.json({
+      status: "success",
+      message: "Request updated successfully",
+      data: data
+    });
+  });
+});
+
 //requests/reserve_room/:id edit
 app.put("/requests/reserve_room/:id", (req, res) => {
   const roomId = req.params.id;
@@ -914,6 +945,36 @@ app.put("/requests/reserve_room_conflict/:id", (req, res) => {
     req.body.rq_start_time,
     req.body.rq_end_time,
     req.body.rq_notes
+  ];
+
+  db.query(sql, [...values, requestId], (err, data) => {
+    if (err) {
+      console.error("Database error:", err);
+      return res.status(500).send(err);
+    }
+    return res.json({
+      status: "success",
+      message: "Request updated successfully",
+      data: data
+    });
+  });
+});
+
+//requests/reserve_room_admin/:id
+app.put("/requests/reserve_room_admin/:id", (req, res) => {
+  const requestId = req.params.id;
+  const sql = "UPDATE tbrequests SET `room_id`= ?, `rq_prio_level`= ?, `rq_start_date`= ?, `rq_end_date`= ?, `rq_start_time`= ?, `rq_end_time`= ?, `rq_notes`= ?, `rq_accept_user_id`= ?, `rq_status`= ? WHERE `rq_id` = ? AND `rq_type` = 'Reserve Facility'";
+
+  const values = [
+    req.body.room_id,
+    req.body.rq_prio_level,
+    req.body.rq_start_date,
+    req.body.rq_end_date,
+    req.body.rq_start_time,
+    req.body.rq_end_time,
+    req.body.rq_notes,
+    req.body.rq_accept_user_id,
+    req.body.rq_status
   ];
 
   db.query(sql, [...values, requestId], (err, data) => {
@@ -981,6 +1042,38 @@ app.put("/requests/service_item_conflict/:id", (req, res) => {
   });
 });
 
+//requests/service_item_admin/:id
+app.put("/requests/service_item_admin/:id", (req, res) => {
+  const requestId = req.params.id;
+  const sql = "UPDATE tbrequests SET `item_id`= ?, `rq_quantity`= ?, `rq_service_type`= ?, `rq_prio_level`= ?, `rq_start_date`= ?, `rq_end_date`= ?, `rq_start_time`= ?, `rq_end_time`= ?, `rq_notes`= ?, `rq_accept_user_id`= ?, `rq_status`= ? WHERE `rq_id` = ? AND `rq_type` = 'Service for Item'";
+
+  const values = [
+    req.body.item_id,
+    req.body.rq_quantity,
+    req.body.rq_service_type,
+    req.body.rq_prio_level,
+    req.body.rq_start_date,
+    req.body.rq_end_date,
+    req.body.rq_start_time,
+    req.body.rq_end_time,
+    req.body.rq_notes,
+    req.body.rq_accept_user_id,
+    req.body.rq_status
+  ];
+
+  db.query(sql, [...values, requestId], (err, data) => {
+    if (err) {
+      console.error("Database error:", err);
+      return res.status(500).send(err);
+    }
+    return res.json({
+      status: "success",
+      message: "Request updated successfully",
+      data: data
+    });
+  });
+});
+
 //requests/service_room/:id edit
 app.put("/requests/service_room/:id", (req, res) => {
   const roomId = req.params.id;
@@ -1017,6 +1110,37 @@ app.put("/requests/service_room_conflict/:id", (req, res) => {
     req.body.rq_start_time,
     req.body.rq_end_time,
     req.body.rq_notes
+  ];
+
+  db.query(sql, [...values, requestId], (err, data) => {
+    if (err) {
+      console.error("Database error:", err);
+      return res.status(500).send(err);
+    }
+    return res.json({
+      status: "success",
+      message: "Request updated successfully",
+      data: data
+    });
+  });
+});
+
+//requests/service_room_admin/:id
+app.put("/requests/service_room_admin/:id", (req, res) => {
+  const requestId = req.params.id;
+  const sql = "UPDATE tbrequests SET `room_id`= ?, `rq_service_type`= ?, `rq_prio_level`= ?, `rq_start_date`= ?, `rq_end_date`= ?, `rq_start_time`= ?, `rq_end_time`= ?, `rq_notes`= ?, `rq_accept_user_id`= ?, `rq_status`= ? WHERE `rq_id` = ? AND `rq_type` = 'Service for Facility'";
+
+  const values = [
+    req.body.room_id,
+    req.body.rq_service_type,
+    req.body.rq_prio_level,
+    req.body.rq_start_date,
+    req.body.rq_end_date,
+    req.body.rq_start_time,
+    req.body.rq_end_time,
+    req.body.rq_notes,
+    req.body.rq_accept_user_id,
+    req.body.rq_status
   ];
 
   db.query(sql, [...values, requestId], (err, data) => {
@@ -1743,6 +1867,15 @@ app.get('/departments', (req, res) => {
   });
 });
 
+//departments/maintenance
+app.get('/departments/maintenance', (req, res) => {
+  const sql = "SELECT * FROM tbdepartments WHERE dept_id = 1 OR dept_id = 2";
+  db.query(sql, (err, result) => {
+    if (err) return res.json({ Message: "Error inside server" });
+    else return res.json(result);
+  });
+});
+
 //departments/id: get name
 app.get('/departments/:id', (req, res) => {
   const dept_id = req.params.id;
@@ -1915,7 +2048,7 @@ app.post("/notifications/add", (req, res) => {
     req.body.notif_user_id,
     req.body.notif_type,
     req.body.notif_content,
-    currentDate,
+    today.toLocaleString(),
     req.body.notif_related_id
   ];
 

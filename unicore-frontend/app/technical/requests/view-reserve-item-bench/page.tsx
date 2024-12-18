@@ -84,7 +84,7 @@ export default function ReserveItemBenchView() {
                     <p><strong>Status:</strong> {request.rq_status}</p>
                 </CardContent>
                 <CardFooter className="flex flex-col sm:flex-row justify-between gap-4">
-                    {request.rq_status !== "Completed" && (
+                    {request.rq_status !== "Completed" && request.rq_status !== "Canceled" && (
                         <Button 
                             className="w-full sm:w-auto" 
                             variant="default" 

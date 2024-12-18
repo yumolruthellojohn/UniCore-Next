@@ -65,8 +65,7 @@ export default function ServiceItemView() {
     }
 
     const handleEdit = () => {
-        //router.push(`/admin/rooms/edit?id=${room.room_id}`);
-        //TO DO: Request Edit Module 
+        router.push(`/admin/requests/edit-service-item?id=${request.rq_id}`);
     };
 
     const handleDelete = async () => {

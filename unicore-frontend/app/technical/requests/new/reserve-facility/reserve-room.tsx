@@ -141,7 +141,7 @@ export default function NewReserveRoom({ session }: { session: Session | null })
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label htmlFor="dept_id">Department:</Label>
+                                <Label htmlFor="dept_id">Submit to (Department):</Label>
                                 <Select onValueChange={(value) => handleChange('dept_id', value)} defaultValue={formData.dept_id}>
                                     <SelectTrigger>
                                         <SelectValue placeholder="Select a department" />

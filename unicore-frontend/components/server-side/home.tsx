@@ -45,8 +45,8 @@ export default async function Home() {
               <Button className="w-full" variant="default">Go to Dashboard</Button>
             </Link>
             ) : (
-            <Link href="/nontechnical/dashboard">
-              <Button className="w-full" variant="default">Go to Dashboard</Button>
+            <Link href="/nontechnical/requests">
+              <Button className="w-full" variant="default">Go to Requests</Button>
             </Link>
             )
           }

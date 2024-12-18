@@ -145,7 +145,7 @@ export const createServiceItemColumns = (onDataChange: () => void): ColumnDef<Se
             variant='ghost' 
             size="icon" 
             title="Edit Request"
-            onClick={() => router.push(`/admin/requests/edit?id=${service.rq_id}`)}
+            onClick={() => router.push(`/admin/requests/edit-service-item?id=${service.rq_id}`)}
           >
             <Edit className="h-4 w-4" />
           </Button>

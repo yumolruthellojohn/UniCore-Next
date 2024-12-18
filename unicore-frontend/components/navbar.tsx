@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { auth } from "@/auth";
 import { handleSignOut } from "@/app/actions/authActions";
 import { NotificationBellTechnical } from "./notifications/notification-bell-technical";
+import { NotificationBellNonTechnical } from "./notifications/notification-bell-nontechnical";
 
 export default async function Navbar() {
   const session = await auth();
@@ -39,7 +40,11 @@ export default async function Navbar() {
                 {session.user.user_fname} {session.user.user_lname}
             </span>
           </span>
-          <NotificationBellTechnical userId={parseInt(session.user.user_id)} />
+          {session.user.user_type === "Technical Staff" ? (
+            <NotificationBellTechnical userId={parseInt(session.user.user_id)} />
+          ) : session.user.user_type === "Non-technical Staff" ? (
+            <NotificationBellNonTechnical userId={parseInt(session.user.user_id)} />
+          ) : (<></>)}
           <form action={handleSignOut}>
             <Button variant="default" type="submit">
               Log Out

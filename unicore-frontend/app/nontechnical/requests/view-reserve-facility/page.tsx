@@ -28,6 +28,10 @@ interface ReserveRoom {
     room_id: number
     room_name: string
     rq_prio_level: string
+    rq_start_date: string
+    rq_end_date: string
+    rq_start_time: string
+    rq_end_time: string
     rq_notes: string
     rq_create_date: string
     rq_complete_date: string
@@ -64,8 +68,7 @@ export default function ReserveRoomView() {
     }
 
     const handleEdit = () => {
-        //router.push(`/admin/rooms/edit?id=${room.room_id}`);
-        //TO DO: Request Edit Module 
+        router.push(`/nontechnical/requests/edit-reserve-facility-conflict?id=${request.rq_id}`);
     };
 
     const handleDelete = async () => {
@@ -75,7 +78,7 @@ export default function ReserveRoomView() {
                 title: "Request deleted successfully",
                 description: "The request has been deleted.",
             })
-            router.push('/admin/requests');
+            router.push('/nontechnical/requests');
         } catch (error) {
             console.error('Error deleting request:', error);
             toast({
@@ -91,8 +94,8 @@ export default function ReserveRoomView() {
             <Card className="w-full max-w-[600px] px-4 sm:px-6 md:px-8">
                 <CardHeader className="flex flex-row items-center justify-between">
                     <CardTitle>Request Details</CardTitle>
-                    <Link href="/admin/requests" className="text-blue-500 hover:text-blue-700">
-                        Back
+                    <Link href="/nontechnical/requests" className="text-blue-500 hover:text-blue-700">
+                        Back to Requests
                     </Link>
                 </CardHeader>
                 <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -102,6 +105,8 @@ export default function ReserveRoomView() {
                     <p><strong>Room:</strong> {request.room_name}</p>
                     <p><strong>Date Submitted:</strong> {request.rq_create_date}</p>
                     <p><strong>Priority Level:</strong> {request.rq_prio_level}</p>
+                    <p><strong>Reservation Date:</strong> From {request.rq_start_date} To {request.rq_end_date}</p>
+                    <p><strong>Reservation Time:</strong> From {request.rq_start_time} To {request.rq_end_time}</p>
                     <p><strong>Submitted by:</strong> {request.rq_create_user_fname + " " + request.rq_create_user_lname}</p>
                     <p><strong>Notes:</strong> {request.rq_notes}</p>
                     <p><strong>Date Completed:</strong> {request.rq_complete_date}</p>
@@ -109,30 +114,34 @@ export default function ReserveRoomView() {
                     <p><strong>Status:</strong> {request.rq_status}</p>
                 </CardContent>
                 <CardFooter className="flex flex-col sm:flex-row justify-between gap-4">
-                    <Button 
-                        className="w-full sm:w-auto" 
-                        variant="default" 
-                        onClick={handleEdit}
-                    >
-                        Edit
-                    </Button>
-                    <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                            <Button className="w-full sm:w-auto" variant="destructive">Delete</Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                            <AlertDialogHeader>
-                                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                    This action cannot be undone. This will permanently delete the request.
-                                </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction onClick={handleDelete}>Yes, Delete this Request</AlertDialogAction>
-                            </AlertDialogFooter>
-                        </AlertDialogContent>
-                    </AlertDialog>
+                    {request.rq_status === "Conflict" && (
+                        <>
+                            <Button 
+                                className="w-full sm:w-auto" 
+                                variant="default" 
+                                onClick={handleEdit}
+                            >
+                                Edit
+                            </Button>
+                            <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                    <Button className="w-full sm:w-auto" variant="destructive">Delete</Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                            This action cannot be undone. This will permanently delete the request.
+                                        </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                        <AlertDialogAction onClick={handleDelete}>Yes, Delete this Request</AlertDialogAction>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog>
+                        </>
+                    )}
                 </CardFooter>
             </Card>
         </div>

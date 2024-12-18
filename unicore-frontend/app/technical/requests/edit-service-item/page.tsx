@@ -80,8 +80,10 @@ export default function EditServiceItemRequest(){
 
             switch (formData.rq_status) {
                 case "Service Approved":
-                    newItemQuantity = parseInt(formData.item_quantity) - parseInt(formData.rq_quantity);
-                    newItemServiced = parseInt(formData.item_serviced) + parseInt(formData.rq_quantity);
+                    if (currentRequestStatus != formData.rq_status) {
+                        newItemQuantity = parseInt(formData.item_quantity) - parseInt(formData.rq_quantity);
+                        newItemServiced = parseInt(formData.item_serviced) + parseInt(formData.rq_quantity);
+                    }
                     break;
                 case "Completed":
                     newItemQuantity = parseInt(formData.item_quantity) + parseInt(formData.rq_quantity);

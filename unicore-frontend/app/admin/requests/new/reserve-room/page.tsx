@@ -30,6 +30,12 @@ interface Department {
     dept_name: string;
 }
 
+interface User {
+    user_id: number;
+    user_fname: string;
+    user_lname: string;
+}
+
 export default function NewReserveRoom() {
     const { data: session, status } = useSession();
     const router = useRouter();
@@ -45,7 +51,7 @@ export default function NewReserveRoom() {
 
     const [formData, setFormData] = useState({
         rq_type: 'Reserve Item',
-        dept_id: '1', // Default to 'None' department
+        dept_id: '', // Default to 'None' department
         room_id: '',
         rq_prio_level: 'Moderate', // Default to 'Moderate' priority
         rq_notes: '',
@@ -56,31 +62,18 @@ export default function NewReserveRoom() {
 
     const [departments, setDepartments] = useState<Department[]>([]);
     const [rooms, setRooms] = useState<Room[]>([]);
+    const [users, setUsers] = useState<User[]>([]);
     const [showSuccessDialog, setShowSuccessDialog] = useState(false);
 
     useEffect(() => {
         const fetchRoomDeptData = async () => {
-            if (status === 'authenticated' && session?.user?.user_id){
-                const newUserId = session.user.user_id.toString();
-                console.log('Setting new user id:', newUserId);
-                try {
-                    const id_response = await axios.get(`http://${ip_address}:8081/users/user_id/${newUserId}`); // Adjust this URL to your actual API endpoint
-                    console.log(id_response.data[0].user_id);
-                    setFormData(prevState => ({
-                        ...prevState,
-                        rq_create_user_id: id_response.data[0].user_id,
-                    }));
-                } catch (error) {
-                    console.error('Error fetching user id:', error);
-                    // Handle error (e.g., show error message to user)
-                }
-            }
-
             try {
                 const dept_response = await axios.get(`http://${ip_address}:8081/departments`); // Adjust this URL to your actual API endpoint
                 setDepartments(dept_response.data);
                 const room_response = await axios.get(`http://${ip_address}:8081/rooms`); // Adjust this URL to your actual API endpoint
                 setRooms(room_response.data);
+                const user_response = await axios.get(`http://${ip_address}:8081/users`); // Adjust this URL to your actual API endpoint
+                setUsers(user_response.data);
             } catch (error) {
                 console.error('Error fetching data:', error);
                 // Handle error (e.g., show error message to user)
@@ -128,8 +121,23 @@ export default function NewReserveRoom() {
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
+                                <Label htmlFor="rq_create_user_id">Requestor:</Label>
+                                <Select onValueChange={(value) => handleChange('rq_create_user_id', value)} defaultValue={formData.rq_create_user_id} required>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select a user" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {users.map((user) => (
+                                            <SelectItem key={user.user_id} value={user.user_id.toString()}>
+                                                {user.user_fname + " " + user.user_lname}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="space-y-2">
                                 <Label htmlFor="dept_id">Department:</Label>
-                                <Select onValueChange={(value) => handleChange('dept_id', value)} defaultValue={formData.dept_id}>
+                                <Select onValueChange={(value) => handleChange('dept_id', value)} defaultValue={formData.dept_id} required>
                                     <SelectTrigger>
                                         <SelectValue placeholder="Select a department" />
                                     </SelectTrigger>
@@ -144,7 +152,7 @@ export default function NewReserveRoom() {
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="room_id">Room:</Label>
-                                <Select onValueChange={(value) => handleChange('room_id', value)} defaultValue={formData.room_id}>
+                                <Select onValueChange={(value) => handleChange('room_id', value)} defaultValue={formData.room_id} required>
                                     <SelectTrigger>
                                         <SelectValue placeholder="Select a room" />
                                     </SelectTrigger>
@@ -159,7 +167,7 @@ export default function NewReserveRoom() {
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="rq_prio_level">Priority Level:</Label>
-                                <Select onValueChange={(value) => handleChange('rq_prio_level', value)} defaultValue={formData.rq_prio_level}>
+                                <Select onValueChange={(value) => handleChange('rq_prio_level', value)} defaultValue={formData.rq_prio_level} required>
                                     <SelectTrigger>
                                         <SelectValue placeholder="Select priority level" />
                                     </SelectTrigger>
