@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "typeRoots": ["node_modules/@types"],
-    "types": ["lodash", "lodash.debounce"],
+    "types": ["lodash", "lodash.debounce", "jest"],
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
@@ -23,6 +23,6 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "jspdf-autotable.d.ts"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "jspdf-autotable.d.ts", "tests/login.test.js"],
   "exclude": ["node_modules"]
 }

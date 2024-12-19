@@ -195,7 +195,7 @@ export default function EditUserAccount() {
                                         <SelectItem value="Supervisor">Supervisor</SelectItem>
                                         <SelectItem value="CMO Staff">CMO Staff</SelectItem>
                                         <SelectItem value="BMO Staff">BMO Staff</SelectItem>
-                                        <SelectItem value="CADS Staff">CADS Staff</SelectItem>
+                                        <SelectItem value="CADS Director">CADS Director</SelectItem>
                                         <SelectItem value="Property Custodian">Property Custodian</SelectItem>
                                         <SelectItem value="Faculty Staff">Faculty Staff</SelectItem>
                                         <SelectItem value="Working Student">Working Student</SelectItem>

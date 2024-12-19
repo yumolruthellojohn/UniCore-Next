@@ -8,7 +8,7 @@ export default function ErrorMessage({ error }: { error: string }) {
     >
       <TriangleIcon className="h-4 w-4 text-red-500" />
       <span className="sr-only">Error</span>
-      <div>{error}</div>
+      <div className='error-message'>{error}</div>
     </div>
   );
 }

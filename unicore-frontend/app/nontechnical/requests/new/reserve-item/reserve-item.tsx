@@ -86,7 +86,7 @@ export default function NewReserveItem({ session }: { session: Session | null })
             }
 
             try {
-                const dept_response = await axios.get(`http://${ip_address}:8081/departments`); // Adjust this URL to your actual API endpoint
+                const dept_response = await axios.get(`http://${ip_address}:8081/departments/maintenance`); // Adjust this URL to your actual API endpoint
                 setDepartments(dept_response.data);
                 //const item_response = await axios.get(`http://${ip_address}:8081/items`); // Adjust this URL to your actual API endpoint
                 //setItems(item_response.data);

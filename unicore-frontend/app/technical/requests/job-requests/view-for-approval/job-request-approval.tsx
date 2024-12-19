@@ -247,8 +247,8 @@ export default function EditJobRequestApprovals({ session }: EditJobRequestAppro
                                 </div>
                             )}
 
-                            {/* Approval Fields for CADS Staff */}
-                            {session?.user?.user_position === "CADS Staff" && jobRequest.job_bmo_approval === "Approved" && jobRequest.job_cads_approval !== "Approved" && (
+                            {/* Approval Fields for CADS Director */}
+                            {session?.user?.user_position === "CADS Director" && jobRequest.job_bmo_approval === "Approved" && jobRequest.job_cads_approval !== "Approved" && (
                                 <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
                                     <strong>You can set the CADS approval of this job request</strong>
                                     <Label htmlFor="job_cads_approval">Approval Status:</Label>

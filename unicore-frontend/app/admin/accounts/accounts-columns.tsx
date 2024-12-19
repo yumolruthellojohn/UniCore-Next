@@ -8,7 +8,7 @@ import DataTableColumnHeader from '@/components/data-table/data-table-column-hea
 
 export type User = {
   user_id: number
-  user_idnum: number
+  user_idnum: string
   user_fname: string
   user_lname: string
   user_email: string

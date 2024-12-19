@@ -21,7 +21,7 @@ export default function SelectRequestType() {
               label="Item Reservation"
             />
             <RequestButton
-              href="/admin/requests/new/reserve-room"
+              href="/admin/requests/new/reserve-facility"
               icon={DoorClosed}
               label="Room Reservation"
             />
@@ -31,7 +31,7 @@ export default function SelectRequestType() {
               label="Service for Item"
             />
             <RequestButton
-              href="/admin/requests/new/service-room"
+              href="/admin/requests/new/service-facility"
               icon={HousePlug}
               label="Service for Room"
             />

@@ -24,8 +24,8 @@ async function getData(): Promise<User[]> {
 }
 
 const filterColumn = {
-    id: "user_idnum",
-    title: "ID Number",
+    id: "user_lname",
+    title: "Last Name"
 }
 
 export default function UserAccounts() {

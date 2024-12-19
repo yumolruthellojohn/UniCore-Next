@@ -82,7 +82,7 @@ export default function NewReserveRoom({ session }: { session: Session | null })
             }
 
             try {
-                const dept_response = await axios.get(`http://${ip_address}:8081/departments`); // Adjust this URL to your actual API endpoint
+                const dept_response = await axios.get(`http://${ip_address}:8081/departments/maintenance`); // Adjust this URL to your actual API endpoint
                 setDepartments(dept_response.data);
                 const room_response = await axios.get(`http://${ip_address}:8081/rooms`); // Adjust this URL to your actual API endpoint
                 setRooms(room_response.data);
@@ -142,7 +142,7 @@ export default function NewReserveRoom({ session }: { session: Session | null })
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label htmlFor="dept_id">Submit to (Department):</Label>
-                                <Select onValueChange={(value) => handleChange('dept_id', value)} defaultValue={formData.dept_id}>
+                                <Select name='dept_id' onValueChange={(value) => handleChange('dept_id', value)} defaultValue={formData.dept_id}>
                                     <SelectTrigger>
                                         <SelectValue placeholder="Select a department" />
                                     </SelectTrigger>
@@ -157,7 +157,7 @@ export default function NewReserveRoom({ session }: { session: Session | null })
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="room_id">Facility:</Label>
-                                <Select onValueChange={(value) => handleChange('room_id', value)} defaultValue={formData.room_id}>
+                                <Select name='room_id' onValueChange={(value) => handleChange('room_id', value)} defaultValue={formData.room_id}>
                                     <SelectTrigger>
                                         <SelectValue placeholder="Select a facility" />
                                     </SelectTrigger>
@@ -172,7 +172,7 @@ export default function NewReserveRoom({ session }: { session: Session | null })
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="rq_prio_level">Priority Level:</Label>
-                                <Select onValueChange={(value) => handleChange('rq_prio_level', value)} defaultValue={formData.rq_prio_level}>
+                                <Select name='rq_prio_level' onValueChange={(value) => handleChange('rq_prio_level', value)} defaultValue={formData.rq_prio_level}>
                                     <SelectTrigger>
                                         <SelectValue placeholder="Select priority level" />
                                     </SelectTrigger>

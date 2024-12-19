@@ -505,7 +505,7 @@ app.get('/requests/queue/:id', (req, res) => {
 //requests/accepted/:id
 app.get('/requests/accepted/:id', (req, res) => {
   const user_id = req.params.id;
-  const sql = "SELECT *, user1.user_id AS rq_create_user_id, user1.user_fname AS rq_create_user_fname, user1.user_lname AS rq_create_user_lname FROM tbrequests INNER JOIN tbuseraccounts user1 ON tbrequests.rq_create_user_id=user1.user_id WHERE tbrequests.rq_accept_user_id = ? ORDER BY rq_start_date ASC, rq_start_time ASC";
+  const sql = "SELECT *, user1.user_id AS rq_create_user_id, user1.user_fname AS rq_create_user_fname, user1.user_lname AS rq_create_user_lname FROM tbrequests INNER JOIN tbuseraccounts user1 ON tbrequests.rq_create_user_id=user1.user_id WHERE tbrequests.rq_accept_user_id = ? ORDER BY rq_create_date DESC, rq_start_date DESC, rq_start_time DESC";
   db.query(sql, user_id, (err, result) => {
     if (err) return res.json({ Message: "Error inside server" });
     else return res.json(result);
@@ -515,7 +515,7 @@ app.get('/requests/accepted/:id', (req, res) => {
 //requests/submitted/:id
 app.get('/requests/submitted/:id', (req, res) => {
   const user_id = req.params.id;
-  const sql = "SELECT *, tbdepartments.dept_name FROM tbrequests INNER JOIN tbdepartments ON tbrequests.dept_id=tbdepartments.dept_id WHERE tbrequests.rq_create_user_id = ?";
+  const sql = "SELECT *, tbdepartments.dept_name FROM tbrequests INNER JOIN tbdepartments ON tbrequests.dept_id=tbdepartments.dept_id WHERE tbrequests.rq_create_user_id = ? ORDER BY rq_create_date DESC, rq_start_date DESC, rq_start_time DESC";
   db.query(sql, user_id, (err, result) => {
     if (err) return res.json({ Message: "Error inside server" });
     else return res.json(result);
@@ -613,7 +613,7 @@ app.get("/requests/service_room/:id", (req, res) => {
 //requests/relate_item/:id
 app.get("/requests/relate_item/:id", (req, res) => {
   const item_id = req.params.id;
-  const sql = "SELECT *, tbdepartments.dept_name, tbitems.item_name, user1.user_id AS rq_create_user_id, user1.user_fname AS rq_create_user_fname, user1.user_lname AS rq_create_user_lname, user2.user_id AS rq_accept_user_id, user2.user_fname AS rq_accept_user_fname, user2.user_lname AS rq_accept_user_lname FROM tbrequests INNER JOIN tbdepartments ON tbrequests.dept_id=tbdepartments.dept_id INNER JOIN tbitems ON tbrequests.item_id=tbitems.item_id INNER JOIN tbuseraccounts user1 ON tbrequests.rq_create_user_id=user1.user_id LEFT JOIN tbuseraccounts user2 ON tbrequests.rq_accept_user_id=user2.user_id WHERE tbrequests.item_id = ?";
+  const sql = "SELECT *, tbdepartments.dept_name, tbitems.item_name, user1.user_id AS rq_create_user_id, user1.user_fname AS rq_create_user_fname, user1.user_lname AS rq_create_user_lname, user2.user_id AS rq_accept_user_id, user2.user_fname AS rq_accept_user_fname, user2.user_lname AS rq_accept_user_lname FROM tbrequests INNER JOIN tbdepartments ON tbrequests.dept_id=tbdepartments.dept_id INNER JOIN tbitems ON tbrequests.item_id=tbitems.item_id INNER JOIN tbuseraccounts user1 ON tbrequests.rq_create_user_id=user1.user_id LEFT JOIN tbuseraccounts user2 ON tbrequests.rq_accept_user_id=user2.user_id WHERE tbrequests.item_id = ? ORDER BY rq_create_date DESC";
   db.query(sql, item_id, (err, result) => {
     if (err) {
       console.log(err);
@@ -626,7 +626,7 @@ app.get("/requests/relate_item/:id", (req, res) => {
 //requests/relate_room/:id
 app.get("/requests/relate_room/:id", (req, res) => {
   const room_id = req.params.id;
-  const sql = "SELECT *, tbdepartments.dept_name, tbrooms.room_name, user1.user_id AS rq_create_user_id, user1.user_fname AS rq_create_user_fname, user1.user_lname AS rq_create_user_lname, user2.user_id AS rq_accept_user_id, user2.user_fname AS rq_accept_user_fname, user2.user_lname AS rq_accept_user_lname FROM tbrequests INNER JOIN tbdepartments ON tbrequests.dept_id=tbdepartments.dept_id INNER JOIN tbrooms ON tbrequests.room_id=tbrooms.room_id INNER JOIN tbuseraccounts user1 ON tbrequests.rq_create_user_id=user1.user_id LEFT JOIN tbuseraccounts user2 ON tbrequests.rq_accept_user_id=user2.user_id WHERE tbrequests.room_id = ?";
+  const sql = "SELECT *, tbdepartments.dept_name, tbrooms.room_name, user1.user_id AS rq_create_user_id, user1.user_fname AS rq_create_user_fname, user1.user_lname AS rq_create_user_lname, user2.user_id AS rq_accept_user_id, user2.user_fname AS rq_accept_user_fname, user2.user_lname AS rq_accept_user_lname FROM tbrequests INNER JOIN tbdepartments ON tbrequests.dept_id=tbdepartments.dept_id INNER JOIN tbrooms ON tbrequests.room_id=tbrooms.room_id INNER JOIN tbuseraccounts user1 ON tbrequests.rq_create_user_id=user1.user_id LEFT JOIN tbuseraccounts user2 ON tbrequests.rq_accept_user_id=user2.user_id WHERE tbrequests.room_id = ? ORDER BY rq_create_date DESC";
   db.query(sql, room_id, (err, result) => {
     if (err) {
       console.log(err);

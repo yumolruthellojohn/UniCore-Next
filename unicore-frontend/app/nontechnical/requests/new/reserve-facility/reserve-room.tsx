@@ -82,7 +82,7 @@ export default function NewReserveRoom({ session }: { session: Session | null })
             }
 
             try {
-                const dept_response = await axios.get(`http://${ip_address}:8081/departments`); // Adjust this URL to your actual API endpoint
+                const dept_response = await axios.get(`http://${ip_address}:8081/departments/maintenance`); // Adjust this URL to your actual API endpoint
                 setDepartments(dept_response.data);
                 const room_response = await axios.get(`http://${ip_address}:8081/rooms`); // Adjust this URL to your actual API endpoint
                 setRooms(room_response.data);
