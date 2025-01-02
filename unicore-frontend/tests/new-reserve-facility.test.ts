@@ -1,7 +1,7 @@
 import { Builder, By, until, WebDriver } from 'selenium-webdriver';
 import chrome from 'selenium-webdriver/chrome';
 
-describe('Login Tests', () => {
+describe('New Reserve Facility Test', () => {
     let driver: WebDriver;
 
     beforeAll(async () => {

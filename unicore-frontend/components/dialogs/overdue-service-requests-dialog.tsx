@@ -51,9 +51,6 @@ export function OverdueServiceRequestsDialog({ userId }: { userId: number }) {
             ))}
           </div>
           <div className="mt-4 flex justify-end gap-2">
-            <Button variant="outline" onClick={() => setOpen(false)}>
-              Close
-            </Button>
             <Button onClick={() => {
               router.push('/service/requests');
               setOpen(false);

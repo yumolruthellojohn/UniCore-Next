@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jan 02, 2025 at 06:56 AM
+-- Generation Time: Jan 02, 2025 at 06:08 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -126,7 +126,7 @@ CREATE TABLE `tbjobrequests` (
 
 INSERT INTO `tbjobrequests` (`job_id`, `job_rq_id`, `job_dept_id`, `job_create_date`, `job_items`, `job_purpose`, `job_create_user_id`, `job_letter`, `job_bmo_approval`, `job_bmo_user_id`, `job_bmo_notes`, `job_custodian_approval`, `job_custodian_user_id`, `job_custodian_notes`, `job_cads_approval`, `job_cads_user_id`, `job_cads_notes`, `job_recommendation`, `job_estimated_cost`, `job_recommend_user_id`, `job_status`, `job_remarks`, `job_complete_date`) VALUES
 (1, 1, 2, '2024-11-25', '[{\"quantity\":1,\"name_desc\":\"item1\"},{\"quantity\":2,\"name_desc\":\"item2\"},{\"quantity\":3,\"name_desc\":\"item3\"}]', 'testing', 6, 'Dear 123\n\nI am writing to formally request the following job items for our department:\n\n123\n\nThe purpose of this request is 123\n\nThank you for considering this request. I look forward to your prompt response.\n\nSincerely,\n[Your Name]\n[Your Position]\n[Your Department]\n[Date]', 'Approved', 2, 'Forwarding', 'Approved', 9, 'ok', 'Approved', 10, 'ok', 'test', 10, 2, 'Completed', 'ok', '2024-11-28'),
-(2, 2, 2, '2024-11-25', '[{\"quantity\":7,\"name_desc\":\"item7\"},{\"quantity\":8,\"name_desc\":\"item8\"}]', 'test', 6, 'Dear 78\nI am writing to formally request the following job items for our department:\n\n1. [Item Description 1] - Quantity: [Quantity 1]\n2. [Item Description 2] - Quantity: [Quantity 2]\n3. [Item Description 3] - Quantity: [Quantity 3]\n\nThe purpose of this request is [briefly explain the purpose of the request]. \n\nThank you for considering this request. I look forward to your prompt response.\n\nSincerely,\n[Your Name]\n[Your Position]\n[Your Department]\n[Date]', 'Approved', 2, 'testing', 'Pending', 9, 'no', 'Pending', NULL, NULL, NULL, NULL, NULL, 'Pending', NULL, NULL),
+(2, 2, 2, '2024-11-25', '[{\"quantity\":7,\"name_desc\":\"item7\"},{\"quantity\":8,\"name_desc\":\"item8\"}]', 'test', 6, 'Dear 78\nI am writing to formally request the following job items for our department:\n\n1. [Item Description 1] - Quantity: [Quantity 1]\n2. [Item Description 2] - Quantity: [Quantity 2]\n3. [Item Description 3] - Quantity: [Quantity 3]\n\nThe purpose of this request is [briefly explain the purpose of the request]. \n\nThank you for considering this request. I look forward to your prompt response.\n\nSincerely,\n[Your Name]\n[Your Position]\n[Your Department]\n[Date]', 'Approved', 2, 'testing', 'Approved', 9, 'yes', 'Pending', NULL, NULL, NULL, NULL, NULL, 'Pending', NULL, NULL),
 (3, 3, 3, '2024-11-26', '[{\"quantity\":1,\"name_desc\":\"qwe\"},{\"quantity\":2,\"name_desc\":\"asd\"},{\"quantity\":2,\"name_desc\":\"zxc\"}]', 'asd', 5, 'Dear asd\n\nI am writing to formally request the following job items for our department:\n\n1. [Item Description 1] - Quantity: [Quantity 1]\n2. [Item Description 2] - Quantity: [Quantity 2]\n3. [Item Description 3] - Quantity: [Quantity 3]\n\nThe purpose of this request is [briefly explain the purpose of the request]. \n\nThank you for considering this request. I look forward to your prompt response.\n\nSincerely,\n[Your Name]\n[Your Position]\n[Your Department]\n[Date]', 'Approved', 2, 'aprv', 'Pending', NULL, NULL, 'Pending', NULL, NULL, NULL, NULL, NULL, 'Pending', NULL, NULL),
 (4, 4, 3, '2024-11-27', '[{\"quantity\":1,\"name_desc\":\"item1\"},{\"quantity\":2,\"name_desc\":\"item2\"},{\"quantity\":3,\"name_desc\":\"item3\"}]', 'test', 5, 'Dear [Recipient\'s Name],\n\nI am writing to formally request the following job items for our department:\n\n1. [Item Description 1] - Quantity: [Quantity 1]\n2. [Item Description 2] - Quantity: [Quantity 2]\n3. [Item Description 3] - Quantity: [Quantity 3]\n\nThe purpose of this request is [briefly explain the purpose of the request]. \n\nThank you for considering this request. I look forward to your prompt response.\n\nSincerely,\n[Your Name]\n[Your Position]\n[Your Department]\n[Date]', 'Approved', 2, 'test aprob', 'Approved', 9, 'ok', 'Approved', 10, 'approve', 'test', 10000, 2, 'Completed', 'ok', '2024-12-9'),
 (5, 5, 2, '2024-12-09', '[{\"quantity\":1,\"name_desc\":\"item 1\"},{\"quantity\":2,\"name_desc\":\"item 2\"},{\"quantity\":3,\"name_desc\":\"item 3\"}]', 'testing', 6, 'Dear [Recipient\'s Name],\n\nI am writing to formally request the following job items for our department:\n\n1. [Item Description 1] - Quantity: [Quantity 1]\n2. [Item Description 2] - Quantity: [Quantity 2]\n3. [Item Description 3] - Quantity: [Quantity 3]\n\nThe purpose of this request is [briefly explain the purpose of the request]. \n\nThank you for considering this request. I look forward to your prompt response.\n\nSincerely,\n[Your Name]\n[Your Position]\n[Your Department]\n[Date]', 'Pending', NULL, NULL, 'Pending', NULL, NULL, 'Pending', NULL, NULL, NULL, NULL, NULL, 'Pending', NULL, NULL),
@@ -159,6 +159,13 @@ CREATE TABLE `tbnotifs` (
   `notif_read` tinyint(1) NOT NULL,
   `notif_related_id` int(12) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `tbnotifs`
+--
+
+INSERT INTO `tbnotifs` (`notif_id`, `notif_user_id`, `notif_type`, `notif_content`, `notif_date`, `notif_read`, `notif_related_id`) VALUES
+(1, 6, 'jobrequest_update', 'Your BMO job request approval has recevied an update.', '01/02/2025, 11:07:53 PM', 0, 2);
 
 -- --------------------------------------------------------
 
@@ -397,7 +404,7 @@ ALTER TABLE `tbjobrequests`
 -- AUTO_INCREMENT for table `tbnotifs`
 --
 ALTER TABLE `tbnotifs`
-  MODIFY `notif_id` int(12) NOT NULL AUTO_INCREMENT;
+  MODIFY `notif_id` int(12) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `tbrequests`

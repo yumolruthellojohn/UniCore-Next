@@ -9,6 +9,8 @@ import { Button } from '@/components/ui/button'
 
 import DataTableColumnHeader from '@/components/data-table/data-table-column-header';
 
+import DownloadJobRequestPDFIcon from './job-request-download-icon';
+
 export type JobBMOApproval = {
   job_id: number
   job_rq_id: number
@@ -77,6 +79,7 @@ export const createJobBMOApprovalColumns = (onDataChange: () => void): ColumnDef
           >
             <Eye className="h-4 w-4" />
           </Button>
+          <DownloadJobRequestPDFIcon requestId={jobQueue.job_id.toString()} />
         </div>
       )
     }

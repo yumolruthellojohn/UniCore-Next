@@ -40,6 +40,10 @@ export default function EditServiceRoomRequest(){
         room_id: '',
         room_name: '',
         room_status: '',
+        rq_start_date: '',
+        rq_end_date: '',
+        rq_start_time: '',
+        rq_end_time: '',
         rq_service_type: '',
         rq_create_user_id: '',
         rq_status: '',
@@ -209,8 +213,28 @@ export default function EditServiceRoomRequest(){
             }
 
             if (newRoomStatus) {
-                console.log(newRoomStatus);
-                await axios.put(`http://${ip_address}:8081/rooms/status/${formData.room_id}`, { room_status: newRoomStatus });
+                let updateRoomStatusDate = null;
+                switch (newRoomStatus) {
+                    case "Ongoing Service":
+                        updateRoomStatusDate = {
+                            room_status: newRoomStatus,
+                            room_status_start_date: formData.rq_start_date,
+                            room_status_end_date: formData.rq_end_date,
+                            room_status_start_time: formData.rq_start_time,
+                            room_status_end_time: formData.rq_end_time
+                        };
+                        break;
+                    case "Available":
+                        updateRoomStatusDate = {
+                            room_status: newRoomStatus,
+                            room_status_start_date: '',
+                            room_status_end_date: '',
+                            room_status_start_time: '',
+                            room_status_end_time: ''
+                        };
+                        break;
+                }
+                await axios.put(`http://${ip_address}:8081/rooms/status/${formData.room_id}`, updateRoomStatusDate);
             }
 
             // Create notification for the request creator

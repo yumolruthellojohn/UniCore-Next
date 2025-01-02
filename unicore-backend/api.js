@@ -537,10 +537,14 @@ app.put("/rooms/:id", (req, res) => {
 //rooms/status/:id
 app.put("/rooms/status/:id", (req, res) => {
   const roomId = req.params.id;
-  const sql = "UPDATE tbrooms SET `room_status` = ? WHERE `room_id` = ?";
+  const sql = "UPDATE tbrooms SET `room_status` = ?, `room_status_start_date` = ?, `room_status_end_date` = ?, `room_status_start_time` = ?, `room_status_end_time` = ? WHERE `room_id` = ?";
 
   const values = [
     req.body.room_status,
+    req.body.room_status_start_date,
+    req.body.room_status_end_date,
+    req.body.room_status_start_time,
+    req.body.room_status_end_time
   ]
 
   db.query(sql, [...values, roomId], (err, data) => {
