@@ -14,6 +14,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { useToast } from "@/hooks/use-toast"
 import axios from 'axios';
 import { ip_address } from '@/app/ipconfig';
+import DownloadRequestPDFIcon from './request-download-icon';
 
 export type RequestQueue = {
   rq_id: number
@@ -51,6 +52,19 @@ export const createRequestQueueColumns = (onDataChange: () => void, currentUserI
       <DataTableColumnHeader column={column} className="w-[10%] min-w-[80px]" title="Type" />
     ),
     cell: ({ row }) => <div className="text-center">{row.getValue('rq_type')}</div>
+  },
+  {
+    accessorKey: 'rq_property_name',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} className="w-[15%] min-w-[120px] hidden md:table-cell" title="Property Name" />
+    ),
+    accessorFn: (row) => {
+      return row.rq_type.includes('Item') ? row.item_name : row.room_name;
+    },
+    cell: ({ row }) => {
+      const propertyName = row.getValue('rq_property_name') as string;
+      return <div className="hidden md:block text-center">{propertyName}</div>
+    }
   },
   {
     accessorKey: 'rq_prio_level',
@@ -197,6 +211,7 @@ export const createRequestQueueColumns = (onDataChange: () => void, currentUserI
           >
             <Eye className="h-4 w-4" />
           </Button>
+          <DownloadRequestPDFIcon requestId={requestQueue.rq_id.toString()} requestType={requestQueue.rq_type} />
           <AlertDialog open={isUpdateDialogOpen} onOpenChange={setIsUpdateDialogOpen}>
             <AlertDialogTrigger asChild>
               <Button variant='ghost' size="icon" title="Accept Request">

@@ -13,7 +13,7 @@ import { ip_address } from '@/app/ipconfig';
 async function getData(): Promise<User[]> {
     let users = null;
     try {
-        const response = await axios.get(`http://${ip_address}:8081/users`);
+        const response = await axios.get(`http://${ip_address}:8081/users/non_admin`);
         users = response.data;
     } catch (err) {
         console.log(err);

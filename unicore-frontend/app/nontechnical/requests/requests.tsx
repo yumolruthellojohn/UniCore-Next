@@ -9,18 +9,12 @@ import { Toaster } from "@/components/ui/toaster";
 import axios from "axios";
 import { Session } from 'next-auth';
 import { useRouter } from 'next/navigation';
-import {
-    Accordion,
-    AccordionContent,
-    AccordionItem,
-    AccordionTrigger,
-  } from "@/components/ui/accordion";
 import { ip_address } from '@/app/ipconfig';
 
 
 const filterRequestSubmittedColumn = {
-    id: "dept_name",
-    title: "Department",
+  id: "rq_property_name",
+  title: "Property Name",
 }
 
 export default function Requests({ session }: { session: Session | null }) {

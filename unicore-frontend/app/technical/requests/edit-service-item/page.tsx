@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import {
   Dialog,
   DialogContent,
@@ -18,6 +18,13 @@ import {
 } from "@/components/ui/dialog"
 import Link from 'next/link';
 import { ip_address } from '@/app/ipconfig';
+import Image from 'next/image';
+
+interface User {
+    user_id: number;
+    user_fname: string;
+    user_lname: string;
+}
 
 export default function EditServiceItemRequest(){
     const router = useRouter();
@@ -25,9 +32,12 @@ export default function EditServiceItemRequest(){
     const requestID = searchParams.get('id');
     const [loading, setLoading] = useState(true);
     const [showSuccessDialog, setShowSuccessDialog] = useState(false);
+    const [showConflictDialog, setShowConflictDialog] = useState(false);
     const [currentRequestStatus, setCurrentRequestStatus] = useState("");
+    const [serviceStaff, setServiceStaff] = useState<User[]>([]);
 
     const [formData, setFormData] = useState({
+        dept_id: '',
         item_id: '',
         item_name: '',
         item_quantity: '',
@@ -38,6 +48,13 @@ export default function EditServiceItemRequest(){
         rq_create_user_id: '',
         rq_status: '',
         rq_notes: '',
+        rq_accept_notes: '',
+        rq_service_user_id: '',
+        rq_service_user_fname: '',
+        rq_service_user_lname: '',
+        rq_service_notes: '',
+        rq_service_proof: '',
+        rq_service_status: ''
     });
 
     useEffect(() => {
@@ -45,6 +62,12 @@ export default function EditServiceItemRequest(){
             fetchRequestData();
         }
     }, [requestID]);
+
+    useEffect(() => {
+        if (formData.dept_id) {
+            fetchServiceStaff();
+        }
+    }, [formData.dept_id]);
 
 
     const fetchRequestData = async () => {
@@ -61,58 +84,120 @@ export default function EditServiceItemRequest(){
         }
     };
 
+    // function to fetch service staff
+    const fetchServiceStaff = async () => {
+        try {
+            const response = await axios.get(`http://${ip_address}:8081/users/servicestaff/${formData.dept_id}`);
+            setServiceStaff(response.data);
+        } catch (error) {
+            console.error('Error fetching service staff:', error);
+        }
+    };
+
     const handleChange = (name: string, value: string | number) => {
-        setFormData(prevState => ({
-            ...prevState,
-            [name]: value,
-        }));
+        if (name === 'rq_service_user_id') {
+            // Find the selected staff member
+            const selectedStaff = serviceStaff.find(staff => staff.user_id === Number(value));
+            if (selectedStaff) {
+                setFormData(prevState => ({
+                    ...prevState,
+                    rq_service_user_id: String(value), // Convert to string
+                    rq_service_user_fname: selectedStaff.user_fname,
+                    rq_service_user_lname: selectedStaff.user_lname
+                }));
+            }
+        } else {
+            setFormData(prevState => ({
+                ...prevState,
+                [name]: String(value), // Convert to string
+            }));
+        }
     };
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         try {
-            await axios.put(`http://${ip_address}:8081/requests/service_item/${requestID}`, formData);
+            if ((formData.rq_status === "Service Approved") && (formData.rq_quantity > formData.item_quantity)) {
+                setShowConflictDialog(true);
+            } else {
+                // Get the previous request data to check if service staff changed
+                const prevResponse = await axios.get(`http://${ip_address}:8081/requests/service_item/${requestID}`);
+                const prevData = prevResponse.data[0];
 
-            //update item status from inventory
-            let newItemQuantity: number | null = null; // Variable to hold the new item quantity
-            let newItemServiced: number | null = null; // Variable to hold the new item serviced
-            let newItemStatus: string | null = null; // Variable to hold the new item status
+                // Update the request
+                await axios.put(`http://${ip_address}:8081/requests/service_item/${requestID}`, formData);
 
-            switch (formData.rq_status) {
-                case "Service Approved":
-                    if (currentRequestStatus != formData.rq_status) {
-                        newItemQuantity = parseInt(formData.item_quantity) - parseInt(formData.rq_quantity);
-                        newItemServiced = parseInt(formData.item_serviced) + parseInt(formData.rq_quantity);
+                // Handle service staff notifications
+                if (formData.rq_service_user_id) {
+                    if (!prevData.rq_service_user_id) {
+                        // New service staff assigned
+                        await axios.post(`http://${ip_address}:8081/notifications/add`, {
+                            notif_user_id: formData.rq_service_user_id,
+                            notif_type: "service_item_assigned",
+                            notif_content: `You have been assigned to an item service request for ${formData.item_name}`,
+                            notif_related_id: requestID
+                        });
+                    } else if (prevData.rq_service_user_id !== formData.rq_service_user_id) {
+                        // Service staff was changed
+                        // Notify new staff
+                        await axios.post(`http://${ip_address}:8081/notifications/add`, {
+                            notif_user_id: formData.rq_service_user_id,
+                            notif_type: "service_item_assigned",
+                            notif_content: `You have been assigned to an item service request for ${formData.item_name}`,
+                            notif_related_id: requestID
+                        });
+
+                        // Notify previous staff
+                        await axios.post(`http://${ip_address}:8081/notifications/add`, {
+                            notif_user_id: prevData.rq_service_user_id,
+                            notif_type: "service_item_unassigned",
+                            notif_content: `You have been unassigned from the item service request for ${formData.item_name}`,
+                            notif_related_id: requestID
+                        });
                     }
-                    break;
-                case "Completed":
-                    newItemQuantity = parseInt(formData.item_quantity) + parseInt(formData.rq_quantity);
-                    newItemServiced = parseInt(formData.item_serviced) - parseInt(formData.rq_quantity);
-                    break;
+                }
+
+                //update item status from inventory
+                let newItemQuantity: number | null = null; // Variable to hold the new item quantity
+                let newItemServiced: number | null = null; // Variable to hold the new item serviced
+                let newItemStatus: string | null = null; // Variable to hold the new item status
+
+                switch (formData.rq_status) {
+                    case "Service Approved":
+                        if (currentRequestStatus != formData.rq_status) {
+                            newItemQuantity = parseInt(formData.item_quantity) - parseInt(formData.rq_quantity);
+                            newItemServiced = parseInt(formData.item_serviced) + parseInt(formData.rq_quantity);
+                        }
+                        break;
+                    case "Completed":
+                        newItemQuantity = parseInt(formData.item_quantity) + parseInt(formData.rq_quantity);
+                        newItemServiced = parseInt(formData.item_serviced) - parseInt(formData.rq_quantity);
+                        break;
+                }
+
+                if (newItemQuantity != 0) {
+                    newItemStatus = "Available"
+                } else if (newItemQuantity === 0) {
+                    newItemStatus = "Not Available"
+                }
+
+                if (newItemQuantity && newItemStatus) {
+                    console.log("New Item Quantity: " + newItemQuantity);
+                    console.log("New Item Status: " + newItemStatus);
+                    await axios.put(`http://${ip_address}:8081/items/quantity_serviced/${formData.item_id}`, { item_quantity: newItemQuantity, item_serviced: newItemServiced });
+                    await axios.put(`http://${ip_address}:8081/items/status/${formData.item_id}`, { item_status: newItemStatus });
+                }
+
+                // Create notification for the request creator
+                await axios.post(`http://${ip_address}:8081/notifications/add`, {
+                    notif_user_id: formData.rq_create_user_id,
+                    notif_type: "service_item_update",
+                    notif_content: `Your request has recevied status update. Click to view details.`,
+                    notif_related_id: requestID
+                });
+
+                setShowSuccessDialog(true);
             }
-
-            if (newItemQuantity != 0) {
-                newItemStatus = "Available"
-            } else if (newItemQuantity === 0) {
-                newItemStatus = "Not Available"
-            }
-
-            if (newItemQuantity && newItemStatus) {
-                console.log("New Item Quantity: " + newItemQuantity);
-                console.log("New Item Status: " + newItemStatus);
-                await axios.put(`http://${ip_address}:8081/items/quantity_serviced/${formData.item_id}`, { item_quantity: newItemQuantity, item_serviced: newItemServiced });
-                await axios.put(`http://${ip_address}:8081/items/status/${formData.item_id}`, { item_status: newItemStatus });
-            }
-
-            // Create notification for the request creator
-            await axios.post(`http://${ip_address}:8081/notifications/add`, {
-                notif_user_id: formData.rq_create_user_id,
-                notif_type: "service_item_update",
-                notif_content: `Your request has recevied status update. Click to view details.`,
-                notif_related_id: requestID
-            });
-
-            setShowSuccessDialog(true);
         } catch (err) {
             console.error('Error updating request:', err);
             // You might want to show an error message to the user here
@@ -131,7 +216,7 @@ export default function EditServiceItemRequest(){
             case "Service in Progress":
                 return ["Service in Progress", "Service Post-Checks", "Completed"];
             case "Service Post-Checks":
-                return ["Service Post-Checks", "Completed"];
+                return ["Service in Progress", "Service Post-Checks", "Completed"];
             case "Conflict":
                 return ["Pending", "Conflict", "Canceled"];
             default:
@@ -142,6 +227,10 @@ export default function EditServiceItemRequest(){
     const handleDialogClose = () => {
         setShowSuccessDialog(false);
         router.push('/technical/requests');
+    };
+
+    const handleConflictDialogClose = () => {
+        setShowConflictDialog(false);
     };
 
     if (loading) {
@@ -164,7 +253,6 @@ export default function EditServiceItemRequest(){
                                 <p className="text-blue-800">
                                     Items that are "Not Available" may be due to other requests.<br />
                                     Please check any ongoing requests for this item accordingly.<br />
-                                    Adding details to Notes is highly recommended.<br />
                                     Only set the request status as Completed after the service is finished.
                                 </p>
                             </ div>
@@ -172,6 +260,7 @@ export default function EditServiceItemRequest(){
                                 <p><strong>Item Name:</strong> {formData.item_name}</p>
                                 <p><strong>Item Status:</strong> {formData.item_status}</p>
                                 <p><strong>Requested Quantity:</strong> {formData.rq_quantity}</p>
+                                <p><strong>Requestor's Purpose/Notes:</strong> {formData.rq_notes}</p>
                                 <p><strong>No. of Available Items:</strong> {formData.item_quantity}</p>
                                 <p><strong>Service Type:</strong> {formData.rq_service_type}</p>
                             </div>
@@ -194,13 +283,79 @@ export default function EditServiceItemRequest(){
                                 </Select>
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="rq_notes">Notes:</Label>
+                                <Label htmlFor="rq_accept_notes">Your Notes:</Label>
                                 <Textarea
-                                    id="rq_notes"
-                                    value={formData.rq_notes}
-                                    onChange={(e) => handleChange('rq_notes', e.target.value)}
+                                    id="rq_accept_notes"
+                                    value={formData.rq_accept_notes}
+                                    onChange={(e) => handleChange('rq_accept_notes', e.target.value)}
                                     required
                                 />
+                            </div>
+                            <div className="space-y-2">
+                                {!formData.rq_service_user_id ? (
+                                    <div className="space-y-2">
+                                        <Label htmlFor="rq_service_user_id">Assign Service Staff:</Label>
+                                        <Select 
+                                            onValueChange={(value) => handleChange('rq_service_user_id', value)} 
+                                            value={formData.rq_service_user_id}
+                                        >
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select service staff" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {serviceStaff.map((staff: any) => (
+                                                    <SelectItem key={staff.user_id} value={staff.user_id}>
+                                                        {staff.user_fname + " " + staff.user_lname}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                ) : (
+                                    <Card className="mt-4">
+                                        <CardHeader>
+                                            <CardTitle>Assigned Service Staff</CardTitle>
+                                        </CardHeader>
+                                        <CardContent>
+                                            <div className="space-y-2">
+                                                <p><strong>Staff Name:</strong> {formData.rq_service_user_fname + " " + formData.rq_service_user_lname}</p>
+                                                <p><strong>Service Progress:</strong> {formData.rq_service_status || 'Not started'}</p>
+                                                <p><strong>Service Staff's Notes:</strong> {formData.rq_service_notes || 'No notes yet'}</p>
+                                                {formData.rq_service_proof && (
+                                                    <div>
+                                                        <p><strong>Proof of Service:</strong></p>
+                                                        <Image 
+                                                            src={formData.rq_service_proof} 
+                                                            alt="Proof of Service" 
+                                                            width={500}
+                                                            height={300}
+                                                            className="mt-2 max-w-full h-auto rounded-lg"
+                                                            style={{ maxHeight: '300px', objectFit: 'contain' }}
+                                                        />
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </CardContent>
+                                        <CardFooter>
+                                            <Button 
+                                                variant="outline" 
+                                                onClick={(e) => {
+                                                    e.preventDefault(); // Prevent form submission
+                                                    setFormData(prevState => ({
+                                                        ...prevState,
+                                                        rq_service_user_id: '',
+                                                        rq_service_user_fname: '',
+                                                        rq_service_user_lname: ''
+                                                    }));
+                                                }}
+                                                type="button"
+                                                size="sm"
+                                            >
+                                                Change Service Staff
+                                            </Button>
+                                        </CardFooter>
+                                    </Card>
+                                )}
                             </div>
                         </div>
                         <Button type="submit" className="w-full">Save Changes</Button>
@@ -218,6 +373,20 @@ export default function EditServiceItemRequest(){
                     </DialogHeader>
                     <DialogFooter>
                         <Button onClick={handleDialogClose}>OK</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            <Dialog open={showConflictDialog} onOpenChange={setShowConflictDialog}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle className="text-redd-500">Update Failed</DialogTitle>
+                        <DialogDescription>
+                            Unable to approve service due to insufficient number of available items.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                        <Button onClick={handleConflictDialogClose}>OK</Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>

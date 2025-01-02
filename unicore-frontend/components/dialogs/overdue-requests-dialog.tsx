@@ -1,0 +1,68 @@
+'use client';
+
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { ip_address } from '@/app/ipconfig';
+
+export function OverdueRequestsDialog({ userId }: { userId: number }) {
+  const [open, setOpen] = useState(false);
+  const [overdueRequests, setOverdueRequests] = useState([]);
+  const router = useRouter();
+
+  useEffect(() => {
+    const fetchOverdueRequests = async () => {
+      try {
+        const response = await fetch(`http://${ip_address}:8081/requests/accepted/overdue/${userId.toString()}`);
+        if (response.ok) {
+          const data = await response.json();
+          setOverdueRequests(data);
+          if (data.length > 0) {
+            setOpen(true);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching overdue requests:', error);
+      }
+    };
+
+    fetchOverdueRequests();
+  }, [userId]);
+
+  if (overdueRequests.length === 0) return null;
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Overdue Requests</DialogTitle>
+        </DialogHeader>
+        <div className="py-4">
+          <p className="mb-4">You have {overdueRequests.length} overdue requests:</p>
+          <div className="space-y-2">
+            {overdueRequests.map((request: any) => (
+              <div key={request.rq_id} className="p-3 bg-gray-100 rounded-lg">
+                <p><strong>Property Name:</strong> {request.resource_name}</p>
+                <p><strong>End Date:</strong> {new Date(request.rq_end_date).toLocaleDateString()}</p>
+                <p><strong>End Time:</strong> {request.rq_end_time}</p>
+                <p><strong>Status:</strong> {request.rq_status}</p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-4 flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setOpen(false)}>
+              Close
+            </Button>
+            <Button onClick={() => {
+              router.push('/technical/requests');
+              setOpen(false);
+            }}>
+              Go to Requests
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}

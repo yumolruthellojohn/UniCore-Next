@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -12,6 +12,10 @@ import { ip_address } from '@/app/ipconfig';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 
+interface Departments {
+    dept_id: number;
+    dept_name: string;
+}
 
 export function formatDateToWords(dateString: string) {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -24,6 +28,8 @@ export function formatDateToWords(dateString: string) {
 export default function GenerateRequestPDFReport({ username }: { username: string | null }) {
     const [selectFilter, setSelectFilter] = useState({ filter: "Request Type" });
     const [selectRequestTypeFilter, setSelectRequestTypeFilter] = useState({filter: "Item Reservation"})
+    const [departments, setDepartments] = useState<Departments[]>([]);
+    const [filter, setFilter] = useState({ dept_id: '' });
     const [createdStartDate, setCreatedStartDate] = useState({start_date: ""});
     const [createdEndDate, setCreatedEndDate] = useState({end_date: ""});
     const [completedStartDate, setCompletedStartDate] = useState({start_date: ""});
@@ -36,6 +42,20 @@ export default function GenerateRequestPDFReport({ username }: { username: strin
     const month = monthNames[today.getMonth()];
     const day = today.getDate();
     const year = today.getFullYear();
+
+    useEffect(() => {
+        // Fetch departments from your API
+        const fetchDepartments = async () => {
+            try {
+                const response = await axios.get(`http://${ip_address}:8081/departments`); // Adjust this URL to your actual API endpoint
+                setDepartments(response.data);
+            } catch (error) {
+                console.error('Error fetching departments:', error);
+            }
+        };
+
+        fetchDepartments();
+    }, []);
 
     const handleSelectFilterChange = (name: string, value: string) => {
         setSelectFilter(prevState => ({
@@ -79,8 +99,17 @@ export default function GenerateRequestPDFReport({ username }: { username: strin
         }));
     };
 
+    const handleFilterChange = (name: string, value: string) => {
+        setFilter(prevState => ({
+            ...prevState,
+            [name]: value,
+        }));
+    };
+
     const generatePDF = async () => {
-        const doc = new jsPDF();
+        const doc = new jsPDF({
+            orientation: 'landscape' // Change to landscape
+        });
         let currentPage = 0; // Initialize current page count
 
         doc.setFontSize(10);
@@ -121,29 +150,33 @@ export default function GenerateRequestPDFReport({ username }: { username: strin
                     switch(selectRequestTypeFilter.filter) {
                         case 'Item Reservation':
                             endpoint = `http://${ip_address}:8081/requests/reserve_item`;
-                            headers = ['Request ID', 'Department', 'Item', 'Quantity', 'Date Submitted', 'Date Completed', 'Status'];
+                            headers = ['Request ID', 'Department', 'Item', 'Quantity', 'Date Submitted', "Requestor's Notes", "Respondents's Notes", 'Status'];
                             break;
                         case 'Facility Reservation':
                             endpoint = `http://${ip_address}:8081/requests/reserve_room`;
-                            headers = ['Request ID', 'Department', 'Room', 'Date Submitted', 'Date Completed', 'Status'];
+                            headers = ['Request ID', 'Department', 'Facility', 'Date Submitted', "Requestor's Notes", "Respondents's Notes", 'Status'];
                             break;
                         case 'Service for Item':
                             endpoint = `http://${ip_address}:8081/requests/service_item`;
-                            headers = ['Request ID', 'Department', 'Item', 'Quantity', 'Service Type', 'Date Submitted', 'Date Completed', 'Status'];
+                            headers = ['Request ID', 'Department', 'Item', 'Quantity', 'Service Type', 'Date Submitted', "Requestor's Notes", "Respondents's Notes", 'Status'];
                             break;
                         case 'Service for Facility':
                             endpoint = `http://${ip_address}:8081/requests/service_room`;
-                            headers = ['Request ID', 'Department', 'Room', 'Service Type', 'Date Submitted', 'Date Completed', 'Status'];
+                            headers = ['Request ID', 'Department', 'Facility', 'Service Type', 'Date Submitted', "Requestor's Notes", "Respondents's Notes", 'Status'];
                             break;
                     }
                     break;
+                case 'Department':  // Add this case
+                    endpoint = `http://${ip_address}:8081/requests/department/${filter.dept_id}`;
+                    headers = ['Request ID', 'Type', 'Property', 'Date Submitted', "Requestor's Notes", "Respondents's Notes", 'Status'];
+                    break;
                 case 'Date Submitted':
                     endpoint = `http://${ip_address}:8081/requests/created_date/${createdStartDate.start_date}/${createdEndDate.end_date}`;
-                    headers = ['Request ID', 'Type', 'Department', 'Priority', 'Submitted by', 'Status'];
+                    headers = ['Request ID', 'Type', 'Department', 'Property', "Requestor's Notes", "Respondents's Notes", 'Status'];
                     break;
                 case 'Date Completed':
                     endpoint = `http://${ip_address}:8081/requests/completed_date/${completedStartDate.start_date}/${completedEndDate.end_date}`;
-                    headers = ['Request ID', 'Type', 'Department', 'Priority', 'Submitted by', 'Status'];
+                    headers = ['Request ID', 'Type', 'Department', 'Property', "Requestor's Notes", "Respondents's Notes", 'Status'];
                     break;
             }
 
@@ -161,7 +194,8 @@ export default function GenerateRequestPDFReport({ username }: { username: strin
                                 item.item_name,
                                 item.rq_quantity,
                                 item.rq_create_date,
-                                item.rq_complete_date,
+                                item.rq_notes,
+                                item.rq_accept_notes,
                                 item.rq_status
                             ]);
                             break;
@@ -171,7 +205,8 @@ export default function GenerateRequestPDFReport({ username }: { username: strin
                                 item.dept_name,
                                 item.room_name,
                                 item.rq_create_date,
-                                item.rq_complete_date,
+                                item.rq_notes,
+                                item.rq_accept_notes,
                                 item.rq_status
                             ]);
                             break;
@@ -183,7 +218,8 @@ export default function GenerateRequestPDFReport({ username }: { username: strin
                                 item.rq_quantity,
                                 item.rq_service_type,
                                 item.rq_create_date,
-                                item.rq_complete_date,
+                                item.rq_notes,
+                                item.rq_accept_notes,
                                 item.rq_status
                             ]);
                             break;
@@ -194,19 +230,34 @@ export default function GenerateRequestPDFReport({ username }: { username: strin
                                 item.room_name,
                                 item.rq_service_type,
                                 item.rq_create_date,
-                                item.rq_complete_date,
+                                item.rq_notes,
+                                item.rq_accept_notes,
                                 item.rq_status
                             ]);
                             break;
                     }
+                    break;
+                case 'Department':
+                    body = tableData.map(item => [
+                        item.rq_id,
+                        item.rq_type,
+                        // Add item_name or room_name based on request type
+                        item.resource_name,
+                        item.rq_create_date,
+                        item.rq_notes,
+                        item.rq_accept_notes,
+                        item.rq_status
+                    ]);
                     break;
                 case 'Date Submitted':
                     body = tableData.map(item => [
                         item.rq_id,
                         item.rq_type,
                         item.dept_name,
-                        item.rq_prio_level,
-                        item.user_fname + " " + item.user_lname,
+                        // Add item_name or room_name based on request type
+                        item.rq_type.includes('Item') ? item.item_name : item.room_name,
+                        item.rq_notes,
+                        item.rq_accept_notes,
                         item.rq_status
                     ]);
                     break;
@@ -215,8 +266,10 @@ export default function GenerateRequestPDFReport({ username }: { username: strin
                         item.rq_id,
                         item.rq_type,
                         item.dept_name,
-                        item.rq_prio_level,
-                        item.user_fname + " " + item.user_lname,
+                        // Add item_name or room_name based on request type
+                        item.rq_type.includes('Item') ? item.item_name : item.room_name,
+                        item.rq_notes,
+                        item.rq_accept_notes,
                         item.rq_status
                     ]);
                     break;
@@ -234,6 +287,11 @@ export default function GenerateRequestPDFReport({ username }: { username: strin
             switch (selectFilter.filter) {
                 case 'Request Type':
                     reportTypeValue = selectRequestTypeFilter.filter;
+                    break;
+                case 'Department':
+                    // Find the selected department name
+                    const selectedDept = departments.find(dept => dept.dept_id.toString() === filter.dept_id);
+                    reportTypeValue = selectedDept ? selectedDept.dept_name : '';
                     break;
                 case 'Date Submitted':
                     reportTypeValue = `From ${formatDateToWords(createdStartDate.start_date)} to ${formatDateToWords(createdEndDate.end_date)}`;
@@ -311,6 +369,10 @@ export default function GenerateRequestPDFReport({ username }: { username: strin
                                         <Label htmlFor="r1">Request Type</Label>
                                     </div>
                                     <div className="flex items-center space-x-2 px-5">
+                                        <RadioGroupItem id="r4" value="Department" />
+                                        <Label htmlFor="r4">Department</Label>
+                                    </div>
+                                    <div className="flex items-center space-x-2 px-5">
                                         <RadioGroupItem id="r2" value="Date Submitted" />
                                         <Label htmlFor="r2">Date Submitted</Label>
                                     </div>
@@ -333,6 +395,24 @@ export default function GenerateRequestPDFReport({ username }: { username: strin
                                             <SelectItem value="Facility Reservation">Facility Reservation</SelectItem>
                                             <SelectItem value="Service for Item">Service for Item</SelectItem>
                                             <SelectItem value="Service for Facility">Service for Facility</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            )}
+
+                            {selectFilter.filter === 'Department' && (
+                                <div className="space-y-2">
+                                    <h3>Select Department:</h3>
+                                    <Select onValueChange={(value) => handleFilterChange('dept_id', value)} defaultValue={filter.dept_id} required>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select a department" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {departments.map((dept) => (
+                                                <SelectItem key={dept.dept_id} value={dept.dept_id.toString()}>
+                                                    {dept.dept_name}
+                                                </SelectItem>
+                                            ))}
                                         </SelectContent>
                                     </Select>
                                 </div>

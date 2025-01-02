@@ -25,6 +25,7 @@ export default function EditReserveItemRequest(){
     const requestID = searchParams.get('id');
     const [loading, setLoading] = useState(true);
     const [showSuccessDialog, setShowSuccessDialog] = useState(false);
+    const [showConflictDialog, setShowConflictDialog] = useState(false);
     const [currentRequestStatus, setCurrentRequestStatus] = useState("");
 
     const [formData, setFormData] = useState({
@@ -37,6 +38,7 @@ export default function EditReserveItemRequest(){
         rq_create_user_id: '',
         rq_status: '',
         rq_notes: '',
+        rq_accept_notes: ''
     });
 
     useEffect(() => {
@@ -70,49 +72,53 @@ export default function EditReserveItemRequest(){
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         try {
-            await axios.put(`http://${ip_address}:8081/requests/reserve_item/${requestID}`, formData);
+            if ((formData.rq_status === "Reserved: For Pickup") && (formData.rq_quantity > formData.item_quantity)) {
+                setShowConflictDialog(true);
+            } else {
+                await axios.put(`http://${ip_address}:8081/requests/reserve_item/${requestID}`, formData);
 
-            //update item quantity and status from inventory
+                //update item quantity and status from inventory
 
-            let newItemQuantity: number | null = null; // Variable to hold the new item quantity
-            let newItemReserved: number | null = null; // Variable to hold the new item reserved
-            let newItemStatus: string | null = null; // Variable to hold the new item status
+                let newItemQuantity: number | null = null; // Variable to hold the new item quantity
+                let newItemReserved: number | null = null; // Variable to hold the new item reserved
+                let newItemStatus: string | null = null; // Variable to hold the new item status
 
-            switch (formData.rq_status) {
-                case "Reserved: In Use":
-                    if (currentRequestStatus != formData.rq_status) {
-                        newItemQuantity = parseInt(formData.item_quantity) - parseInt(formData.rq_quantity);
-                        newItemReserved = parseInt(formData.item_reserved) + parseInt(formData.rq_quantity);
-                    }
-                    break;
-                case "Completed":
-                    newItemQuantity = parseInt(formData.item_quantity) + parseInt(formData.rq_quantity);
-                    newItemReserved = parseInt(formData.item_reserved) - parseInt(formData.rq_quantity);
-                    break;
+                switch (formData.rq_status) {
+                    case "Reserved: In Use":
+                        if (currentRequestStatus != formData.rq_status) {
+                            newItemQuantity = parseInt(formData.item_quantity) - parseInt(formData.rq_quantity);
+                            newItemReserved = parseInt(formData.item_reserved) + parseInt(formData.rq_quantity);
+                        }
+                        break;
+                    case "Completed":
+                        newItemQuantity = parseInt(formData.item_quantity) + parseInt(formData.rq_quantity);
+                        newItemReserved = parseInt(formData.item_reserved) - parseInt(formData.rq_quantity);
+                        break;
+                }
+
+                if (newItemQuantity != 0) {
+                    newItemStatus = "Available"
+                } else if (newItemQuantity === 0) {
+                    newItemStatus = "Not Available"
+                }
+
+                if (newItemQuantity && newItemStatus) {
+                    console.log("New Item Quantity: " + newItemQuantity);
+                    console.log("New Item Status: " + newItemStatus);
+                    await axios.put(`http://${ip_address}:8081/items/quantity_reserved/${formData.item_id}`, { item_quantity: newItemQuantity, item_reserved: newItemReserved });
+                    await axios.put(`http://${ip_address}:8081/items/status/${formData.item_id}`, { item_status: newItemStatus });
+                }
+
+                // Create notification for the request creator
+                await axios.post(`http://${ip_address}:8081/notifications/add`, {
+                    notif_user_id: formData.rq_create_user_id,
+                    notif_type: "reserve_item_update",
+                    notif_content: `Your request has recevied status update. Click to view details.`,
+                    notif_related_id: requestID
+                });
+
+                setShowSuccessDialog(true);
             }
-
-            if (newItemQuantity != 0) {
-                newItemStatus = "Available"
-            } else if (newItemQuantity === 0) {
-                newItemStatus = "Not Available"
-            }
-
-            if (newItemQuantity && newItemStatus) {
-                console.log("New Item Quantity: " + newItemQuantity);
-                console.log("New Item Status: " + newItemStatus);
-                await axios.put(`http://${ip_address}:8081/items/quantity_reserved/${formData.item_id}`, { item_quantity: newItemQuantity, item_reserved: newItemReserved });
-                await axios.put(`http://${ip_address}:8081/items/status/${formData.item_id}`, { item_status: newItemStatus });
-            }
-
-            // Create notification for the request creator
-            await axios.post(`http://${ip_address}:8081/notifications/add`, {
-                notif_user_id: formData.rq_create_user_id,
-                notif_type: "reserve_item_update",
-                notif_content: `Your request has recevied status update. Click to view details.`,
-                notif_related_id: requestID
-            });
-
-            setShowSuccessDialog(true);
         } catch (err) {
             console.error('Error updating request:', err);
             // You might want to show an error message to the user here
@@ -122,6 +128,10 @@ export default function EditReserveItemRequest(){
     const handleDialogClose = () => {
         setShowSuccessDialog(false);
         router.push('/technical/requests');
+    };
+
+    const handleConflictDialogClose = () => {
+        setShowConflictDialog(false);
     };
 
     // function to determine available next statuses
@@ -164,7 +174,6 @@ export default function EditReserveItemRequest(){
                                 <p className="text-blue-800">
                                     Items that are "Not Available" may be due to other requests.<br />
                                     Please check any ongoing requests for this item accordingly.<br />
-                                    Adding details to Notes is highly recommended.<br />
                                     Only set the request status as Completed after the item is returned.
                                 </p>
                             </div>
@@ -172,6 +181,7 @@ export default function EditReserveItemRequest(){
                                 <p><strong>Item Name:</strong> {formData.item_name}</p>
                                 <p><strong>Item Status:</strong> {formData.item_status}</p>
                                 <p><strong>Requested Quantity:</strong> {formData.rq_quantity}</p>
+                                <p><strong>Requestor's Purpose/Notes:</strong> {formData.rq_notes}</p>
                                 <p><strong>No. of Available Items:</strong> {formData.item_quantity}</p>
                             </div>
                             <div className="space-y-2">
@@ -193,11 +203,11 @@ export default function EditReserveItemRequest(){
                                 </Select>
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="rq_notes">Notes:</Label>
+                                <Label htmlFor="rq_accept_notes">Your Notes:</Label>
                                 <Textarea
-                                    id="rq_notes"
-                                    value={formData.rq_notes}
-                                    onChange={(e) => handleChange('rq_notes', e.target.value)}
+                                    id="rq_accept_notes"
+                                    value={formData.rq_accept_notes}
+                                    onChange={(e) => handleChange('rq_accept_notes', e.target.value)}
                                     required
                                 />
                             </div>
@@ -217,6 +227,20 @@ export default function EditReserveItemRequest(){
                     </DialogHeader>
                     <DialogFooter>
                         <Button onClick={handleDialogClose}>OK</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            <Dialog open={showConflictDialog} onOpenChange={setShowConflictDialog}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle className="text-redd-500">Update Failed</DialogTitle>
+                        <DialogDescription>
+                            Unable to reserve due to insufficient number of available items.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                        <Button onClick={handleConflictDialogClose}>OK</Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>

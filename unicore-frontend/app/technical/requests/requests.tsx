@@ -22,18 +22,18 @@ import GenerateRequestPDFReport from './report';
 
 
 const filterRequestQueueColumn = {
-    id: "rq_type",
-    title: "Request Type",
+    id: "rq_property_name",
+    title: "Property Name",
 }
 
 const filterRequestAcceptColumn = {
-    id: "rq_type",
-    title: "Request Type",
+    id: "rq_property_name",
+    title: "Property Name",
 }
 
 const filterRequestSubmittedColumn = {
-    id: "dept_name",
-    title: "Department",
+    id: "rq_property_name",
+    title: "Property Name",
 }
 
 export default function Requests({ session }: { session: Session | null }) {

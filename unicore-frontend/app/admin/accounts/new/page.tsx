@@ -169,6 +169,7 @@ export default function AddUserAccount() {
                                         <SelectItem value="Supervisor">Supervisor</SelectItem>
                                         <SelectItem value="CMO Staff">CMO Staff</SelectItem>
                                         <SelectItem value="BMO Staff">BMO Staff</SelectItem>
+                                        <SelectItem value="Service Staff">Service Staff</SelectItem>
                                         <SelectItem value="CADS Director">CADS Director</SelectItem>
                                         <SelectItem value="Property Custodian">Property Custodian</SelectItem>
                                         <SelectItem value="Faculty Staff">Faculty Staff</SelectItem>

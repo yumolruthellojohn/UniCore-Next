@@ -1,6 +1,8 @@
 const express = require("express");
 const cors = require("cors");
 const mysql = require("mysql");
+const multer = require('multer');
+const fs = require('fs');
 
 const app = express();
 
@@ -8,10 +10,10 @@ app.use(cors());
 app.use(express.json());
 
 const today = new Date();
-const month = today.getMonth() + 1;
+const month = String(today.getMonth() + 1).padStart(2, '0'); // Pad month to 2 digits
+const date = String(today.getDate()).padStart(2, '0'); // Pad day to 2 digits
 const year = today.getFullYear();
-const date = today.getDate();
-const currentDate = year + "-" + month + "-" + date;
+const currentDate = `${year}-${month}-${date}`;
 
 const db = mysql.createConnection({
   host: "localhost",
@@ -19,6 +21,40 @@ const db = mysql.createConnection({
   password: "",
   database: "unicoredb"
 });
+
+// Configure multer for handling e-signature file uploads
+const storage = multer.memoryStorage(); // Store file in memory
+const signUpload = multer({
+  storage: storage,
+  limits: {
+    fileSize: 2 * 1024 * 1024 // 2MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    // Check file type
+    if (file.mimetype === "image/png" || 
+        file.mimetype === "image/jpg" || 
+        file.mimetype === "image/jpeg") {
+      cb(null, true);
+    } else {
+      cb(null, false);
+      return cb(new Error('Only .png, .jpg and .jpeg formats are allowed!'));
+    }
+  }
+});
+
+// Configure multer to store file in memory instead of disk
+const proofUpload = multer({
+  limits: {
+    fileSize: 15 * 1024 * 1024 // 15MB limit
+  },
+  fileFilter: function (req, file, cb) {
+    // Accept only image files
+    if (!file.mimetype.startsWith('image/')) {
+      return cb(new Error('Only image files are allowed!'));
+    }
+    cb(null, true);
+  }
+}).single('rq_service_proof');
 
 //login
 app.post("/login", (req, res) => {
@@ -33,6 +69,25 @@ app.post("/login", (req, res) => {
 app.get("/users", (req, res) => {
   const sql = "SELECT *, tbdepartments.dept_name FROM tbuseraccounts INNER JOIN tbdepartments ON tbuseraccounts.dept_id=tbdepartments.dept_id WHERE `user_id` != 1";
   db.query(sql, (err, result) => {
+    if (err) return res.json({ Message: "Error inside server" });
+    else return res.json(result);
+  });
+});
+
+//get users except admin
+app.get("/users/non_admin", (req, res) => {
+  const sql = "SELECT *, tbdepartments.dept_name FROM tbuseraccounts INNER JOIN tbdepartments ON tbuseraccounts.dept_id=tbdepartments.dept_id WHERE `user_position` != 'Administrator'";
+  db.query(sql, (err, result) => {
+    if (err) return res.json({ Message: "Error inside server" });
+    else return res.json(result);
+  });
+});
+
+//get service staff by department
+app.get("/users/servicestaff/:id", (req, res) => {
+  const dept_id = req.params.id
+  const sql = "SELECT *, tbdepartments.dept_name FROM tbuseraccounts INNER JOIN tbdepartments ON tbuseraccounts.dept_id=tbdepartments.dept_id WHERE `user_position` = 'Service Staff' AND tbuseraccounts.dept_id = ?";
+  db.query(sql, dept_id, (err, result) => {
     if (err) return res.json({ Message: "Error inside server" });
     else return res.json(result);
   });
@@ -184,6 +239,28 @@ app.put("/users/password/:id", (req, res) => {
   ];
 
   db.query(sql, [...values, userId], (err, data) => {
+    if (err) {
+      console.log(err);
+      return res.status(500).send(err);
+    }
+    return res.json(data);
+  });
+});
+
+//upload e-signature
+app.put("/users/signature/:id", signUpload.single('user_sign'), (req, res) => {
+  const userId = req.params.id;
+  
+  if (!req.file) {
+    return res.status(400).json({ error: "No file uploaded" });
+  }
+
+  // Convert file buffer to base64
+  const base64Image = req.file.buffer.toString('base64');
+  
+  const sql = "UPDATE tbuseraccounts SET `user_sign`= ? WHERE `user_id` = ?";
+
+  db.query(sql, [base64Image, userId], (err, data) => {
     if (err) {
       console.log(err);
       return res.status(500).send(err);
@@ -495,7 +572,23 @@ app.get('/requests', (req, res) => {
 //requests/queue/:id
 app.get('/requests/queue/:id', (req, res) => {
   const dept_id = req.params.id;
-  const sql = "SELECT *, user1.user_id AS rq_create_user_id, user1.user_fname AS rq_create_user_fname, user1.user_lname AS rq_create_user_lname FROM tbrequests INNER JOIN tbuseraccounts user1 ON tbrequests.rq_create_user_id=user1.user_id WHERE tbrequests.dept_id = ? AND tbrequests.rq_status = 'Request Submitted' ORDER BY CASE rq_prio_level WHEN 'Urgent' THEN 1 WHEN 'Moderate' THEN 2 END, rq_create_date DESC";
+  const sql = `
+    SELECT *, 
+      user1.user_id AS rq_create_user_id, 
+      user1.user_fname AS rq_create_user_fname, 
+      user1.user_lname AS rq_create_user_lname,
+      tbitems.item_name,
+      tbrooms.room_name
+    FROM tbrequests 
+    INNER JOIN tbuseraccounts user1 ON tbrequests.rq_create_user_id = user1.user_id 
+    LEFT JOIN tbitems ON tbrequests.item_id = tbitems.item_id
+    LEFT JOIN tbrooms ON tbrequests.room_id = tbrooms.room_id
+    WHERE tbrequests.dept_id = ? 
+    AND tbrequests.rq_status = 'Request Submitted' 
+    ORDER BY CASE rq_prio_level 
+      WHEN 'Urgent' THEN 1 
+      WHEN 'Moderate' THEN 2 
+    END, rq_create_date DESC , rq_start_date DESC, rq_start_time DESC`;
   db.query(sql, dept_id, (err, result) => {
     if (err) return res.json({ Message: "Error inside server" });
     else return res.json(result);
@@ -505,7 +598,22 @@ app.get('/requests/queue/:id', (req, res) => {
 //requests/accepted/:id
 app.get('/requests/accepted/:id', (req, res) => {
   const user_id = req.params.id;
-  const sql = "SELECT *, user1.user_id AS rq_create_user_id, user1.user_fname AS rq_create_user_fname, user1.user_lname AS rq_create_user_lname FROM tbrequests INNER JOIN tbuseraccounts user1 ON tbrequests.rq_create_user_id=user1.user_id WHERE tbrequests.rq_accept_user_id = ? ORDER BY rq_create_date DESC, rq_start_date DESC, rq_start_time DESC";
+  const sql = `
+    SELECT *, 
+      user1.user_id AS rq_create_user_id, 
+      user1.user_fname AS rq_create_user_fname, 
+      user1.user_lname AS rq_create_user_lname,
+      tbitems.item_name,
+      tbrooms.room_name
+    FROM tbrequests 
+    INNER JOIN tbuseraccounts user1 ON tbrequests.rq_create_user_id = user1.user_id 
+    LEFT JOIN tbitems ON tbrequests.item_id = tbitems.item_id
+    LEFT JOIN tbrooms ON tbrequests.room_id = tbrooms.room_id
+    WHERE tbrequests.rq_accept_user_id = ? 
+    ORDER BY CASE rq_prio_level 
+      WHEN 'Urgent' THEN 1 
+      WHEN 'Moderate' THEN 2 
+    END, rq_create_date DESC , rq_start_date DESC, rq_start_time DESC`;
   db.query(sql, user_id, (err, result) => {
     if (err) return res.json({ Message: "Error inside server" });
     else return res.json(result);
@@ -515,7 +623,41 @@ app.get('/requests/accepted/:id', (req, res) => {
 //requests/submitted/:id
 app.get('/requests/submitted/:id', (req, res) => {
   const user_id = req.params.id;
-  const sql = "SELECT *, tbdepartments.dept_name FROM tbrequests INNER JOIN tbdepartments ON tbrequests.dept_id=tbdepartments.dept_id WHERE tbrequests.rq_create_user_id = ? ORDER BY rq_create_date DESC, rq_start_date DESC, rq_start_time DESC";
+  const sql = `
+    SELECT *, 
+    tbdepartments.dept_name, 
+    tbitems.item_name, 
+    tbrooms.room_name 
+    FROM tbrequests 
+    INNER JOIN tbdepartments ON tbrequests.dept_id = tbdepartments.dept_id 
+    LEFT JOIN tbitems ON tbrequests.item_id = tbitems.item_id 
+    LEFT JOIN tbrooms ON tbrequests.room_id = tbrooms.room_id 
+    WHERE tbrequests.rq_create_user_id = ? 
+    ORDER BY rq_create_date DESC, rq_start_date DESC, rq_start_time DESC`;
+  db.query(sql, user_id, (err, result) => {
+    if (err) return res.json({ Message: "Error inside server" });
+    else return res.json(result);
+  });
+});
+
+//requests/assigned/:id
+app.get('/requests/assigned/:id', (req, res) => {
+  const user_id = req.params.id;
+  const sql = `
+    SELECT *, 
+    user1.user_id AS rq_accept_user_id, 
+    user1.user_fname AS rq_accept_user_fname, 
+    user1.user_lname AS rq_accept_user_lname, 
+    tbdepartments.dept_name, 
+    tbitems.item_name, 
+    tbrooms.room_name 
+    FROM tbrequests 
+    INNER JOIN tbuseraccounts user1 ON tbrequests.rq_accept_user_id = user1.user_id 
+    INNER JOIN tbdepartments ON tbrequests.dept_id = tbdepartments.dept_id 
+    LEFT JOIN tbitems ON tbrequests.item_id = tbitems.item_id 
+    LEFT JOIN tbrooms ON tbrequests.room_id = tbrooms.room_id 
+    WHERE tbrequests.rq_service_user_id = ? 
+    ORDER BY rq_create_date DESC, rq_start_date DESC, rq_start_time DESC`;
   db.query(sql, user_id, (err, result) => {
     if (err) return res.json({ Message: "Error inside server" });
     else return res.json(result);
@@ -542,7 +684,7 @@ app.get('/requests/reserve_room', (req, res) => {
 
 //requests/service_item
 app.get('/requests/service_item', (req, res) => {
-  const sql = "SELECT *, tbdepartments.dept_name, tbitems.item_name, user1.user_id AS rq_create_user_id, user1.user_fname AS rq_create_user_fname, user1.user_lname AS rq_create_user_lname, user2.user_id AS rq_accept_user_id, user2.user_fname AS rq_accept_user_fname, user2.user_lname AS rq_accept_user_lname FROM tbrequests INNER JOIN tbdepartments ON tbrequests.dept_id=tbdepartments.dept_id INNER JOIN tbitems ON tbrequests.item_id=tbitems.item_id INNER JOIN tbuseraccounts user1 ON tbrequests.rq_create_user_id=user1.user_id LEFT JOIN tbuseraccounts user2 ON tbrequests.rq_accept_user_id=user2.user_id WHERE `rq_type` = 'Service for Item'";
+  const sql = "SELECT *, tbdepartments.dept_name, tbitems.item_name, user1.user_id AS rq_create_user_id, user1.user_fname AS rq_create_user_fname, user1.user_lname AS rq_create_user_lname, user2.user_id AS rq_accept_user_id, user2.user_fname AS rq_accept_user_fname, user2.user_lname AS rq_accept_user_lname, user3.user_id AS rq_service_user_id, user3.user_fname AS rq_service_user_fname, user3.user_lname AS rq_service_user_lname FROM tbrequests INNER JOIN tbdepartments ON tbrequests.dept_id=tbdepartments.dept_id INNER JOIN tbitems ON tbrequests.item_id=tbitems.item_id INNER JOIN tbuseraccounts user1 ON tbrequests.rq_create_user_id=user1.user_id LEFT JOIN tbuseraccounts user2 ON tbrequests.rq_accept_user_id=user2.user_id LEFT JOIN tbuseraccounts user3 ON tbrequests.rq_service_user_id=user3.user_id WHERE `rq_type` = 'Service for Item'";
   db.query(sql, (err, result) => {
     if (err) return res.json({ Message: "Error inside server" });
     else return res.json(result);
@@ -551,7 +693,7 @@ app.get('/requests/service_item', (req, res) => {
 
 //requests/service_room
 app.get('/requests/service_room', (req, res) => {
-  const sql = "SELECT *, tbdepartments.dept_name, tbrooms.room_name, user1.user_id AS rq_create_user_id, user1.user_fname AS rq_create_user_fname, user1.user_lname AS rq_create_user_lname, user2.user_id AS rq_accept_user_id, user2.user_fname AS rq_accept_user_fname, user2.user_lname AS rq_accept_user_lname FROM tbrequests INNER JOIN tbdepartments ON tbrequests.dept_id=tbdepartments.dept_id INNER JOIN tbrooms ON tbrequests.room_id=tbrooms.room_id INNER JOIN tbuseraccounts user1 ON tbrequests.rq_create_user_id=user1.user_id LEFT JOIN tbuseraccounts user2 ON tbrequests.rq_accept_user_id=user2.user_id WHERE `rq_type` = 'Service for Facility'";
+  const sql = "SELECT *, tbdepartments.dept_name, tbrooms.room_name, user1.user_id AS rq_create_user_id, user1.user_fname AS rq_create_user_fname, user1.user_lname AS rq_create_user_lname, user2.user_id AS rq_accept_user_id, user2.user_fname AS rq_accept_user_fname, user2.user_lname AS rq_accept_user_lname, user3.user_id AS rq_service_user_id, user3.user_fname AS rq_service_user_fname, user3.user_lname AS rq_service_user_lname FROM tbrequests INNER JOIN tbdepartments ON tbrequests.dept_id=tbdepartments.dept_id INNER JOIN tbrooms ON tbrequests.room_id=tbrooms.room_id INNER JOIN tbuseraccounts user1 ON tbrequests.rq_create_user_id=user1.user_id LEFT JOIN tbuseraccounts user2 ON tbrequests.rq_accept_user_id=user2.user_id LEFT JOIN tbuseraccounts user3 ON tbrequests.rq_service_user_id=user3.user_id WHERE `rq_type` = 'Service for Facility'";
   db.query(sql, (err, result) => {
     if (err) return res.json({ Message: "Error inside server" });
     else return res.json(result);
@@ -561,7 +703,24 @@ app.get('/requests/service_room', (req, res) => {
 //requests/reserve_item/:id
 app.get("/requests/reserve_item/:id", (req, res) => {
   const item_id = req.params.id;
-  const sql = "SELECT *, tbdepartments.dept_name, tbitems.item_name, user1.user_id AS rq_create_user_id, user1.user_fname AS rq_create_user_fname, user1.user_lname AS rq_create_user_lname, user2.user_id AS rq_accept_user_id, user2.user_fname AS rq_accept_user_fname, user2.user_lname AS rq_accept_user_lname FROM tbrequests INNER JOIN tbdepartments ON tbrequests.dept_id=tbdepartments.dept_id INNER JOIN tbitems ON tbrequests.item_id=tbitems.item_id INNER JOIN tbuseraccounts user1 ON tbrequests.rq_create_user_id=user1.user_id LEFT JOIN tbuseraccounts user2 ON tbrequests.rq_accept_user_id=user2.user_id WHERE `rq_id` = ? AND `rq_type` = 'Reserve Item'";
+  const sql = `
+    SELECT 
+      tbrequests.*, 
+      tbrequests.dept_id AS dept_id,
+      tbdepartments.dept_name, 
+      tbitems.item_name,
+      user1.user_id AS rq_create_user_id, 
+      user1.user_fname AS rq_create_user_fname, 
+      user1.user_lname AS rq_create_user_lname,
+      user2.user_id AS rq_accept_user_id, 
+      user2.user_fname AS rq_accept_user_fname, 
+      user2.user_lname AS rq_accept_user_lname 
+    FROM tbrequests 
+    INNER JOIN tbdepartments ON tbrequests.dept_id=tbdepartments.dept_id 
+    INNER JOIN tbitems ON tbrequests.item_id=tbitems.item_id 
+    INNER JOIN tbuseraccounts user1 ON tbrequests.rq_create_user_id=user1.user_id 
+    LEFT JOIN tbuseraccounts user2 ON tbrequests.rq_accept_user_id=user2.user_id 
+    WHERE rq_id = ? AND rq_type = 'Reserve Item'`;
   db.query(sql, item_id, (err, result) => {
     if (err) {
       console.log(err);
@@ -574,7 +733,24 @@ app.get("/requests/reserve_item/:id", (req, res) => {
 //requests/reserve_room/:id
 app.get("/requests/reserve_room/:id", (req, res) => {
   const item_id = req.params.id;
-  const sql = "SELECT *, tbdepartments.dept_name, tbrooms.room_name, user1.user_id AS rq_create_user_id, user1.user_fname AS rq_create_user_fname, user1.user_lname AS rq_create_user_lname, user2.user_id AS rq_accept_user_id, user2.user_fname AS rq_accept_user_fname, user2.user_lname AS rq_accept_user_lname FROM tbrequests INNER JOIN tbdepartments ON tbrequests.dept_id=tbdepartments.dept_id INNER JOIN tbrooms ON tbrequests.room_id=tbrooms.room_id INNER JOIN tbuseraccounts user1 ON tbrequests.rq_create_user_id=user1.user_id LEFT JOIN tbuseraccounts user2 ON tbrequests.rq_accept_user_id=user2.user_id WHERE `rq_id` = ? AND `rq_type` = 'Reserve Facility'";
+  const sql = `
+    SELECT 
+      tbrequests.*, 
+      tbrequests.dept_id AS dept_id,
+      tbdepartments.dept_name, 
+      tbrooms.room_name,
+      user1.user_id AS rq_create_user_id, 
+      user1.user_fname AS rq_create_user_fname, 
+      user1.user_lname AS rq_create_user_lname,
+      user2.user_id AS rq_accept_user_id, 
+      user2.user_fname AS rq_accept_user_fname, 
+      user2.user_lname AS rq_accept_user_lname 
+    FROM tbrequests 
+    INNER JOIN tbdepartments ON tbrequests.dept_id=tbdepartments.dept_id 
+    INNER JOIN tbrooms ON tbrequests.room_id=tbrooms.room_id 
+    INNER JOIN tbuseraccounts user1 ON tbrequests.rq_create_user_id=user1.user_id 
+    LEFT JOIN tbuseraccounts user2 ON tbrequests.rq_accept_user_id=user2.user_id 
+    WHERE rq_id = ? AND rq_type = 'Reserve Facility'`;
   db.query(sql, item_id, (err, result) => {
     if (err) {
       console.log(err);
@@ -587,7 +763,28 @@ app.get("/requests/reserve_room/:id", (req, res) => {
 //requests/service_item/:id
 app.get("/requests/service_item/:id", (req, res) => {
   const item_id = req.params.id;
-  const sql = "SELECT *, tbdepartments.dept_name, tbitems.item_name, user1.user_id AS rq_create_user_id, user1.user_fname AS rq_create_user_fname, user1.user_lname AS rq_create_user_lname, user2.user_id AS rq_accept_user_id, user2.user_fname AS rq_accept_user_fname, user2.user_lname AS rq_accept_user_lname FROM tbrequests INNER JOIN tbdepartments ON tbrequests.dept_id=tbdepartments.dept_id INNER JOIN tbitems ON tbrequests.item_id=tbitems.item_id INNER JOIN tbuseraccounts user1 ON tbrequests.rq_create_user_id=user1.user_id LEFT JOIN tbuseraccounts user2 ON tbrequests.rq_accept_user_id=user2.user_id WHERE `rq_id` = ? AND `rq_type` = 'Service for Item'";
+  const sql = `
+    SELECT 
+      tbrequests.*, 
+      tbrequests.dept_id AS dept_id,
+      tbdepartments.dept_name, 
+      tbitems.item_name,
+      user1.user_id AS rq_create_user_id, 
+      user1.user_fname AS rq_create_user_fname, 
+      user1.user_lname AS rq_create_user_lname,
+      user2.user_id AS rq_accept_user_id, 
+      user2.user_fname AS rq_accept_user_fname, 
+      user2.user_lname AS rq_accept_user_lname,
+      user3.user_id AS rq_service_user_id, 
+      user3.user_fname AS rq_service_user_fname, 
+      user3.user_lname AS rq_service_user_lname 
+    FROM tbrequests 
+    INNER JOIN tbdepartments ON tbrequests.dept_id=tbdepartments.dept_id 
+    INNER JOIN tbitems ON tbrequests.item_id=tbitems.item_id 
+    INNER JOIN tbuseraccounts user1 ON tbrequests.rq_create_user_id=user1.user_id 
+    LEFT JOIN tbuseraccounts user2 ON tbrequests.rq_accept_user_id=user2.user_id 
+    LEFT JOIN tbuseraccounts user3 ON tbrequests.rq_service_user_id=user3.user_id 
+    WHERE rq_id = ? AND rq_type = 'Service for Item'`;
   db.query(sql, item_id, (err, result) => {
     if (err) {
       console.log(err);
@@ -599,9 +796,31 @@ app.get("/requests/service_item/:id", (req, res) => {
 
 //requests/service_room/:id
 app.get("/requests/service_room/:id", (req, res) => {
-  const item_id = req.params.id;
-  const sql = "SELECT *, tbdepartments.dept_name, tbrooms.room_name, user1.user_id AS rq_create_user_id, user1.user_fname AS rq_create_user_fname, user1.user_lname AS rq_create_user_lname, user2.user_id AS rq_accept_user_id, user2.user_fname AS rq_accept_user_fname, user2.user_lname AS rq_accept_user_lname FROM tbrequests INNER JOIN tbdepartments ON tbrequests.dept_id=tbdepartments.dept_id INNER JOIN tbrooms ON tbrequests.room_id=tbrooms.room_id INNER JOIN tbuseraccounts user1 ON tbrequests.rq_create_user_id=user1.user_id LEFT JOIN tbuseraccounts user2 ON tbrequests.rq_accept_user_id=user2.user_id WHERE `rq_id` = ? AND `rq_type` = 'Service for Facility'";
-  db.query(sql, item_id, (err, result) => {
+  const room_id = req.params.id;
+  const sql = `
+    SELECT 
+      tbrequests.*, 
+      tbrequests.dept_id AS dept_id,
+      tbdepartments.dept_name, 
+      tbrooms.room_name,
+      user1.user_id AS rq_create_user_id, 
+      user1.user_fname AS rq_create_user_fname, 
+      user1.user_lname AS rq_create_user_lname,
+      user2.user_id AS rq_accept_user_id, 
+      user2.user_fname AS rq_accept_user_fname, 
+      user2.user_lname AS rq_accept_user_lname,
+      user3.user_id AS rq_service_user_id, 
+      user3.user_fname AS rq_service_user_fname, 
+      user3.user_lname AS rq_service_user_lname 
+    FROM tbrequests 
+    INNER JOIN tbdepartments ON tbrequests.dept_id=tbdepartments.dept_id 
+    INNER JOIN tbrooms ON tbrequests.room_id=tbrooms.room_id 
+    INNER JOIN tbuseraccounts user1 ON tbrequests.rq_create_user_id=user1.user_id 
+    LEFT JOIN tbuseraccounts user2 ON tbrequests.rq_accept_user_id=user2.user_id 
+    LEFT JOIN tbuseraccounts user3 ON tbrequests.rq_service_user_id=user3.user_id 
+    WHERE rq_id = ? AND rq_type = 'Service for Facility'`;
+    
+  db.query(sql, room_id, (err, result) => {
     if (err) {
       console.log(err);
     } else {
@@ -672,16 +891,60 @@ app.get("/requests/completed/recent", (req, res) => {
   });
 });
 
+//requests/department/:id dept_id
+app.get('/requests/department/:id', (req, res) => {
+  const dept_id = req.params.id;
+  const sql = `
+    SELECT r.*, 
+           d.dept_name,
+           COALESCE(i.item_name, rm.room_name) as resource_name,
+           u1.user_fname AS rq_create_user_fname,
+           u1.user_lname AS rq_create_user_lname,
+           u2.user_fname AS rq_accept_user_fname,
+           u2.user_lname AS rq_accept_user_lname,
+           u3.user_fname AS rq_service_user_fname,
+           u3.user_lname AS rq_service_user_lname
+    FROM tbrequests r
+    INNER JOIN tbdepartments d ON r.dept_id = d.dept_id
+    LEFT JOIN tbitems i ON r.item_id = i.item_id
+    LEFT JOIN tbrooms rm ON r.room_id = rm.room_id
+    INNER JOIN tbuseraccounts u1 ON r.rq_create_user_id = u1.user_id
+    LEFT JOIN tbuseraccounts u2 ON r.rq_accept_user_id = u2.user_id
+    LEFT JOIN tbuseraccounts u3 ON r.rq_service_user_id = u3.user_id
+    WHERE r.dept_id = ?
+    ORDER BY r.rq_create_date DESC, r.rq_start_date DESC, r.rq_start_time DESC`;
+
+  db.query(sql, dept_id, (err, result) => {
+    if (err) {
+      console.error('Error fetching department requests:', err);
+      return res.status(500).json({ Message: "Error inside server" });
+    }
+    return res.json(result);
+  });
+});
+
 //requests/created_date/:startDate/:endDate
 app.get('/requests/created_date/:startDate/:endDate', (req, res) => {
   const { startDate, endDate } = req.params;
   const sql = `
-        SELECT r.*, d.dept_name, u.user_fname, u.user_lname 
-        FROM tbrequests r
-        INNER JOIN tbdepartments d ON r.dept_id = d.dept_id
-        INNER JOIN tbuseraccounts u ON r.rq_create_user_id = u.user_id
-        WHERE r.rq_create_date BETWEEN ? AND ?
-  `;
+    SELECT r.*, 
+           d.dept_name, 
+           u.user_fname, 
+           u.user_lname,
+           i.item_name,
+           rm.room_name,
+           CONCAT(u2.user_fname, ' ', u2.user_lname) as respondent_name,
+           CONCAT(u3.user_fname, ' ', u3.user_lname) as service_staff_name
+    FROM tbrequests r
+    INNER JOIN tbdepartments d ON r.dept_id = d.dept_id
+    INNER JOIN tbuseraccounts u ON r.rq_create_user_id = u.user_id
+    LEFT JOIN tbitems i ON r.item_id = i.item_id
+    LEFT JOIN tbrooms rm ON r.room_id = rm.room_id
+    LEFT JOIN tbuseraccounts u2 ON r.rq_accept_user_id = u2.user_id
+    LEFT JOIN tbuseraccounts u3 ON r.rq_service_user_id = u3.user_id
+    WHERE r.rq_create_date BETWEEN ? AND ?
+    ORDER BY r.rq_create_date DESC
+`;
 
   db.query(sql, [startDate, endDate], (err, result) => {
       if (err) {
@@ -696,12 +959,24 @@ app.get('/requests/created_date/:startDate/:endDate', (req, res) => {
 app.get('/requests/completed_date/:startDate/:endDate', (req, res) => {
   const { startDate, endDate } = req.params;
   const sql = `
-        SELECT r.*, d.dept_name, u.user_fname, u.user_lname 
-        FROM tbrequests r
-        INNER JOIN tbdepartments d ON r.dept_id = d.dept_id
-        INNER JOIN tbuseraccounts u ON r.rq_create_user_id = u.user_id
-        WHERE r.rq_complete_date BETWEEN ? AND ?
-  `;
+    SELECT r.*, 
+           d.dept_name, 
+           u.user_fname, 
+           u.user_lname,
+           i.item_name,
+           rm.room_name,
+           CONCAT(u2.user_fname, ' ', u2.user_lname) as respondent_name,
+           CONCAT(u3.user_fname, ' ', u3.user_lname) as service_staff_name
+    FROM tbrequests r
+    INNER JOIN tbdepartments d ON r.dept_id = d.dept_id
+    INNER JOIN tbuseraccounts u ON r.rq_create_user_id = u.user_id
+    LEFT JOIN tbitems i ON r.item_id = i.item_id
+    LEFT JOIN tbrooms rm ON r.room_id = rm.room_id
+    LEFT JOIN tbuseraccounts u2 ON r.rq_accept_user_id = u2.user_id
+    LEFT JOIN tbuseraccounts u3 ON r.rq_service_user_id = u3.user_id
+    WHERE r.rq_complete_date BETWEEN ? AND ?
+    ORDER BY r.rq_complete_date DESC
+`;
 
   db.query(sql, [startDate, endDate], (err, result) => {
       if (err) {
@@ -709,6 +984,75 @@ app.get('/requests/completed_date/:startDate/:endDate', (req, res) => {
           return res.status(500).json({ Message: "Error inside server" });
       }
       return res.json(result);
+  });
+});
+
+//requests/accepted/overdue/:id rq_accept_user_id
+app.get("/requests/accepted/overdue/:id", (req, res) => {
+  const userId = req.params.id;
+  const sql = `
+    SELECT r.*, 
+           d.dept_name,
+           COALESCE(i.item_name, rm.room_name) as resource_name,
+           u1.user_fname AS rq_create_user_fname,
+           u1.user_lname AS rq_create_user_lname,
+           u2.user_fname AS rq_accept_user_fname,
+           u2.user_lname AS rq_accept_user_lname
+    FROM tbrequests r
+    INNER JOIN tbdepartments d ON r.dept_id = d.dept_id
+    LEFT JOIN tbitems i ON r.item_id = i.item_id
+    LEFT JOIN tbrooms rm ON r.room_id = rm.room_id
+    INNER JOIN tbuseraccounts u1 ON r.rq_create_user_id = u1.user_id
+    INNER JOIN tbuseraccounts u2 ON r.rq_accept_user_id = u2.user_id
+    WHERE r.rq_accept_user_id = ?
+    AND r.rq_status != 'Completed'
+    AND (
+      (r.rq_end_date < CURDATE()) 
+      OR (r.rq_end_date = CURDATE() AND r.rq_end_time < CURTIME())
+    )
+    ORDER BY r.rq_end_date DESC, r.rq_end_time DESC`;
+
+  db.query(sql, userId, (err, result) => {
+    if (err) {
+      console.error('Error fetching overdue requests:', err);
+      return res.status(500).json({ Message: "Error inside server" });
+    }
+    return res.json(result);
+  });
+});
+
+// requests/service/overdue/:id rq_service_user_id
+app.get("/requests/service/overdue/:id", (req, res) => {
+  const userId = req.params.id;
+  
+  const sql = `
+    SELECT r.*, 
+           d.dept_name,
+           COALESCE(i.item_name, rm.room_name) as resource_name,
+           u1.user_fname AS rq_create_user_fname,
+           u1.user_lname AS rq_create_user_lname,
+           u2.user_fname AS rq_service_user_fname,
+           u2.user_lname AS rq_service_user_lname
+    FROM tbrequests r
+    INNER JOIN tbdepartments d ON r.dept_id = d.dept_id
+    LEFT JOIN tbitems i ON r.item_id = i.item_id
+    LEFT JOIN tbrooms rm ON r.room_id = rm.room_id
+    INNER JOIN tbuseraccounts u1 ON r.rq_create_user_id = u1.user_id
+    INNER JOIN tbuseraccounts u2 ON r.rq_service_user_id = u2.user_id
+    WHERE r.rq_service_user_id = ?
+    AND r.rq_service_status != 'Completed'
+    AND (
+      (r.rq_end_date < CURDATE()) 
+      OR (r.rq_end_date = CURDATE() AND r.rq_end_time < CURTIME())
+    )
+    ORDER BY r.rq_end_date DESC, r.rq_end_time DESC`;
+
+  db.query(sql, userId, (err, result) => {
+    if (err) {
+      console.error('Error fetching overdue service requests:', err);
+      return res.status(500).json({ Message: "Error inside server" });
+    }
+    return res.json(result);
   });
 });
 
@@ -831,7 +1175,7 @@ app.post("/requests/service_room/add", (req, res) => {
 //requests/reserve_item/:id edit
 app.put("/requests/reserve_item/:id", (req, res) => {
   const itemId = req.params.id;
-  const sql = "UPDATE tbrequests SET `rq_complete_date`= ?, `rq_status`= ?, `rq_notes`= ? WHERE `rq_id` = ? AND `rq_type` = 'Reserve Item'";
+  const sql = "UPDATE tbrequests SET `rq_complete_date`= ?, `rq_status`= ?, `rq_accept_notes`= ? WHERE `rq_id` = ? AND `rq_type` = 'Reserve Item'";
 
   var complete_date = '';
   if (req.body.rq_status == 'Completed') {
@@ -841,7 +1185,7 @@ app.put("/requests/reserve_item/:id", (req, res) => {
   const values = [
     complete_date,
     req.body.rq_status,
-    req.body.rq_notes
+    req.body.rq_accept_notes
   ];
 
   db.query(sql, [...values, itemId], (err, data) => {
@@ -913,7 +1257,7 @@ app.put("/requests/reserve_item_admin/:id", (req, res) => {
 //requests/reserve_room/:id edit
 app.put("/requests/reserve_room/:id", (req, res) => {
   const roomId = req.params.id;
-  const sql = "UPDATE tbrequests SET `rq_complete_date`= ?, `rq_status`= ?, `rq_notes`= ? WHERE `rq_id` = ? AND `rq_type` = 'Reserve Facility'";
+  const sql = "UPDATE tbrequests SET `rq_complete_date`= ?, `rq_status`= ?, `rq_accept_notes`= ? WHERE `rq_id` = ? AND `rq_type` = 'Reserve Facility'";
 
   var complete_date = '';
   if (req.body.rq_status == 'Completed') {
@@ -923,7 +1267,7 @@ app.put("/requests/reserve_room/:id", (req, res) => {
   const values = [
     complete_date,
     req.body.rq_status,
-    req.body.rq_notes
+    req.body.rq_accept_notes
   ];
 
   db.query(sql, [...values, roomId], (err, data) => {
@@ -993,7 +1337,7 @@ app.put("/requests/reserve_room_admin/:id", (req, res) => {
 //requests/service_item/:id edit
 app.put("/requests/service_item/:id", (req, res) => {
   const itemId = req.params.id;
-  const sql = "UPDATE tbrequests SET `rq_complete_date`= ?, `rq_status`= ?, `rq_notes`= ? WHERE `rq_id` = ? AND `rq_type` = 'Service for Item'";
+  const sql = "UPDATE tbrequests SET `rq_complete_date`= ?, `rq_status`= ?, `rq_service_user_id` = ?, `rq_accept_notes`= ? WHERE `rq_id` = ? AND `rq_type` = 'Service for Item'";
 
   var complete_date = '';
   if (req.body.rq_status == 'Completed') {
@@ -1003,12 +1347,48 @@ app.put("/requests/service_item/:id", (req, res) => {
   const values = [
     complete_date,
     req.body.rq_status,
-    req.body.rq_notes
+    req.body.rq_service_user_id,
+    req.body.rq_accept_notes
   ];
 
   db.query(sql, [...values, itemId], (err, data) => {
     if (err) return res.send(err);
     return res.json(data);
+  });
+});
+
+//requests/service_item/progress/:id edit by service staff
+app.put("/requests/service_item/progress/:id", (req, res) => {
+  proofUpload(req, res, function(err) {
+    if (err) {
+      console.error('Upload error:', err);
+      return res.status(400).json({ error: err.message });
+    }
+
+    const itemId = req.params.id;
+    let imageData = req.body.rq_service_proof; // Keep existing proof if no new file
+
+    // If there's a new file, convert it to base64
+    if (req.file) {
+      const base64Image = req.file.buffer.toString('base64');
+      imageData = `data:${req.file.mimetype};base64,${base64Image}`;
+    }
+
+    const sql = "UPDATE tbrequests SET `rq_service_notes`= ?, `rq_service_proof`= ?, `rq_service_status`= ? WHERE `rq_id` = ? AND `rq_type` = 'Service for Item'";
+
+    const values = [
+      req.body.rq_service_notes,
+      imageData,
+      req.body.rq_service_status
+    ];
+
+    db.query(sql, [...values, itemId], (err, data) => {
+      if (err) {
+        console.error('Database error:', err);
+        return res.status(500).send(err);
+      }
+      return res.json(data);
+    });
   });
 });
 
@@ -1077,7 +1457,7 @@ app.put("/requests/service_item_admin/:id", (req, res) => {
 //requests/service_room/:id edit
 app.put("/requests/service_room/:id", (req, res) => {
   const roomId = req.params.id;
-  const sql = "UPDATE tbrequests SET `rq_complete_date`= ?, `rq_status`= ?, `rq_notes`= ? WHERE `rq_id` = ? AND `rq_type` = 'Service for Facility'";
+  const sql = "UPDATE tbrequests SET `rq_complete_date`= ?, `rq_status`= ?, `rq_service_user_id` = ?, `rq_accept_notes`= ? WHERE `rq_id` = ? AND `rq_type` = 'Service for Facility'";
 
   var complete_date = '';
   if (req.body.rq_status == 'Completed') {
@@ -1087,12 +1467,48 @@ app.put("/requests/service_room/:id", (req, res) => {
   const values = [
     complete_date,
     req.body.rq_status,
-    req.body.rq_notes
+    req.body.rq_service_user_id,
+    req.body.rq_accept_notes
   ];
 
   db.query(sql, [...values, roomId], (err, data) => {
     if (err) return res.send(err);
     return res.json(data);
+  });
+});
+
+//requests/service_room/progress/:id edit by service staff
+app.put("/requests/service_room/progress/:id", (req, res) => {
+  proofUpload(req, res, function(err) {
+    if (err) {
+      console.error('Upload error:', err);
+      return res.status(400).json({ error: err.message });
+    }
+
+    const roomId = req.params.id;
+    let imageData = req.body.rq_service_proof; // Keep existing proof if no new file
+
+    // If there's a new file, convert it to base64
+    if (req.file) {
+      const base64Image = req.file.buffer.toString('base64');
+      imageData = `data:${req.file.mimetype};base64,${base64Image}`;
+    }
+
+    const sql = "UPDATE tbrequests SET `rq_service_notes`= ?, `rq_service_proof`= ?, `rq_service_status`= ? WHERE `rq_id` = ? AND `rq_type` = 'Service for Facility'";
+
+    const values = [
+      req.body.rq_service_notes,
+      imageData,
+      req.body.rq_service_status
+    ];
+
+    db.query(sql, [...values, roomId], (err, data) => {
+      if (err) {
+        console.error('Database error:', err);
+        return res.status(500).send(err);
+      }
+      return res.json(data);
+    });
   });
 });
 
@@ -2048,7 +2464,15 @@ app.post("/notifications/add", (req, res) => {
     req.body.notif_user_id,
     req.body.notif_type,
     req.body.notif_content,
-    today.toLocaleString(),
+    today.toLocaleString('en-US', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true
+    }),
     req.body.notif_related_id
   ];
 

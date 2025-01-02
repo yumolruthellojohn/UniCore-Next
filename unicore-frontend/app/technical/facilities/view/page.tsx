@@ -119,6 +119,7 @@ export default function RoomView() {
                     >
                         Edit
                     </Button>
+                    {/*
                     <AlertDialog>
                         <AlertDialogTrigger asChild>
                             <Button className="w-full sm:w-auto" variant="destructive">Delete</Button>
@@ -136,6 +137,7 @@ export default function RoomView() {
                             </AlertDialogFooter>
                         </AlertDialogContent>
                     </AlertDialog>
+                     */}
                 </CardFooter>
             </Card>
             <br />

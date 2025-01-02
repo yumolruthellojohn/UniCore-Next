@@ -21,8 +21,8 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import GenerateBMOJobPDFReport from './report';
 
 const filterJobSubmittedColumn = {
-    id: "job_id",
-    title: "Job ID",
+    id: "job_create_date",
+    title: "Date Submitted",
 };
 
 const filterJobBMOApprovalColumn = {

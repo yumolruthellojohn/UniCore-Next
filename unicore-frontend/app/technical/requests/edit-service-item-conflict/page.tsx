@@ -245,7 +245,7 @@ export default function EditServiceItemConflict() {
                             </div>
 
                             <div className="space-y-2 md:col-span-2">
-                                <Label htmlFor="rq_notes">Request Notes:</Label>
+                                <Label htmlFor="rq_notes">Purpose/Notes:</Label>
                                 <Textarea
                                     id="rq_notes"
                                     value={formData.rq_notes}

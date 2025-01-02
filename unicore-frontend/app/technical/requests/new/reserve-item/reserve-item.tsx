@@ -24,6 +24,7 @@ import { ip_address } from '@/app/ipconfig';
 interface Item {
     item_id: number;
     item_name: string;
+    item_status: string;
 }
 
 interface Department {
@@ -41,10 +42,10 @@ export default function NewReserveItem({ session }: { session: Session | null })
     console.log('Session data:', session);
 
     const today = new Date();
-    const month = today.getMonth()+1;
+    const month = String(today.getMonth() + 1).padStart(2, '0'); // Pad month to 2 digits
+    const date = String(today.getDate()).padStart(2, '0'); // Pad day to 2 digits
     const year = today.getFullYear();
-    const date = today.getDate();
-    const currentDate = year + "-" + month + "-" + date;
+    const currentDate = `${year}-${month}-${date}`;
 
     const [formData, setFormData] = useState({
         rq_type: 'Reserve Item',
@@ -66,6 +67,7 @@ export default function NewReserveItem({ session }: { session: Session | null })
     const [departments, setDepartments] = useState<Department[]>([]);
     const [items, setItems] = useState<Item[]>([]);
     const [showSuccessDialog, setShowSuccessDialog] = useState(false);
+    const [showErrorDialog, setShowErrorDialog] = useState(false);
 
     useEffect(() => {
         const fetchItemDeptData = async () => {
@@ -128,6 +130,14 @@ export default function NewReserveItem({ session }: { session: Session | null })
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+
+        // Find the selected item and check its status
+        const selectedItem = items.find(item => item.item_id.toString() === formData.item_id);
+        if (selectedItem?.item_status === 'Not Available') {
+            setShowErrorDialog(true);
+            return;
+        }
+
         // API call to save the item reservation request
         try {
             await axios.post(`http://${ip_address}:8081/requests/reserve_item/add`, formData);
@@ -135,13 +145,16 @@ export default function NewReserveItem({ session }: { session: Session | null })
             setShowSuccessDialog(true);
         } catch (err) {
             console.log(err);
-            // You might want to show an error message to the user here
         }
     };
 
     const handleDialogClose = () => {
         setShowSuccessDialog(false);
         router.push('/technical/requests'); // Adjust this path to your requests page route
+    };
+
+    const handleErrorDialogClose = () => {
+        setShowErrorDialog(false);
     };
 
     return (
@@ -255,7 +268,7 @@ export default function NewReserveItem({ session }: { session: Session | null })
                                 />
                             </div>
                             <div className="space-y-2 md:col-span-2">
-                                <Label htmlFor="rq_notes">Request Notes:</Label>
+                                <Label htmlFor="rq_notes">Purpose/Notes:</Label>
                                 <Textarea
                                     id="rq_notes"
                                     value={formData.rq_notes}
@@ -279,6 +292,20 @@ export default function NewReserveItem({ session }: { session: Session | null })
                     </DialogHeader>
                     <DialogFooter>
                         <Button onClick={handleDialogClose}>OK</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            <Dialog open={showErrorDialog} onOpenChange={setShowErrorDialog}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle className="text-red-500">Item Not Available</DialogTitle>
+                        <DialogDescription>
+                            The selected item is currently not available for reservation.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                        <Button onClick={handleErrorDialogClose}>OK</Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>

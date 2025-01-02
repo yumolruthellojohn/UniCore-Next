@@ -24,6 +24,7 @@ import { ip_address } from '@/app/ipconfig';
 interface Room {
     room_id: number;
     room_name: string;
+    room_status: string;
 }
 
 interface Department {
@@ -39,10 +40,10 @@ export default function NewReserveRoom({ session }: { session: Session | null })
     console.log('Session data:', session);
 
     const today = new Date();
-    const month = today.getMonth()+1;
+    const month = String(today.getMonth() + 1).padStart(2, '0'); // Pad month to 2 digits
+    const date = String(today.getDate()).padStart(2, '0'); // Pad day to 2 digits
     const year = today.getFullYear();
-    const date = today.getDate();
-    const currentDate = year + "-" + month + "-" + date;
+    const currentDate = `${year}-${month}-${date}`;
 
     const [formData, setFormData] = useState({
         rq_type: 'Reserve Facility',
@@ -62,6 +63,7 @@ export default function NewReserveRoom({ session }: { session: Session | null })
     const [departments, setDepartments] = useState<Department[]>([]);
     const [rooms, setRooms] = useState<Room[]>([]);
     const [showSuccessDialog, setShowSuccessDialog] = useState(false);
+    const [showConflictDialog, setShowConflictDialog] = useState(false);
 
     useEffect(() => {
         const fetchRoomDeptData = async () => {
@@ -112,8 +114,32 @@ export default function NewReserveRoom({ session }: { session: Session | null })
     
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        // API call to save the room reservation request
+
         try {
+            // Get the details of the selected facility
+            const selectedRoom = await axios.get(`http://${ip_address}:8081/rooms/${formData.room_id}`);
+            const roomData = selectedRoom.data[0];
+    
+            if (roomData.room_status === "Reserved" || roomData.room_status === "Ongoing Service") {
+                // Check for time conflicts with the room's current reservation
+                const newStartDate = new Date(`${formData.rq_start_date} ${formData.rq_start_time}`);
+                const newEndDate = new Date(`${formData.rq_end_date} ${formData.rq_end_time}`);
+                const existingStartDate = new Date(`${roomData.room_status_start_date} ${roomData.room_status_start_time}`);
+                const existingEndDate = new Date(`${roomData.room_status_end_date} ${roomData.room_status_end_time}`);
+    
+                const hasConflict = (
+                    (newStartDate >= existingStartDate && newStartDate < existingEndDate) ||
+                    (newEndDate > existingStartDate && newEndDate <= existingEndDate) ||
+                    (newStartDate <= existingStartDate && newEndDate >= existingEndDate)
+                );
+    
+                if (hasConflict) {
+                    setShowConflictDialog(true);
+                    return;
+                }
+            }
+    
+            // If no conflicts, proceed with the reservation
             await axios.post(`http://${ip_address}:8081/requests/reserve_room/add`, formData);
             console.log('Form submitted:', formData);
             setShowSuccessDialog(true);
@@ -127,6 +153,10 @@ export default function NewReserveRoom({ session }: { session: Session | null })
         setShowSuccessDialog(false);
         router.push('/nontechnical/requests'); // Adjust this path to your requests page route
     };
+
+    const handleConflictDialogClose = () => {
+        setShowConflictDialog(false);
+    }
 
     return (
         <div className="container mx-auto p-4">
@@ -253,6 +283,20 @@ export default function NewReserveRoom({ session }: { session: Session | null })
                     </DialogHeader>
                     <DialogFooter>
                         <Button onClick={handleDialogClose}>OK</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            <Dialog open={showConflictDialog} onOpenChange={setShowConflictDialog}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle className="text-red-500">Facility Not Available</DialogTitle>
+                        <DialogDescription>
+                            The selected facilty is not available within the entered timeframe. Unable to submit request.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                        <Button onClick={handleConflictDialogClose}>OK</Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>

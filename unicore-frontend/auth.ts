@@ -61,6 +61,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             const isLoggedIn = !!auth?.user;
             const { pathname } = nextUrl;
             const user_type = auth?.user.user_type;
+            const user_position = auth?.user.user_position;
             console.log(user_type);
             if (pathname.startsWith('/auth/login') && isLoggedIn) {
                 return Response.redirect(new URL('/', nextUrl));
@@ -69,6 +70,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 return Response.redirect(new URL('/', nextUrl));
             }
             if (pathname.startsWith("/technical") && user_type !== "Technical Staff") {
+                return Response.redirect(new URL('/', nextUrl));
+            }
+            if (pathname.startsWith("/nontechnical") && user_type !== "Non-technical Staff") {
+                return Response.redirect(new URL('/', nextUrl));
+            }
+            if (pathname.startsWith("/service") && user_position !== "Service Staff") {
                 return Response.redirect(new URL('/', nextUrl));
             }
             return !!auth;

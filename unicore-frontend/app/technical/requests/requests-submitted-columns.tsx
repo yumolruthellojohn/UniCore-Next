@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 
 import DataTableColumnHeader from '@/components/data-table/data-table-column-header';
 
+import DownloadRequestPDFIcon from './request-download-icon';
 
 export type RequestSubmitted = {
   rq_id: number
@@ -53,6 +54,19 @@ export const createRequestSubmittedColumns = (onDataChange: () => void): ColumnD
       <DataTableColumnHeader column={column} className="w-[10%] min-w-[80px]" title="Department" />
     ),
     cell: ({ row }) => <div className="text-center">{row.getValue('dept_name')}</div>
+  },
+  {
+    accessorKey: 'rq_property_name',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} className="w-[15%] min-w-[120px] hidden md:table-cell" title="Property Name" />
+    ),
+    accessorFn: (row) => {
+      return row.rq_type.includes('Item') ? row.item_name : row.room_name;
+    },
+    cell: ({ row }) => {
+      const propertyName = row.getValue('rq_property_name') as string;
+      return <div className="hidden md:block text-center">{propertyName}</div>
+    }
   },
   {
     accessorKey: 'rq_prio_level',
@@ -113,6 +127,7 @@ export const createRequestSubmittedColumns = (onDataChange: () => void): ColumnD
           >
             <Eye className="h-4 w-4" />
           </Button>
+          <DownloadRequestPDFIcon requestId={requestQueue.rq_id.toString()} requestType={requestQueue.rq_type} />
         </div>
       )
     }
@@ -120,4 +135,4 @@ export const createRequestSubmittedColumns = (onDataChange: () => void): ColumnD
 ]
 
 // Keep the original columns export for backward compatibility
-export const requestQueueColumns: ColumnDef<RequestSubmitted>[] = createRequestSubmittedColumns(() => {})
+export const requestSubmittedColumns: ColumnDef<RequestSubmitted>[] = createRequestSubmittedColumns(() => {})

@@ -34,6 +34,7 @@ export default function EditReserveRoomRequest(){
         rq_create_user_id: '',
         rq_status: '',
         rq_notes: '',
+        rq_accept_notes: ''
     });
 
     useEffect(() => {
@@ -140,15 +141,15 @@ export default function EditReserveRoomRequest(){
                         <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
                             <div className="py-2">
                                 <p className="text-blue-800">
-                                    Facilities that are Reserved or Not Available may be due to other requests.<br />
+                                    Facilities that have "Reserved" or "Ongoing Service" status may be due to other requests.<br />
                                     Please check any ongoing requests for this room accordingly.<br />
-                                    Adding details to Notes is highly recommended.<br />
                                     Only set the request status as Completed after the facility is done being used.
                                 </p>
                             </ div>
                             <div className="space-y-2">
                                 <p><strong>Facility Name:</strong> {formData.room_name}</p>
                                 <p><strong>Facility Status:</strong> {formData.room_status}</p>
+                                <p><strong>Requestor's Purpose/Notes:</strong> {formData.rq_notes}</p>
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="rq_status">Request Status: </Label>
@@ -169,11 +170,11 @@ export default function EditReserveRoomRequest(){
                                 </Select>
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="rq_notes">Notes:</Label>
+                                <Label htmlFor="rq_accept_notes">Your Notes:</Label>
                                 <Textarea
-                                    id="rq_notes"
-                                    value={formData.rq_notes}
-                                    onChange={(e) => handleChange('rq_notes', e.target.value)}
+                                    id="rq_accept_notes"
+                                    value={formData.rq_accept_notes}
+                                    onChange={(e) => handleChange('rq_accept_notes', e.target.value)}
                                     required
                                 />
                             </div>

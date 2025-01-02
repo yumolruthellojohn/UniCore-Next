@@ -11,6 +11,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { useToast } from "@/hooks/use-toast";
 import axios from 'axios';
 import { ip_address } from '@/app/ipconfig';
+import Image from 'next/image';
 
 interface User {
     user_id: number;
@@ -24,7 +25,11 @@ interface User {
     user_position: string;
     dept_id: number;
     dept_name: string;
+    user_sign: string | null;
 }
+
+const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB in bytes
+const ALLOWED_FILE_TYPES = ['image/png', 'image/jpeg', 'image/jpg'];
 
 export default function AccountPage({ session }: { session: Session | null }) {
     const userID = session?.user.user_id;
@@ -36,12 +41,14 @@ export default function AccountPage({ session }: { session: Session | null }) {
         user_fname: '',
         user_lname: '',
         user_email: '',
-        user_contact: '',
+        user_contact: ''
     });
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [oldPassword, setOldPassword] = useState('');
     const [passwordError, setPasswordError] = useState('');
+    const [signatureFile, setSignatureFile] = useState<File | null>(null);
+    const [signaturePreview, setSignaturePreview] = useState<string | null>(null);
     const { toast } = useToast();
 
     useEffect(() => {
@@ -122,9 +129,68 @@ export default function AccountPage({ session }: { session: Session | null }) {
         }
     };
 
+    // function to handle signature upload
+    const handleSignatureUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        // Validate file size
+        if (file.size > MAX_FILE_SIZE) {
+            toast({
+                title: "File Too Large",
+                description: "Please upload an image smaller than 2MB.",
+                variant: "destructive"
+            });
+            return;
+        }
+
+        // Validate file type
+        if (!ALLOWED_FILE_TYPES.includes(file.type)) {
+            toast({
+                title: "Invalid File Type",
+                description: "Please upload a PNG, JPG, or JPEG image.",
+                variant: "destructive"
+            });
+            return;
+        }
+
+        setSignatureFile(file);
+        // Create preview URL
+        const previewUrl = URL.createObjectURL(file);
+        setSignaturePreview(previewUrl);
+
+         // Create FormData and upload
+         const signFormData = new FormData();
+         signFormData.append('user_sign', file);
+
+        try {
+            await axios.put(`http://${ip_address}:8081/users/signature/${userID}`, signFormData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+
+            toast({
+                title: "Signature Upload Successful",
+                description: "Your e-signature has been updated.",
+            });
+
+            // Refresh user details to get updated signature
+            const response = await axios.get(`http://${ip_address}:8081/users/${userID}`);
+            setUser(response.data[0]);
+        } catch (error) {
+            console.error('Error uploading signature:', error);
+            toast({
+                title: "Signature Upload Failed",
+                description: "Failed to update your e-signature.",
+                variant: "destructive"
+            });
+        }
+    };
+
     return (
         <div className="container mx-auto">
-            <div className="w-full max-w-[600px]">
+            <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 max-w-[5xl] gap-4 mb-8">
                 {user && (
                     <Card className="w-full">
                         <CardHeader>
@@ -142,6 +208,53 @@ export default function AccountPage({ session }: { session: Session | null }) {
                             <Button onClick={() => setIsEditing(true)}>Edit Details</Button>
                             <Button onClick={() => setIsChangingPassword(true)}>Change Password</Button>
                         </CardFooter>
+                    </Card>
+                )}
+
+                {user && (
+                    <Card className="w-full">
+                        <CardHeader>
+                            <CardTitle>E-Signature</CardTitle>
+                            <CardDescription>
+                                Upload your e-signature. This will be used in request-related transactions.
+                                <p className="text-sm text-muted-foreground mt-1">
+                                    Accepted formats: PNG, JPG, JPEG (Max size: 2MB)
+                                </p>
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            {/* Signature preview */}
+                            <div className="border rounded-lg p-4 flex justify-center items-center min-h-[200px]">
+                                {(signaturePreview || user?.user_sign) ? (
+                                    <Image
+                                        src={signaturePreview || `data:image/png;base64,${user?.user_sign}`}
+                                        alt="E-signature"
+                                        width={300}
+                                        height={150}
+                                        className="object-contain"
+                                    />
+                                ) : (
+                                    <p className="text-gray-400">No e-signature uploaded</p>
+                                )}
+                            </div>
+                            
+                            {/* Upload button */}
+                            <div className="flex flex-col items-center gap-2">
+                                <Label
+                                    htmlFor="signature-upload"
+                                    className="cursor-pointer inline-flex items-center px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90 rounded-md"
+                                >
+                                    Upload E-Signature
+                                    <Input
+                                        id="signature-upload"
+                                        type="file"
+                                        accept=".png,.jpg,.jpeg"
+                                        className="hidden"
+                                        onChange={handleSignatureUpload}
+                                    />
+                                </Label>
+                            </div>
+                        </CardContent>
                     </Card>
                 )}
 

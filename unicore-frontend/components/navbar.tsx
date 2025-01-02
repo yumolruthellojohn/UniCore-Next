@@ -6,6 +6,9 @@ import { auth } from "@/auth";
 import { handleSignOut } from "@/app/actions/authActions";
 import { NotificationBellTechnical } from "./notifications/notification-bell-technical";
 import { NotificationBellNonTechnical } from "./notifications/notification-bell-nontechnical";
+import { NotificationBellService } from "./notifications/notification-bell-service";
+import { OverdueRequestsDialog } from "./dialogs/overdue-requests-dialog";
+import { OverdueServiceRequestsDialog } from "./dialogs/overdue-service-requests-dialog";
 
 export default async function Navbar() {
   const session = await auth();
@@ -37,13 +40,21 @@ export default async function Navbar() {
           <span className="mr-2 text-sm sm:text-base truncate max-w-[150px] sm:max-w-[400px]">
             <span className="block sm:hidden">{session.user.user_fname}</span>
             <span className="hidden sm:block">
-                {session.user.user_fname} {session.user.user_lname}
+              {session.user.user_fname} {session.user.user_lname}
             </span>
           </span>
-          {session.user.user_type === "Technical Staff" ? (
-            <NotificationBellTechnical userId={parseInt(session.user.user_id)} />
+          {session.user.user_type === "Technical Staff" && session.user.user_position != "Service Staff" ? (
+            <>
+              <OverdueRequestsDialog userId={parseInt(session.user.user_id)} />
+              <NotificationBellTechnical userId={parseInt(session.user.user_id)} />
+            </>
           ) : session.user.user_type === "Non-technical Staff" ? (
             <NotificationBellNonTechnical userId={parseInt(session.user.user_id)} />
+          ) : session.user.user_type === "Technical Staff" && session.user.user_position === "Service Staff" ? (
+            <>
+              <OverdueServiceRequestsDialog userId={parseInt(session.user.user_id)} />
+              <NotificationBellService userId={parseInt(session.user.user_id)} />
+            </>
           ) : (<></>)}
           <form action={handleSignOut}>
             <Button variant="default" type="submit">

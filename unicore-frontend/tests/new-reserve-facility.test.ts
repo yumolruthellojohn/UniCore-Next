@@ -31,13 +31,28 @@ describe('Login Tests', () => {
 
         await driver.get('http://localhost:3000/technical/requests/new/reserve-facility');
 
-        await driver.findElement(By.name('dept_id')).sendKeys('2');
-        await driver.findElement(By.name('room_id')).sendKeys('1');
-        await driver.findElement(By.name('rq_prio_level')).sendKeys('Moderate');
-        await driver.findElement(By.id('rq_start_date')).sendKeys('03/01/2025');
-        await driver.findElement(By.id('rq_end_date')).sendKeys('03/01/2025');
-        await driver.findElement(By.id('rq_start_time')).sendKeys('01:00 pm');
-        await driver.findElement(By.id('rq_end_time')).sendKeys('04:00 pm');
+        // Wait for page to be fully loaded
+        await driver.wait(until.elementIsVisible(await driver.findElement(By.css('[data-testid="dept-select-trigger"]'))));
+        await driver.wait(until.elementIsVisible(await driver.findElement(By.css('[data-testid="facility-select-trigger"]'))));
+        await driver.wait(until.elementIsVisible(await driver.findElement(By.css('[data-testid="priority-select-trigger"]'))));
+
+        // For department selection
+        const deptTrigger = await driver.findElement(By.css('[data-testid="dept-select-trigger"]'));
+        await driver.executeScript("arguments[0].click();", deptTrigger);
+        await driver.wait(until.elementLocated(By.css('[value="2"]')));
+        await driver.findElement(By.css('[value="2"]')).click();
+
+        // For facility selection
+        const facilityTrigger = await driver.findElement(By.css('[data-testid="facility-select-trigger"]'));
+        await driver.executeScript("arguments[0].click();", facilityTrigger);
+        await driver.wait(until.elementLocated(By.css('[value="1"]')));
+        await driver.findElement(By.css('[value="1"]')).click();
+
+        // For priority level
+        const priorityTrigger = await driver.findElement(By.css('[data-testid="priority-select-trigger"]'));
+        await driver.executeScript("arguments[0].click();", priorityTrigger);
+        await driver.wait(until.elementLocated(By.css('[value="Moderate"]')));
+        await driver.findElement(By.css('[value="Moderate"]')).click();
 
         const rq_notes = await driver.findElement(By.id('rq_notes'));
         await rq_notes.clear();
@@ -47,7 +62,7 @@ describe('Login Tests', () => {
 
         // Verify the input field's validation message
         const validationMessage = await rq_notes.getAttribute('validationMessage');
-        expect(validationMessage).toBe('Please fill out this field');
+        expect(validationMessage).toBe('Please fill out this field.');
     });
 
 });

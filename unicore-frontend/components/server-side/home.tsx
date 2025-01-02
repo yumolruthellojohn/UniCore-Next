@@ -13,6 +13,7 @@ export default async function Home() {
 
   //console.log("fetched status: " + status);
   const usertype = session?.user.user_type;
+  const userposition = session?.user.user_position;
   console.log("fetched dept: " + usertype);
   
   return (
@@ -40,10 +41,14 @@ export default async function Home() {
             <Link href="/admin/dashboard" className="">
               <Button className="w-full" variant="default">Go to Dashboard</Button>
             </Link>
-            ) : usertype === "Technical Staff"? (
+            ) : usertype === "Technical Staff" && userposition != "Service Staff" ? (
             <Link href="/technical/dashboard">
               <Button className="w-full" variant="default">Go to Dashboard</Button>
             </Link>
+            ) : usertype === "Technical Staff" && userposition === "Service Staff"? (
+              <Link href="/service/requests">
+                <Button className="w-full" variant="default">Go to Requests</Button>
+              </Link>
             ) : (
             <Link href="/nontechnical/requests">
               <Button className="w-full" variant="default">Go to Requests</Button>

@@ -19,6 +19,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { ip_address } from '@/app/ipconfig';
+import DownloadRequestPDF from '../request-download';
+import Image from 'next/image';
 
 interface ReserveRoom {
     rq_id: number
@@ -44,10 +46,26 @@ interface ReserveRoom {
     rq_status: string
 }
 
+interface Requestor {
+    user_id: number;
+    user_fname: string;
+    user_lname: string;
+    user_sign: string;
+}
+
+interface Respondent {
+    user_id: number;
+    user_fname: string;
+    user_lname: string;
+    user_sign: string;
+}
+
 export default function ReserveRoomView() {
     const searchParams = useSearchParams();
     const requestID = searchParams.get('id');
     const [request, setRequest] = useState<ReserveRoom | null>(null);
+    const [requestor, setRequestor] = useState<Requestor | null>(null);
+    const [respondent, setRespondent] = useState<Respondent | null>(null);
     const router = useRouter();
     const { toast } = useToast();
 
@@ -57,6 +75,18 @@ export default function ReserveRoomView() {
                 // Fetch request details
                 const roomResponse = await axios.get(`http://${ip_address}:8081/requests/reserve_room/${requestID}`);
                 setRequest(roomResponse.data[0]);
+
+                // Fetch requestor details
+                const requestorID = roomResponse.data[0].rq_create_user_id;
+                const requestorDetails = await axios.get(`http://${ip_address}:8081/users/${requestorID}`);
+                setRequestor(requestorDetails.data[0]);
+
+                // Fetch respondent details
+                if (roomResponse.data[0].rq_accept_user_id) {
+                    const respondentID = roomResponse.data[0].rq_accept_user_id;
+                    const respondentDetails = await axios.get(`http://${ip_address}:8081/users/${respondentID}`);
+                    setRespondent(respondentDetails.data[0]);
+                }
             }
         };
 
@@ -90,7 +120,7 @@ export default function ReserveRoomView() {
     };
 
     return (
-        <div className="container mx-auto py-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 max-w-5xl gap-4 mb-8">
             <Card className="w-full max-w-[600px] px-4 sm:px-6 md:px-8">
                 <CardHeader className="flex flex-row items-center justify-between">
                     <CardTitle>Request Details</CardTitle>
@@ -142,7 +172,48 @@ export default function ReserveRoomView() {
                             </AlertDialog>
                         </>
                     )}
+                    <DownloadRequestPDF requestId={request.rq_id.toString()} requestType={request.rq_type} />
                 </CardFooter>
+            </Card>
+            <Card className="w-full max-w-[600px] px-4 sm:px-6 md:px-8">
+                <CardHeader>
+                    <CardTitle>E-Signatures</CardTitle>
+                </CardHeader>
+                <CardContent className="grid grid-cols-1 sm:grid-cols-1 gap-4">
+                    {request.rq_create_user_id && (
+                        <div className="flex flex-col items-center gap-4">
+                            <p><strong>Requestor:</strong> {requestor?.user_fname + " " + requestor?.user_lname}</p>
+                            {requestor?.user_sign ? (
+                                <Image
+                                    src={`data:image/png;base64,${requestor.user_sign}`}
+                                    alt="Requestor Signature"
+                                    width={150}
+                                    height={75}
+                                    className="border rounded p-2"
+                                />
+                            ) : (
+                                <p className="text-gray-400">No e-signature</p>
+                            )}   
+                        </div>
+                    )}
+
+                    {request.rq_accept_user_id && (
+                        <div className="flex flex-col items-center gap-4">
+                            <p><strong>Respondent:</strong> {respondent?.user_fname + " " + respondent?.user_lname}</p>
+                            {respondent?.user_sign ? (
+                                <Image
+                                    src={`data:image/png;base64,${respondent.user_sign}`}
+                                    alt="Respondent Signature"
+                                    width={150}
+                                    height={75}
+                                    className="border rounded p-2"
+                                />
+                            ) : (
+                                <p className="text-gray-400">No e-signature</p>
+                            )}
+                        </div>
+                    )}
+                </CardContent>
             </Card>
         </div>
     );

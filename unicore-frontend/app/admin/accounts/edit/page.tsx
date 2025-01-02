@@ -59,7 +59,7 @@ export default function EditUserAccount() {
                 const response = await axios.get(`http://${ip_address}:8081/users/${userId}`);
                 const userData = response.data[0];
                 setFormData({
-                    user_idnum: userData.user_idnum.toString(),
+                    user_idnum: userData.user_idnum,
                     user_password: userData.user_password,
                     user_fname: userData.user_fname,
                     user_lname: userData.user_lname,
@@ -67,7 +67,7 @@ export default function EditUserAccount() {
                     user_contact: userData.user_contact,
                     user_type: userData.user_type,
                     user_position: userData.user_position,
-                    dept_id: userData.dept_id.toString(),
+                    dept_id: userData.dept_id,
                     user_status: userData.user_status
                 });
             } catch (error) {
@@ -75,9 +75,9 @@ export default function EditUserAccount() {
             }
         };
 
-        fetchDepartments();
         if (userId) {
             fetchUser();
+            fetchDepartments();
         }
     }, [userId]);
 
@@ -195,6 +195,7 @@ export default function EditUserAccount() {
                                         <SelectItem value="Supervisor">Supervisor</SelectItem>
                                         <SelectItem value="CMO Staff">CMO Staff</SelectItem>
                                         <SelectItem value="BMO Staff">BMO Staff</SelectItem>
+                                        <SelectItem value="Service Staff">Service Staff</SelectItem>
                                         <SelectItem value="CADS Director">CADS Director</SelectItem>
                                         <SelectItem value="Property Custodian">Property Custodian</SelectItem>
                                         <SelectItem value="Faculty Staff">Faculty Staff</SelectItem>
@@ -205,7 +206,7 @@ export default function EditUserAccount() {
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="dept_id">Department:</Label>
-                                <Select onValueChange={(value) => handleChange('dept_id', value)} value={formData.dept_id} required>
+                                <Select onValueChange={(value) => handleChange('dept_id', value)} value={formData.dept_id.toString()} required>
                                     <SelectTrigger>
                                         <SelectValue placeholder="Select a department" />
                                     </SelectTrigger>
