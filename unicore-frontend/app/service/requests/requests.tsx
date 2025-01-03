@@ -74,7 +74,7 @@ export default function Requests({ session }: { session: Session | null }) {
                       </CardDescription>
                     </CardHeader>
                     <CardFooter>
-                        <h3>As a Service Staff, you are responsible with updating the service status of the requests.</h3>
+                        <p>As a Service Staff, you are responsible with updating the service status of the requests.</p>
                     </CardFooter>
                 </Card>
             </div>

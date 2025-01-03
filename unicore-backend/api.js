@@ -1429,7 +1429,7 @@ app.put("/requests/service_item_conflict/:id", (req, res) => {
 //requests/service_item_admin/:id
 app.put("/requests/service_item_admin/:id", (req, res) => {
   const requestId = req.params.id;
-  const sql = "UPDATE tbrequests SET `item_id`= ?, `rq_quantity`= ?, `rq_service_type`= ?, `rq_prio_level`= ?, `rq_start_date`= ?, `rq_end_date`= ?, `rq_start_time`= ?, `rq_end_time`= ?, `rq_notes`= ?, `rq_accept_user_id`= ?, `rq_status`= ? WHERE `rq_id` = ? AND `rq_type` = 'Service for Item'";
+  const sql = "UPDATE tbrequests SET `item_id`= ?, `rq_quantity`= ?, `rq_service_type`= ?, `rq_prio_level`= ?, `rq_start_date`= ?, `rq_end_date`= ?, `rq_start_time`= ?, `rq_end_time`= ?, `rq_notes`= ?, `rq_accept_user_id`= ?, `rq_accept_notes`= ?, `rq_service_user_id`= ?, `rq_service_notes`= ?, `rq_service_status`= ?, `rq_status`= ? WHERE `rq_id` = ? AND `rq_type` = 'Service for Item'";
 
   const values = [
     req.body.item_id,
@@ -1442,6 +1442,10 @@ app.put("/requests/service_item_admin/:id", (req, res) => {
     req.body.rq_end_time,
     req.body.rq_notes,
     req.body.rq_accept_user_id,
+    req.body.rq_accept_notes,
+    req.body.rq_service_user_id,
+    req.body.rq_service_status,
+    req.body.rq_service_notes,
     req.body.rq_status
   ];
 
@@ -1548,7 +1552,7 @@ app.put("/requests/service_room_conflict/:id", (req, res) => {
 //requests/service_room_admin/:id
 app.put("/requests/service_room_admin/:id", (req, res) => {
   const requestId = req.params.id;
-  const sql = "UPDATE tbrequests SET `room_id`= ?, `rq_service_type`= ?, `rq_prio_level`= ?, `rq_start_date`= ?, `rq_end_date`= ?, `rq_start_time`= ?, `rq_end_time`= ?, `rq_notes`= ?, `rq_accept_user_id`= ?, `rq_status`= ? WHERE `rq_id` = ? AND `rq_type` = 'Service for Facility'";
+  const sql = "UPDATE tbrequests SET `room_id`= ?, `rq_service_type`= ?, `rq_prio_level`= ?, `rq_start_date`= ?, `rq_end_date`= ?, `rq_start_time`= ?, `rq_end_time`= ?, `rq_notes`= ?, `rq_accept_user_id`= ?, `rq_accept_notes`= ?, `rq_service_user_id`= ?, `rq_service_notes`= ?, `rq_service_status`= ?, `rq_status`= ? WHERE `rq_id` = ? AND `rq_type` = 'Service for Facility'";
 
   const values = [
     req.body.room_id,
@@ -1560,6 +1564,10 @@ app.put("/requests/service_room_admin/:id", (req, res) => {
     req.body.rq_end_time,
     req.body.rq_notes,
     req.body.rq_accept_user_id,
+    req.body.rq_accept_notes,
+    req.body.rq_service_user_id,
+    req.body.rq_service_status,
+    req.body.rq_service_notes,
     req.body.rq_status
   ];
 

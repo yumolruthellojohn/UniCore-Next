@@ -52,6 +52,10 @@ export default function EditServiceItemAdmin() {
         rq_end_time: '',
         rq_notes: '',
         rq_accept_user_id: '',
+        rq_accept_notes: '',
+        rq_service_user_id: '',
+        rq_service_notes: '',
+        rq_service_status: '',
         rq_status: ''
     });
 
@@ -84,6 +88,10 @@ export default function EditServiceItemAdmin() {
                     rq_end_time: request.rq_end_time,
                     rq_notes: request.rq_notes,
                     rq_accept_user_id: request.rq_accept_user_id,
+                    rq_accept_notes: request.rq_accept_notes,
+                    rq_service_user_id: request.rq_service_user_id,
+                    rq_service_notes: request.rq_service_notes,
+                    rq_service_status: request.rq_service_status,
                     rq_status: request.rq_status
                 });
                 setItems(itemsResponse.data);
@@ -258,7 +266,7 @@ export default function EditServiceItemAdmin() {
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="room_id">Respondent:</Label>
+                            <Label htmlFor="rq_accept_user_id">Respondent:</Label>
                             <Select onValueChange={(value) => handleChange('rq_accept_user_id', value)} value={formData.rq_accept_user_id}>
                                 <SelectTrigger>
                                     <SelectValue placeholder="Select a user" />
@@ -273,8 +281,56 @@ export default function EditServiceItemAdmin() {
                             </Select>
                         </div>
 
+                            <div className="space-y-2 md:col-span-2">
+                                <Label htmlFor="rq_accept_notes">Respondent Notes:</Label>
+                                <Textarea
+                                    id="rq_accept_notes"
+                                    value={formData.rq_accept_notes}
+                                    onChange={(e) => handleChange('rq_accept_notes', e.target.value)}
+                                />
+                            </div>
+
                         <div className="space-y-2">
-                            <Label htmlFor="room_id">Request Status:</Label>
+                            <Label htmlFor="rq_service_user_id">Service Staff:</Label>
+                            <Select onValueChange={(value) => handleChange('rq_service_user_id', value)} value={formData.rq_service_user_id}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select a user" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {users.map((user) => (
+                                        <SelectItem key={user.user_id} value={user.user_id.toString()}>
+                                            {user.user_fname + " " + user.user_lname}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        
+                        <div className="space-y-2">
+                            <Label htmlFor="rq_service_status">Service Status:</Label>
+                            <Select onValueChange={(value) => handleChange('rq_service_status', value)} value={formData.rq_service_status}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select a service status" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="Ongoing">Ongoing</SelectItem>
+                                    <SelectItem value="Delayed">Delayed</SelectItem>
+                                    <SelectItem value="Complete">Complete</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                            <div className="space-y-2 md:col-span-2">
+                                <Label htmlFor="rq_service_notes">Service Staff Notes:</Label>
+                                <Textarea
+                                    id="rq_service_notes"
+                                    value={formData.rq_service_notes}
+                                    onChange={(e) => handleChange('rq_service_notes', e.target.value)}
+                                />
+                            </div>
+
+                        <div className="space-y-2">
+                            <Label htmlFor="rq_status">Request Status:</Label>
                             <Select onValueChange={(value) => handleChange('rq_status', value)} value={formData.rq_status}>
                                 <SelectTrigger>
                                     <SelectValue placeholder="Select a status" />

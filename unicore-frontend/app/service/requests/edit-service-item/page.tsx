@@ -179,6 +179,7 @@ export default function EditServiceItemRequest(){
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="Ongoing">Ongoing</SelectItem>
+                                        <SelectItem value="Delayed">Delayed</SelectItem>
                                         <SelectItem value="Complete">Complete</SelectItem>
                                     </SelectContent>
                                 </Select>

@@ -38,6 +38,12 @@ interface ServiceItem {
     rq_accept_user_id: number
     rq_accept_user_fname: string
     rq_accept_user_lname: string
+    rq_accept_notes: string
+    rq_service_user_id: number
+    rq_service_user_fname: string
+    rq_service_user_lname: string
+    rq_service_status: string
+    rq_service_notes: string
     rq_status: string
 }
 
@@ -107,7 +113,11 @@ export default function ServiceItemView() {
                     <p><strong>Notes:</strong> {request.rq_notes}</p>
                     <p><strong>Date Completed:</strong> {request.rq_complete_date}</p>
                     <p><strong>Respondent:</strong> {request.rq_accept_user_fname + " " + request.rq_accept_user_lname}</p>
-                    <p><strong>Status:</strong> {request.rq_status}</p>
+                    <p><strong>Respondent Notes:</strong> {request.rq_accept_notes}</p>
+                    <p><strong>Service Staff:</strong> {request.rq_service_user_fname + " " + request.rq_service_user_lname}</p>
+                    <p><strong>Service Status:</strong> {request.rq_service_status}</p>
+                    <p><strong>Service Staff Notes:</strong> {request.rq_service_notes}</p>
+                    <p><strong>Request Status:</strong> {request.rq_status}</p>
                 </CardContent>
                 <CardFooter className="flex flex-col sm:flex-row justify-between gap-4">
                     <Button 

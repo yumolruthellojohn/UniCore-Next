@@ -132,7 +132,7 @@ export default function Schedules({ session }: { session: Session | null }) {
                     {userPosition !== "Working Student" ? (
                         <DataTableAdd text="Create New Schedule" href="/technical/wschedules/new" />
                     ) : (
-                        <h3>For concenrns about your schedule, please contact your supervisor.</h3>
+                        <p>For concenrns about your schedule, please contact your supervisor.</p>
                     )}
                     </CardFooter>
                 </Card>

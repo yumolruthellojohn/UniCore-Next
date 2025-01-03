@@ -192,7 +192,7 @@ export default function AccountPage({ session }: { session: Session | null }) {
         <div className="container mx-auto">
             <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 max-w-[5xl] gap-4 mb-8">
                 {user && (
-                    <Card className="w-full">
+                    <Card className="w-full flex flex-col h-full">
                         <CardHeader>
                             <CardTitle>Account Details</CardTitle>
                         </CardHeader>
@@ -204,7 +204,7 @@ export default function AccountPage({ session }: { session: Session | null }) {
                             <p><strong>Position:</strong> {user.user_position}</p>
                             <p><strong>Access Type:</strong> {user.user_type}</p>
                         </CardContent>
-                        <CardFooter className="flex flex-col sm:flex-row justify-between gap-4">
+                        <CardFooter className="flex flex-col sm:flex-row justify-between gap-4 mt-auto">
                             <Button onClick={() => setIsEditing(true)}>Edit Details</Button>
                             <Button onClick={() => setIsChangingPassword(true)}>Change Password</Button>
                         </CardFooter>
